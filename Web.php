@@ -4,8 +4,7 @@
  *
  * It defines the WEB constant for direct accesschecks,
  * defines constants to get rid of some global var use,
- * registers an autoclassloader and offers a function
- * to check for defined SMF and WEB constants.
+ * and registers an autoclassloader.
  *
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
