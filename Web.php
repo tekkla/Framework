@@ -4,8 +4,7 @@
  *
  * It defines the WEB constant for direct accesschecks,
  * defines constants to get rid of some global var use,
- * registers an autoclassloader and offers a function
- * to check for defined SMF and WEB constants.
+ * and registers an autoclassloader.
  *
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
@@ -34,14 +33,4 @@ require_once (WEBDIR . '/Framework/Tools/autoload/SplClassLoader.php');
 
 $loader = new SplClassLoader('Web', BOARDDIR);
 $loader->register();
-
-// Shorthand function for direct access prevention
-function checkDirectAccess($with_web = true)
-{
-    if (!defined('SMF'))
-        die('No direct access...');
-
-    if ($with_web && !defined('WEB'))
-        die('Cannot run without WebExt framework...');
-}
 ?>
