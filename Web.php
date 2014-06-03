@@ -34,14 +34,4 @@ require_once (WEBDIR . '/Framework/Tools/autoload/SplClassLoader.php');
 
 $loader = new SplClassLoader('Web', BOARDDIR);
 $loader->register();
-
-// Shorthand function for direct access prevention
-function checkDirectAccess($with_web = true)
-{
-    if (!defined('SMF'))
-        die('No direct access...');
-
-    if ($with_web && !defined('WEB'))
-        die('Cannot run without WebExt framework...');
-}
 ?>
