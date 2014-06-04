@@ -84,6 +84,18 @@ class App extends ClassAbstract
     private $cfg;
 
     /**
+     * Css file flag. Default: false;
+     * @var false
+     */
+    public $css = false;
+
+    /**
+     * Js file flag. Default: false;
+     * @var bool
+     */
+    public $js = false;
+
+    /**
      * Get an unique app object
      * @param string $name
      * @return App object
@@ -471,6 +483,8 @@ class App extends ClassAbstract
 
     /**
      * Initiates apps css
+     * Each app can have it's own css file. If the public property $css is
+     * set and true, at this point the app init is trying to add this css file.
      * @return \Web\Framework\Lib\App
      */
     public function initCss()
@@ -479,36 +493,43 @@ class App extends ClassAbstract
         if (self::$init_stages[$this->name]['css'])
             return;
 
-        // Each app can have it's own css file. If the public property $css is
-        // set and true, at this point the app init is trying to add this css file.
-        // First look will go to the themes css app folder. If there is no css
-        // file, we will have a look at the default themes css app folder. Is there
-        // also no css file an error message will be written into SMFs error log.
-
-        if (isset($this->css) && $this->css === true)
+        // Css flag set that indicates app has a css file?
+        if ($this->css === true)
         {
-            $css_file = Settings::get('theme_dir') . '/css/apps/' . String::uncamelize($this->name) . '.css';
-
-            if (FileIO::exists($css_file))
+            if (FileIO::exists($this->cfg('dir_css') . '/' . $this->name . '.css'))
             {
-                Css::useLink(Settings::get('theme_url') . '/css/apps/' . String::uncamelize($this->name) . '.css', true);
+                Css::useLink($this->cfg('url_css') . '/' . $this->name . '.css', true);
+                $css_loaded = 'app';
             }
             else
             {
-                // Create css file pathe
-                $css_file = Settings::get('default_theme_dir') . '/css/apps/' . String::uncamelize($this->name) . '.css';
-
-                // Add file when it exists or send error to the error_log
-                if (FileIO::exists($css_file))
-                    Css::useLink(Settings::get('default_theme_url') . '/css/apps/' . String::uncamelize($this->name) . '.css', true);
+            	// Add file when it exists or send error to the error_log
+                if (FileIO::exists(Settings::get('theme_dir') . '/css/App' . $this->name . '.css'))
+                {
+                    Css::useLink(Settings::get('theme_url') . '/css/App' . $this->name . '.css', true);
+                    $css_loaded = 'theme';
+                }
                 else
+                {
                     log_error('Apps "' . $this->name . '" css flag is set to true but no css file was found in themes or default themes css app folders.');
+                    $css_loaded = false;
+                }
             }
         }
 
+        // Instead of copying the apps css file into the themes folders the framework offers
+        // a simple way to theme an app by only overriding some of the apps default css.
+        // Therefor we now have a look for a file named like with AppAppnameTheme.css in the
+        // current themes folder. This will only work on included app css file.
+        if ($css_loaded == 'app')
+        {
+        	if (FileIO::exists(Settings::get('theme_dir') . '/css/App' . $this->name . 'Theme.css'))
+        		Css::useLink(Settings::get('theme_url') . '/css/App' . $this->name . 'Theme.css', true);
+        }
+
         // Is there an additional css function in or app to run?
-        if (method_exists($this, 'Css'))
-            $this->Css();
+        if (method_exists($this, 'addCss'))
+            $this->addCss();
 
         // Set flag for initiated css
         self::$init_stages[$this->name]['css'] = true;
