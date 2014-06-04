@@ -59,9 +59,6 @@ final class Web extends SingletonAbstract
             echo $e->getComplete();
             exit();
         }
-
-        // load framework languagefile. text has prefix: web_
-        Smf::loadLanguage('Web::Web');
     }
 
     /**
