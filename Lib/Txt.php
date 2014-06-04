@@ -61,5 +61,28 @@ class Txt
             return $key;
         }
     }
+
+    /**
+     * Loads an app languagefile
+     * @param string $file File to load
+     * @param string $lang Language to load
+     */
+    public static function loadLanguage($file, $lang)
+    {
+        // Get app name
+        $app_name  = substr($file, 5);
+
+        // Create path to lang file
+        $lang_file = WEBDIR . '/Apps/' . $app_name . '/Language/' . $app_name . '.' . $lang . '.php';
+
+        // Include lang file if exists
+        if (file_exists($lang_file))
+        	template_include($lang_file);
+        // or log error on missing file
+        else
+        	log_error(sprintf(self::get('theme_language_error', 'smf'), $app_name . '.' . $lang, 'App: ' . $app_name));
+
+        return $lang;
+    }
 }
 ?>

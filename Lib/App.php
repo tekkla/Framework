@@ -461,7 +461,7 @@ class App extends ClassAbstract
 
         // Load languagefile?
         if (isset($this->lang) && $this->lang === true)
-            Smf::loadLanguage('apps/' . $this->name);
+            Smf::loadLanguage('Web::' . $this->name);
 
         // Set flag for initiated lang
         self::$init_stages[$this->name]['lang'] = true;

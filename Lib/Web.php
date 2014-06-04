@@ -61,7 +61,7 @@ final class Web extends SingletonAbstract
         }
 
         // load framework languagefile. text has prefix: web_
-        Smf::loadLanguage('apps/Web');
+        Smf::loadLanguage('Web::Web');
     }
 
     /**
