@@ -490,8 +490,6 @@ class App extends ClassAbstract
         // Create path to lang file
         $lang_file = $this->cfg('dir_language') . '/' . $this->name . '.' . $lang . '.php';
 
-        echo $lang_file . '<br>';
-
         // Include lang file if exists
         if (file_exists($lang_file))
         	template_include($lang_file);
