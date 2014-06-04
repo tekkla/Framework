@@ -516,7 +516,7 @@ class App extends ClassAbstract
             return;
 
         // Css flag set that indicates app has a css file?
-        if ($this->css === true)
+        if ($this->css)
         {
             if (FileIO::exists($this->cfg('dir_css') . '/' . $this->name . '.css'))
             {
@@ -574,7 +574,7 @@ class App extends ClassAbstract
         // your app mainclass. Unlike the css include procedure, the $js property holds also the information where to include the apps .js file.
         // You hve to set this property to "scripts" (included on the bottom of website) or "header" (included in header section of website).
         // the apps js file is stored within the app folder structure in an directory named "js".
-        if (isset($this->js))
+        if ($this->js)
         {
             if (!$this->cfg('dir_js'))
                 Throw new Error('[App "' . $this->name . '" js folder does not exist. Create the js folder in apps folder and add app js file or unset the js flag in your app mainclass.');
@@ -586,8 +586,8 @@ class App extends ClassAbstract
         }
 
         // Js method in app to run?
-        if (method_exists($this, 'Js'))
-            $this->Js();
+        if (method_exists($this, 'addJs'))
+            $this->addJs();
 
         // Set flag for initated js
         self::$init_stages[$this->name]['js'] = true;
