@@ -84,16 +84,22 @@ class App extends ClassAbstract
     private $cfg;
 
     /**
-     * Css file flag. Default: false;
-     * @var false
+     * Css file flag. Default: false
+     * @var bool
      */
     public $css = false;
 
     /**
-     * Js file flag. Default: false;
+     * Js file flag. Default: false
      * @var bool
      */
     public $js = false;
+
+    /**
+     * Language file flag. Default: false
+     * @var bool
+     */
+    public $lang = false;
 
     /**
      * Get an unique app object
@@ -175,11 +181,12 @@ class App extends ClassAbstract
         if (!isset(self::$init_stages[$this->name]))
             self::$init_stages[$this->name] = array(
                 'config' => false,
+            	'routes' => false,
                 'paths' => false,
                 'hooks' => false,
                 'lang' => false,
                 'css' => false,
-                'js' => false
+                'js' => false,
             );
 
             // Save app name as loaded. But only of none secured ones.
@@ -384,14 +391,14 @@ class App extends ClassAbstract
     }
 
     /**
-     * Initializes the apps paths by creating the paths and writing them
-     * into the apps config.
-     * @throws Error
+     * Initializes the apps paths by creating the paths
+     * and writing them into the apps config.
+     * @throws PathError
      */
     protected function initPaths()
     {
         // Normal app or secure app?
-        $app_type = isset($this->secure) && $this->secure === true ? 'appssec' : 'apps';
+        $app_type = $this->secure === true ? 'appssec' : 'apps';
 
         // Define app dir to look for subdirs
         $dir = Cfg::get('Web', 'dir_' . $app_type) . '/' . $this->name . '/';
@@ -467,13 +474,30 @@ class App extends ClassAbstract
      */
     private function initLang()
     {
+    	global $language, $modSettings;
+
         // Init language only once
-        if (self::$init_stages[$this->name]['lang'])
+        if (self::$init_stages[$this->name]['lang'] || $this->lang !== true)
             return;
 
-        // Load languagefile?
-        if (isset($this->lang) && $this->lang === true)
-            Smf::loadLanguage('Web::' . $this->name);
+        // Default to the user's language.
+       	$lang = User::getInfo('language') ? User::getInfo('language') : $language;
+
+        // Do we want the English version of language file as fallback?
+        if (empty($modSettings['disable_language_fallback']) && $lang != 'english')
+        	$lang = 'english';
+
+        // Create path to lang file
+        $lang_file = $this->cfg('dir_language') . '/' . $this->name . '.' . $lang . '.php';
+
+        echo $lang_file . '<br>';
+
+        // Include lang file if exists
+        if (file_exists($lang_file))
+        	template_include($lang_file);
+        // or log error on missing file
+        else
+        	log_error(sprintf(self::get('theme_language_error', 'SMF'), $this->name . '.' . $lang, 'App: ' . $this->name));
 
         // Set flag for initiated lang
         self::$init_stages[$this->name]['lang'] = true;
@@ -579,8 +603,8 @@ class App extends ClassAbstract
      */
     protected function initRoutes()
     {
-        // No routes not routes init
-        if (!isset($this->routes))
+        // No routes set or routes already initiated? Do nothing if so.
+        if (!isset($this->routes) || self::$init_stages[$this->name]['routes'] == true)
             return;
 
         // Set but empty routes?
@@ -626,6 +650,8 @@ class App extends ClassAbstract
             // Publish route
             $this->request->mapRoute($method, $route_regex, $target, $name);
         }
+
+        self::$init_stages[$this->name]['routes'] = true;
     }
 
     /**
