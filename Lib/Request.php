@@ -2,6 +2,7 @@
 namespace Web\Framework\Lib;
 
 use Web\Framework\Lib\Abstracts\SingletonAbstract;
+use Web\Framework\Lib\Errors\MissingRouteError;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -422,7 +423,7 @@ class Request extends SingletonAbstract
         $this->match = false;
 
         if ($this->isWeb())
-            Throw new Error('No matching route for "' . $request_method . ':' . $request_url . '" found.');
+            Throw new MissingRouteError($request_method, $request_url);
 
         return $this;
     }
