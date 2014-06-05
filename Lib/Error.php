@@ -1,5 +1,4 @@
 <?php
-
 namespace Web\Framework\Lib;
 
 // Check for direct file access
@@ -16,19 +15,23 @@ if (!defined('WEB'))
  */
 class Error extends \Exception
 {
+	private $redirectUrl = null;
+
     // Redefine the exception so message isn't optional
     public function __construct($message = '', $code = 0, Error $previous = null, $trace = false)
     {
-        global $txt;
+        if (!$message)
+            $message = Txt::get('web_error');
 
-        if (empty($message))
-            $message = 'web_error';
+        if (is_array($message))
+        	$message = User::isAdmin() ? $message[0] : $message[1];
 
-        $message = isset($txt[$message]) ? $txt[$message] : $message;
-
-        if ($trace)
-            $message .= print_r(debug_backtrace(), true);
-
+        if ($trace && User::isAdmin())
+        {
+        	ob_start();
+        	var_dump(debug_backtrace());
+        	$message .= ob_end_flush();
+        }
             // make sure everything is assigned properly
         parent::__construct($message, $code, $previous);
     }
@@ -88,6 +91,17 @@ class Error extends \Exception
         Log::Add($error_level . ': ' . $message . '<br>File: ' . $file . ' (Line: ' . $line . ')', 'Error');
 
         Throw new Error($message . '<div style="max-height: 250px; overflow-y: scroll;"><pre>' . print_r(debug_backtrace(), true) . '</pre></div>');
+    }
+
+    protected function setRedirectUrl($url)
+    {
+    	$this->redirectUrl = $url;
+    	return $this;
+    }
+
+    public function getRedirectUrl()
+    {
+    	return $this->redirectUrl;
     }
 }
 ?>
