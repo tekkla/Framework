@@ -74,11 +74,12 @@ final class Css
         {
             foreach ( $context['css_files'] as $name => $file )
             {
-                if (strpos($file['filename'], BOARDURL) !== false)
+            	if (strpos($file['filename'], BOARDURL) !== false)
                 {
                     $board_parts = parse_url(BOARDURL);
                     $url_parts = parse_url($file['filename']);
 
+                    // Do not try to minify ressorces from external host
                     if ($board_parts['host'] != $url_parts['host'])
                         continue;
 
@@ -92,10 +93,10 @@ final class Css
 
             if ($files)
             {
-                $_SESSION['web']['css-min'] = $files;
+                $_SESSION['web']['css'] = $files;
 
                 // cache_put_data('web_css', $files);
-                loadCSSFile(Cfg::get('Web', 'url_tools') . '/min/g=web-css', null, 'web-css-minified');
+                loadCSSFile(Cfg::get('Web', 'url_tools') . '/min/g=css', null, 'web-css-minified');
             }
         }
 
