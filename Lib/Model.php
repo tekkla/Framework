@@ -878,8 +878,9 @@ class Model extends MvcAbstract
                         if (!isset($this->data->{$col}))
                             $val = in_array($col, $this->serialized) ? unserialize($val) : $val;
 
-                        $this->data->{$col} = $this->runCallbacks($callbacks, $val);
                     }
+
+                    $this->data = $this->runCallbacks($callbacks, $this->data);
 
                     // We only want truely only one row. Not more!
                     if ($counter == 1)
@@ -1647,7 +1648,7 @@ class Model extends MvcAbstract
             } else
                 $data = $this->{$callback}($data);
 
-                // Stop processing as soon as return value of callback is boolean false.
+            // Stop processing as soon as return value of callback is boolean false.
             if ($exit_on_false && $data === false)
                 break;
         }
