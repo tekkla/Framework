@@ -1,5 +1,5 @@
 <?php
-namespace Framework\Lib\Errors;
+namespace Web\Framework\Lib\Errors;
 
 use Web\Framework\Lib\Error;
 // Check for direct file access
