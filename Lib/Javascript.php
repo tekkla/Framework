@@ -75,11 +75,12 @@ final class Javascript
 	/**
 	 * Compiles the javascript objects and adds them to the $context javascripts
 	 */
-	public static function compile()
+	public static function compile($defered)
 	{
-		global $boardurl, $context;
+		global $context;
 
-		if( empty( self::$js ) )
+		// No need to run when nothing is to do
+		if(empty(self::$js))
 			return;
 
 		$files = array();
@@ -92,7 +93,8 @@ final class Javascript
 		/* @var $script Javascript */
 		foreach( self::$js as $script )
 		{
-			// var_dump($script);
+			if ($script->getDefer() != $defered)
+				continue;
 
 			switch ($script->getType())
 			{
@@ -111,7 +113,6 @@ final class Javascript
 
 				case 'var' :
 					$var = $script->getScript();
-					#Context::setTo('javascript_vars', $var[0], $var[1]);
 					$context['javascript_vars'][$var[0]] = $var[1];
 					break;
 
@@ -124,36 +125,40 @@ final class Javascript
 		// Are there files to minify?
 		if( Cfg::get( 'Web', 'js_minify' ) )
 		{
-			$js_files = $context['javascript_files'];
-
-			foreach( $js_files as $name => $file )
+			foreach( $context['javascript_files'] as $name => $file )
 			{
-				if( strpos( $file['filename'], $boardurl ) !== false )
+				if ($name == 'web-js-minified-above' || $name == 'web-js-minified-below')
+					continue;
+
+				if( strpos( $file['filename'], BOARDURL ) !== false )
 				{
-					$board_parts = parse_url( $boardurl );
+					$board_parts = parse_url( BOARDURL );
 					$url_parts = parse_url( $file['filename'] );
 
 					if( $board_parts['host'] != $url_parts['host'] )
 						continue;
 
-						// Store filename in minify list
-					$files[] = '/' . $url_parts['path'];
+					// Store filename in minify list
+					if (!in_array('/' . $url_parts['path'], $files))
+						$files[] = '/' . $url_parts['path'];
 
-					unset( $context['javascript_files'][$name] );
+					unset($context['javascript_files'][$name]);
 				}
 			}
 
-			if( $files )
+			// Are there files to combine?
+			if( $files)
 			{
-				// Add files to session
-				$_SESSION['web']['js-min'] = $files;
+				// Insert filelink above or below?
+				$side = $defered==true ? 'below' : 'above';
 
-				// Insert the link to the minifier to SMF js queue
-				loadJavascriptFile( Cfg::get( 'Web', 'url_tools' ) . '/min/g=web-js', null, 'web-js-minified' );
+				// Write files to session so min can use it
+				$_SESSION['web']['js-' . $side] = $files;
+
+				// Add link to combined js file
+				loadJavascriptFile( Cfg::get( 'Web', 'url_tools' ) . '/min/g=js-' . $side, null, 'web-js-minified-' . $side );
 			}
 		}
-
-		#var_dump(Cfg::get('Web', 'js_minify'));
 
 		// Create $(document).ready()
 		if( $ready )
