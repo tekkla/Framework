@@ -92,9 +92,8 @@ final class Web extends SingletonAbstract
         }
         catch ( Error $e )
         {
-            echo '<h1>Error on WebExt start!</h1>';
-            echo '<p>' . $e->getComplete() . '</p>';
-            exit();
+            $this->message->danger($e->getComplete());
+            redirectexit($e->getRedirectUrl());
         }
     }
 
