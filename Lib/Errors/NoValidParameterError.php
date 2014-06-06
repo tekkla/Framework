@@ -2,6 +2,7 @@
 namespace Web\Framework\Lib\Errors;
 
 use Web\Framework\Lib\Error;
+use Web\Framework\Lib\Txt;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -24,7 +25,10 @@ class NoValidParameterError extends Error
 
     private function error($param, $paramlist)
     {
-        return 'Your parameter "' . $param . '" is not allowed. Please select from:' . implode(', ', $paramlist);
+        return array(
+        	'Your parameter "' . $param . '" is not allowed. Please select from:' . implode(', ', $paramlist),
+        	Txt::get('error_500', 'Web')
+        );
     }
 }
 ?>
