@@ -9,7 +9,7 @@ if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
 
 /**
- * Error Class: MissingModelError
+ * Error Class: MissingRouteError
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @copyright 2014
  * @license BSD
@@ -21,14 +21,14 @@ class MissingRouteError extends Error
     public function __construct($request_method, $request_url)
     {
         parent::__construct($this->error($request_method, $request_url));
-        $this->setRedirectUrl('test.php');
+        $this->setRedirectUrl();
     }
 
     private function error($request_method, $request_url)
     {
         return array(
-        	'admin' => 'Route not found. Method: ' . $request_method . ' | Url: ' . $request_url,
-        	'user' => Txt::get('web_route_dnf')
+        	'Route not found. Method: ' . $request_method . ' | Url: ' . $request_url,
+        	Txt::get('error_403', 'Web')
         );
     }
 }
