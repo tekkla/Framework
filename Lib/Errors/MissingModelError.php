@@ -2,6 +2,7 @@
 namespace Web\Framework\Lib\Errors;
 
 use Web\Framework\Lib\Error;
+use Web\Framework\Lib\Txt;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -19,12 +20,10 @@ class MissingModelError extends Error
 {
     public function __construct($source)
     {
-        parent::__construct($this->error($source));
-    }
-
-    private function error($source)
-    {
-        return $source . ' has found no model.';
+        parent::__construct(array(
+        	$source . ' has found no model.',
+        	Txt::get('error_500', 'Web')
+        ));
     }
 }
 ?>
