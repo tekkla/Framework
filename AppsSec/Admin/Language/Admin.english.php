@@ -1,4 +1,4 @@
 <?php
-$txt['app_admin_config'] = 'Einstellungen';
-$txt['app_admin_save_config'] = 'Konfiguration speichern';
+$txt['app_admin_config'] = 'Settings';
+$txt['app_admin_save_config'] = 'Save settings';
 ?>
