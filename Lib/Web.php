@@ -246,17 +246,11 @@ final class Web extends SingletonAbstract
      */
     function createJsScripts()
     {
-        global $context, $scripturl, $forum_version;
-
         // should not be done on ajax request
         if ($this->request->isAjax())
             return;
 
-            // Add jQuery support for SMF V2.0
-        if (substr($forum_version, 3, 3 == '2.0'))
-            Javascript::useJquery(Cfg::get('Web', 'jquery_version'), Cfg::get('Web', 'url_js'));
-
-            // Add Bootstrap Javascript
+        // Add Bootstrap Javascript
         Javascript::useBootstrap(Cfg::get('Web', 'bootstrap_version'));
 
         // Add plugins file
@@ -266,11 +260,11 @@ final class Web extends SingletonAbstract
         if (Cfg::get('Web', 'js_modernizr') == 1)
             Javascript::useModernizr(Cfg::get('Web', 'url_js'));
 
-            // Add support only when activated in config
+        // Add support only when activated in config
         if (Cfg::get('Web', 'js_html5shim') == 1)
             Javascript::useHtml5Shim();
 
-            // Add the lang short notation
+        // Add the lang short notation
         Javascript::useVar('smf_lang_dictionary', Txt::get('lang_dictionary', 'SMF'), true);
 
         // Add global fadeout time var set in config
