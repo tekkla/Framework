@@ -57,7 +57,7 @@ class Error extends \Exception
     {
         $message = '
     	<div class="alert alert-danger">
-    		<p>' . $this->getMessage() . '</p>';
+    		<p>Code: ' . $this->getCode() . '<br>' . $this->getMessage() . '</p>';
 
         // Append more informations for admin users
         if (User::isAdmin())
