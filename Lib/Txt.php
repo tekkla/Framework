@@ -17,17 +17,9 @@ class Txt
 {
     /**
      * Get text from SMF $txt array.
-     *
      * @param string $key
      * @param string $app
-     * @return string From many places all over the framework you have access to this method by $this->txt().
-     *         These are every controller, every model and all other classes which relay on the Lib class
-     *         or are children of classes that are using it.
-     *         The lazy typing approach in mind, this method adds missing key data and builds app related
-     *         key strings when an app name is set.
-     *
-     *         If no text is found for the key, the key itself will be returned as text. This makes it much
-     *         easier to find and create missing translations.
+     * @return string
      */
     public static function get($key, $app = null)
     {
@@ -42,24 +34,19 @@ class Txt
         if (isset($app) && $app == 'SMF')
             return isset($txt[$key]) ? $txt[$key] : $key;
 
-            // Extend web related key with 'app_' string - if needed
+        // Extend web related key with 'app_' string - if needed
         if (substr($key, 0, 4) == 'web_')
             $key = 'app_' . $key;
 
-            // A set app name means we have to create the web apps specific txt key
-            // which has to look like "app_appname_key" in the language file.
+        // A set app name means we have to create the web apps specific txt key
+        // which has to look like "app_appname_key" in the language file.
         elseif (substr($key, 0, 4) !== 'web_' && !strpos($app, 'app_') && isset($app))
             $key = 'app_' . String::uncamelize($app) . '_' . $key;
 
-        if (isset($txt[$key]))
-            return $txt[$key];
-        else
-        {
-            // If no text is found, the requested text key will be returned.
-            // This is much more easier for devs than simply to show nothing
-            // like SMF normally does.
-            return $key;
-        }
+        // If no text is found, the requested text key will be returned.
+        // This is much more easier for devs than simply to show nothing
+        // like SMF normally does.
+        return isset($txt[$key]) ? $txt[$key] : $key;
     }
 }
 ?>
