@@ -20,16 +20,10 @@ class MissingRouteError extends Error
 {
     public function __construct($request_method, $request_url)
     {
-        parent::__construct($this->error($request_method, $request_url));
-        $this->setRedirectUrl();
-    }
-
-    private function error($request_method, $request_url)
-    {
-        return array(
+        parent::__construct(array(
         	'Route not found. Method: ' . $request_method . ' | Url: ' . $request_url,
         	Txt::get('error_403', 'Web')
-        );
+        ));
     }
 }
 ?>
