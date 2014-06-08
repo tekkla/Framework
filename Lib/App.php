@@ -8,7 +8,7 @@ use Web\Framework\Lib\Errors\PathError;
 
 // Check for direct file access
 if (!defined('WEB'))
-	die('Cannot run without WebExt framework...');
+    die('Cannot run without WebExt framework...');
 
 /**
  * Parent class for all apps
@@ -84,19 +84,22 @@ class App extends ClassAbstract
     private $cfg;
 
     /**
-     * Css file flag. Default: false
+     * Css file flag.
+     * Default: false
      * @var bool
      */
     public $css = false;
 
     /**
-     * Js file flag. Default: false
+     * Js file flag.
+     * Default: false
      * @var bool
      */
     public $js = false;
 
     /**
-     * Language file flag. Default: false
+     * Language file flag.
+     * Default: false
      * @var bool
      */
     public $lang = false;
@@ -142,11 +145,11 @@ class App extends ClassAbstract
             // Create new instance
             self::$instances[$name] = new $class($name);
 
-        // Init this app instance
+            // Init this app instance
         if ($do_init == true)
             self::$instances[$name]->init();
 
-        // Return app instance
+            // Return app instance
         return self::$instances[$name];
     }
 
@@ -181,12 +184,12 @@ class App extends ClassAbstract
         if (!isset(self::$init_stages[$this->name]))
             self::$init_stages[$this->name] = array(
                 'config' => false,
-            	'routes' => false,
+                'routes' => false,
                 'paths' => false,
                 'hooks' => false,
                 'lang' => false,
                 'css' => false,
-                'js' => false,
+                'js' => false
             );
 
             // Save app name as loaded. But only of none secured ones.
@@ -197,7 +200,9 @@ class App extends ClassAbstract
     /**
      * To prevent cloning this object
      */
-    private function __clone() {}
+    private function __clone()
+    {
+    }
 
     /**
      * Initializes the app
@@ -219,7 +224,7 @@ class App extends ClassAbstract
         if (method_exists($this, 'Requires'))
             $this->Requires();
 
-        // Run init methods
+            // Run init methods
         $this->initRoutes();
         $this->initLang();
         $this->initHooks();
@@ -406,7 +411,9 @@ class App extends ClassAbstract
         // No dir? error exception !
         if (is_dir($dir) === false)
         {
-        	Throw new Error('File not found', 2000, array($dir));
+            Throw new Error('File not found', 2000, array(
+                $dir
+            ));
             return;
         }
 
@@ -416,7 +423,9 @@ class App extends ClassAbstract
         // No handle, error exception
         if ($handle === false)
         {
-            Throw new Error('File not found', 2000, array($dir));
+            Throw new Error('File not found', 2000, array(
+                $dir
+            ));
             return;
         }
 
@@ -456,11 +465,11 @@ class App extends ClassAbstract
         if (isset($this->perms) && !empty($this->perms))
             $this->addHook('integrate_load_permissions', 'App', $this->name, 'addPermissions');
 
-        // Menu entries?
+            // Menu entries?
         if (method_exists($this, 'addMenuButtons'))
             $this->addHook('integrate_menu_buttons', 'App', $this->name, 'addMenuButtons');
 
-        // Hooks to be included?
+            // Hooks to be included?
         if (isset($this->hooks))
         {
             foreach ( $this->hooks as $hook => $function )
@@ -474,30 +483,30 @@ class App extends ClassAbstract
      */
     private function initLang()
     {
-    	global $language, $modSettings;
+        global $language, $modSettings;
 
         // Init language only once
         if (self::$init_stages[$this->name]['lang'] || $this->lang !== true)
             return;
 
         // Default to the user's language.
-       	$lang = User::getInfo('language') ? User::getInfo('language') : $language;
+        $lang = User::getInfo('language') ? User::getInfo('language') : $language;
 
         // Do we want the English version of language file as fallback?
         if (empty($modSettings['disable_language_fallback']) && $lang != 'english')
-        	$lang = 'english';
+            $lang = 'english';
 
         // Create path to lang file
         $lang_file = $this->cfg('dir_language') . '/' . $this->name . '.' . $lang . '.php';
 
         // Include lang file if exists
         if (file_exists($lang_file))
-        	template_include($lang_file);
-        // or log error on missing file
+            template_include($lang_file);
+            // or log error on missing file
         else
-        	log_error(sprintf(self::get('theme_language_error', 'SMF'), $this->name . '.' . $lang, 'App: ' . $this->name));
+            log_error(sprintf(self::get('theme_language_error', 'SMF'), $this->name . '.' . $lang, 'App: ' . $this->name));
 
-        // Set flag for initiated lang
+            // Set flag for initiated lang
         self::$init_stages[$this->name]['lang'] = true;
 
         return $this;
@@ -505,7 +514,8 @@ class App extends ClassAbstract
 
     /**
      * Initiates apps css
-     * Each app can have it's own css file. If the public property $css is
+     * Each app can have it's own css file.
+     * If the public property $css is
      * set and true, at this point the app init is trying to add this css file.
      * @return \Web\Framework\Lib\App
      */
@@ -515,23 +525,21 @@ class App extends ClassAbstract
         if (self::$init_stages[$this->name]['css'])
             return;
 
-        // Css flag set that indicates app has a css file?
+            // Css flag set that indicates app has a css file?
         if ($this->css)
         {
             if (FileIO::exists($this->cfg('dir_css') . '/' . $this->name . '.css'))
             {
                 Css::useLink($this->cfg('url_css') . '/' . $this->name . '.css', true);
                 $css_loaded = 'app';
-            }
-            else
+            } else
             {
-            	// Add file when it exists or send error to the error_log
+                // Add file when it exists or send error to the error_log
                 if (FileIO::exists(Settings::get('theme_dir') . '/css/App' . $this->name . '.css'))
                 {
                     Css::useLink(Settings::get('theme_url') . '/css/App' . $this->name . '.css', true);
                     $css_loaded = 'theme';
-                }
-                else
+                } else
                 {
                     log_error('Apps "' . $this->name . '" css flag is set to true but no css file was found in themes or default themes css app folders.');
                     $css_loaded = false;
@@ -545,15 +553,15 @@ class App extends ClassAbstract
         // current themes folder. This will only work on included app css file.
         if ($css_loaded == 'app')
         {
-        	if (FileIO::exists(Settings::get('theme_dir') . '/css/App' . $this->name . 'Theme.css'))
-        		Css::useLink(Settings::get('theme_url') . '/css/App' . $this->name . 'Theme.css', true);
+            if (FileIO::exists(Settings::get('theme_dir') . '/css/App' . $this->name . 'Theme.css'))
+                Css::useLink(Settings::get('theme_url') . '/css/App' . $this->name . 'Theme.css', true);
         }
 
         // Is there an additional css function in or app to run?
         if (method_exists($this, 'addCss'))
             $this->addCss();
 
-        // Set flag for initiated css
+            // Set flag for initiated css
         self::$init_stages[$this->name]['css'] = true;
 
         return $this;
@@ -570,10 +578,10 @@ class App extends ClassAbstract
         if (self::$init_stages[$this->name]['js'])
             return;
 
-        // Each app can (like css) have it's own javascript file. If you want to have this file included, you have to set the public property $js in
-        // your app mainclass. Unlike the css include procedure, the $js property holds also the information where to include the apps .js file.
-        // You hve to set this property to "scripts" (included on the bottom of website) or "header" (included in header section of website).
-        // the apps js file is stored within the app folder structure in an directory named "js".
+            // Each app can (like css) have it's own javascript file. If you want to have this file included, you have to set the public property $js in
+            // your app mainclass. Unlike the css include procedure, the $js property holds also the information where to include the apps .js file.
+            // You hve to set this property to "scripts" (included on the bottom of website) or "header" (included in header section of website).
+            // the apps js file is stored within the app folder structure in an directory named "js".
         if ($this->js)
         {
             if (!$this->cfg('dir_js'))
@@ -589,7 +597,7 @@ class App extends ClassAbstract
         if (method_exists($this, 'addJs'))
             $this->addJs();
 
-        // Set flag for initated js
+            // Set flag for initated js
         self::$init_stages[$this->name]['js'] = true;
 
         return $this;
@@ -605,7 +613,7 @@ class App extends ClassAbstract
         if (!isset($this->routes) || self::$init_stages[$this->name]['routes'] == true)
             return;
 
-        // Set but empty routes?
+            // Set but empty routes?
         if (isset($this->routes) && empty($this->routes))
         {
             Throw new Error('Routes property set but not filled with routes. Fill in routes or remove route property.');
@@ -619,11 +627,11 @@ class App extends ClassAbstract
             if (!isset($route['route']))
                 Throw new Error('No route string set.');
 
-            // Chec kfor missing controller and action
+                // Chec kfor missing controller and action
             if (!isset($route['ctrl']) || !isset($route['action']))
                 Throw new Error('App: ' . $this->name . ' | Route without controller or action found!.');
 
-            // Get method. Not defined methods are always GETs
+                // Get method. Not defined methods are always GETs
             $method = !array_key_exists('method', $route) ? 'GET' : $route['method'];
 
             // Get uncamelized app name
