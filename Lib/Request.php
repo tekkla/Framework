@@ -428,7 +428,7 @@ class Request extends SingletonAbstract
                 array(
                     'method' => $request_method,
                     'request' => $request_url,
-                    'redirect' => true,
+                    'redirect' => '',
                 )
             );
 
