@@ -5,7 +5,7 @@ global $forum_copyright;
 // Version: 2.0; Web
 $txt['app_web_name'] = 'WebExt Framework';
 
-$forum_copyright .= '<br><small>erweitert durch ' . $txt['app_web_name'] . '</small>';
+$forum_copyright .= '<br><small>extended by ' . $txt['app_web_name'] . ' © 2014, Michael "Tekkla" Zorn</small>';
 
 $txt['app_web_framework_config'] = $txt['app_web_name'];
 
@@ -14,136 +14,126 @@ $txt['app_web_framework_config'] = $txt['app_web_name'];
 /*****************************************************************************/
 
 // States
-$txt['app_web_on'] = 'An';
-$txt['app_web_off'] = 'Aus';
+$txt['app_web_on'] = 'On';
+$txt['app_web_off'] = 'Off';
 
 // Settings
-$txt['app_web_config'] = 'Einstellungen';
-$txt['app_web_info'] = 'Informationen';
-$txt['app_web_init'] = 'Initialisieren...';
+$txt['app_web_config'] = 'Settings';
+$txt['app_web_info'] = 'Informations';
+$txt['app_web_init'] = 'Init...';
 
 /* ERRORS */
-$txt['app_web_no_access'] = '<div class="grid_12"><h1>Kein Zugriff</h1><p class="strong">Dir fehlen die notwendigen Zugriffsrechte für diese Aktion!</p><p>Wenn dies ein Fehler sein sollte, dann wende dich bitte an </div>';
-$txt['app_web_error_no_controller_func'] = 'Keine Controller Funktion für den Auruf gefunden.';
-$txt['app_web_error_no_view_func'] = 'Fehler 404<br>Kann die Template-Funtion nicht finden';
+$txt['app_web_error_404'] = '<h2>404</h2>The requested document does not exist.';
+$txt['app_web_error_403'] = '<h2>403</h2>You are not allowed to access the requested document';
+$txt['app_web_error_500'] = '<h2>500</h2>An internal error occured.';
 
 // Basics
 $txt['app_web_noscript'] = '<span style="color: #FF0000; font-size: 16px; border: 1px solid #FF0000; padding: 3px; width: 100%; text-align: center;">DIESE SEITE BENÖTIGT JAVASCRIPT.<br />BITTE AKTIVIERE ES IN DEINEN BRWOSEREINSTELLUNGEN.</span>';
 $txt['app_web_next'] = '&gt;&gt;';
 $txt['app_web_prev'] = '&lt;&lt;';
 
-$txt['app_web_save'] = 'SPEICHERN';
-$txt['app_web_cancel'] = 'ABBRECHEN';
+$txt['app_web_save'] = 'Save';
+$txt['app_web_cancel'] = 'Cancel';
 
 // NED texts
-$txt['app_web_delete'] = 'L&ouml;schen';
-$txt['app_web_delete_confirm'] = 'Daten wirklich l&ouml;schen?';
-$txt['app_web_new'] = 'Neu';
-$txt['app_web_edit'] = 'Bearbeiten';
+$txt['app_web_delete'] = 'Delete';
+$txt['app_web_delete_confirm'] = 'Should data really be deleted?';
+$txt['app_web_new'] = 'New';
+$txt['app_web_edit'] = 'Edit';
 
 // allow or deny
-$txt['app_web_access_allow'] = 'Nur gewählten Gruppen anzeigen';
-$txt['app_web_access_deny'] = 'Vor gewählten Gruppen verstecken';
-
-// operatuional texts
-$txt['app_web_operation_not_allowed'] = '<h1>Dieser Vorgang ist nicht gestattet.</h1><p>Deine Benutzerrechte reichen nicht aus. Bei Fragen dazu bitte an den Webadmin wenden.</p>';
-$txt['app_web_operation_deleted'] = 'Löschvorgang durchgeführt.';
+$txt['app_web_access_allow'] = 'Allowed to selected groups';
+$txt['app_web_access_deny'] = 'Denied to selected groups';
 
 /*****************************************************************************/
 /* CONFIG
 /*****************************************************************************/
-$txt['app_web_cfg_headline'] = 'WebExt Framework Einstellungen';
+$txt['app_web_cfg_headline'] = 'WebExt Framework Settings';
 
-// Inhalte
-$txt['app_web_cfg_group_global'] = 'Inhaltsverarbeitung';
-$txt['app_web_cfg_default_app'] = 'Standard App';
-$txt['app_web_cfg_default_app_desc'] = 'Name der App, die als Standard beim Seitenaufruf geladen werden soll.';
-$txt['app_web_cfg_default_ctrl'] = 'Standard Controller';
-$txt['app_web_cfg_default_ctrl_desc'] = 'Name des in der Standard App aufzurufenden Controllers.';
-$txt['app_web_cfg_content_handler'] = 'Content Handler App';
-$txt['app_web_cfg_content_handler_desc'] = 'Name einer App, an die der auszugebende Content für weitere Aufgaben übergeben wird. Dieser Punkt ist besonders für die Integration von Portal Apps gedacht.';
-$txt['app_web_cfg_menu_handler'] = 'Menu Handler App';
-$txt['app_web_cfg_menu_handler_desc'] = 'Name einer App, an die die Menubuttons zur weiteren Bearbeitung übergebne werden sollen.';
-
-$txt['app_web_cfg_group_jquery'] = 'jQuery Framework';
-$txt['app_web_cfg_jquery_use'] = 'jQuery nutzen?';
-$txt['app_web_cfg_jquery_use_desc'] = 'Die Nutzung von jQuery an- bzw- ausschalten.';
-$txt['app_web_cfg_jquery_area'] = 'jQuery Position';
-$txt['app_web_cfg_jquery_area_desc'] = 'Die Position des jQuery Links bei der ausgabe. Header steht für den Kopf der Ausgabe und Scripts foür das Ender der Seite.';
-$txt['app_web_cfg_jquery_version'] = 'jQuery Version';
-$txt['app_web_cfg_jquery_version_desc'] = 'Wenn der Wert verändert wird, so sollte darauf geachtet werden, dass diese Version auch lokal im Framework Javascript Verzeichnis hinterlegt wird.';
+// Contenthandler
+$txt['app_web_cfg_default_action'] = 'Default SMF action';
+$txt['app_web_cfg_default_action_desc'] = 'Name of default action to use.';
+$txt['app_web_cfg_group_global'] = 'Content';
+$txt['app_web_cfg_default_app'] = 'Default app';
+$txt['app_web_cfg_default_app_desc'] = 'Name of app which is used for pagecontrol';
+$txt['app_web_cfg_default_ctrl'] = 'Default Controller';
+$txt['app_web_cfg_default_ctrl_desc'] = 'Name of controller to call in default app.';
+$txt['app_web_cfg_content_handler'] = 'Contenthandler app';
+$txt['app_web_cfg_content_handler_desc'] = 'Name of app which handles the content output.';
+$txt['app_web_cfg_menu_handler'] = 'Menuhandler app';
+$txt['app_web_cfg_menu_handler_desc'] = 'Name of app which handles menucreation.';
 
 // Minifier
 $txt['app_web_cfg_group_minify'] = 'Minify';
 $txt['app_web_cfg_css_minify'] = 'CSS Minifier';
-$txt['app_web_cfg_css_minify_desc'] = 'Diese Option aktiviert die automatische Minimierung aller genutzten CSS Files. (siehe <a href="https://code.google.com/p/minify/">https://code.google.com/p/minify/</a>)';
+$txt['app_web_cfg_css_minify_desc'] = 'This option activates the automatic minify process for all used CSS files. (see <a href="https://code.google.com/p/minify/">https://code.google.com/p/minify/</a>)';
 $txt['app_web_cfg_js_minify'] = 'JS Minifier';
-$txt['app_web_cfg_js_minify_desc'] = 'Diese Option aktiviert die automatische Minimierung aller genutzten Javascripte und Files. (siehe <a href="https://code.google.com/p/minify/">https://code.google.com/p/minify/</a>)';
+$txt['app_web_cfg_js_minify_desc'] = 'This option activates the automatic minify process for all javascripts and files. (see <a href="https://code.google.com/p/minify/">https://code.google.com/p/minify/</a>)';
 
 // Javascript
 $txt['app_web_cfg_group_js'] = 'Javascript';
-$txt['app_web_cfg_js_default_location'] = 'Standardposition';
-$txt['app_web_cfg_js_default_location_desc'] = '"Header" steht für eine Ausgabe im &lt;head&gt; der Seite. "Scripts" bedeutet eine Ausgabe direkt vor &lt;/body&gt;.';
 $txt['app_web_cfg_js_html5shim'] = 'html5shim';
-$txt['app_web_cfg_js_html5shim_desc'] = 'Option um html5shim auf der Seite einzusetzen. (siehe <a href="https://code.google.com/p/html5shim/">https://code.google.com/p/html5shim/</a>)';
+$txt['app_web_cfg_js_html5shim_desc'] = 'This option activates use of html5shim. (siehe <a href="https://code.google.com/p/html5shim/">https://code.google.com/p/html5shim/</a>)';
 $txt['app_web_cfg_js_selectivizr']= 'Selectivizr';
-$txt['app_web_cfg_js_selectivizr_desc']= 'Option um Selectivizr auf der Seite zu nutzen. (siehe <a href="http://selectivizr.com/">http://selectivizr.com/</a>)';
-$txt['app_web_cfg_js_modernizr'] = 'Modernizer Support';
-$txt['app_web_cfg_js_modernizr_desc'] = 'Option um den Modernizer auf der Seite zu verwenden. (siehe <a href="http://modernizr.com/">http://modernizr.com/</a>)';
+$txt['app_web_cfg_js_selectivizr_desc']= 'This option activates thue use of Selectivizr. (siehe <a href="http://selectivizr.com/">http://selectivizr.com/</a>)';
+$txt['app_web_cfg_js_modernizr'] = 'Modernizer';
+$txt['app_web_cfg_js_modernizr_desc'] = 'This option activates the use of Modernizr. (siehe <a href="http://modernizr.com/">http://modernizr.com/</a>)';
+$txt['app_web_cfg_js_fadeout_time'] = 'Fadeouttime';
+$txt['app_web_cfg_js_fadeout_time_desc'] = 'Time (in milliseconds) to use as global fadeout timer.';
 
 // Gestaltung
-$txt['app_web_cfg_group_style'] = 'Gestaltung';
+$txt['app_web_cfg_group_style'] = 'Visuals';
 $txt['app_web_cfg_group_style_desc'] = 'Gestaltung';
 $txt['app_web_cfg_bootstrap_version'] = 'Bootstrap Version';
-$txt['app_web_cfg_bootstrap_version_desc'] = 'Versionsnummer der zu verwendenen Bootstrapversion. Bitte beachten, dass diese Version auch im Framework CSS Verzeichnis mit dem Schema "bootstrap-versionsnummer.css" oder "bootstrap-versionsnummer.min.css" hinterlegt sein muss!';
-$txt['app_web_cfg_fontawesome_version'] = 'Fontaweseom Version';
-$txt['app_web_cfg_fontawesome_version_desc'] = 'Versionsnummer der zu verwendenden Fontawesome Bibliothek. Auch diese Version muss wie bei Bootstrab im CSS Verzeichnis des Framworks mit dem selben Namensschema hinterlegt sein.';
+$txt['app_web_cfg_bootstrap_version_desc'] = 'Version number of Bootstrap css framework to use. Do not forget to place the corresponding file into frameworks css folder. The filename has to use "bootstrap-version.css" or "bootstrap-versions.min.css" pattern.';
+$txt['app_web_cfg_fontawesome_version'] = 'Fontawesome Version';
+$txt['app_web_cfg_fontawesome_version_desc'] = 'Version number of Fontawesome css framework to use. Do not forget to place the corresponding file into frameworks css folder. The filename has to use "fontawesome-versionnumber.css" or "fontawesome-version.min.css" pattern.';
 
 // URL Behandlung
-$txt['app_web_cfg_group_url'] = 'Url Behandlung';
-$txt['app_web_cfg_url_seo'] = 'SEO Konverter';
-$txt['app_web_cfg_url_seo_desc'] = 'Damit wird vor der Ausgabe der Seite der Content auf URL untersucht und alle nicht durch das Framework generierten URL umgewandelt. Beispielsweise würde aus <strong>http://www.deinforum.tld/index.php?board=1</strong> dann <strong>http://www.deinforum.tld/board/1</strong>';
+$txt['app_web_cfg_group_url'] = 'Url conversion';
+$txt['app_web_cfg_url_seo'] = 'SEO Converter';
+$txt['app_web_cfg_url_seo_desc'] = 'Actives SEO url converter which searches for urls in pagecontent right before it is send to the browser. Example:  <strong>http://www.forum.tld/index.php?board=1</strong> will be converted to <strong>http://www.forum.tld/board/1</strong>';
 
 /*****************************************************************************/
 /* VALIDATORS
 /*****************************************************************************/
-$txt['app_web_validator_required'] = 'Dieses Feld muss gesetzt sein.';
-$txt['app_web_validator_empty'] = 'Dieses Feld darf nicht leer sein';
-$txt['app_web_validator_textrange'] = 'Der Text darf zwischen %d und %d Zeichen lang sein. Dein Text ist %d Zeichen lang.';
-$txt['app_web_validator_textminlength'] = 'Der Text muss mindestens %d Zeichen lang sein';
-$txt['app_web_validator_textmaxlength'] = 'Der Text darf maxinaml %d Zeichen lang sein';
-$txt['app_web_validator_numbermin'] = 'Der Wert darf nicht kleiner als %d sein';
+$txt['app_web_validator_required'] = 'This field has to be set.';
+$txt['app_web_validator_empty'] = 'This field is not alloed to be empty.';
+$txt['app_web_validator_textrange'] = 'Strings number of chars has to be between %d and %d. The checked string contains %d chars.';
+$txt['app_web_validator_textminlength'] = 'The number of chars has to be %d at minimum.';
+$txt['app_web_validator_textmaxlength'] = 'The number of chars has to be %d at maximum.';
+$txt['app_web_validator_numbermin'] = 'The value is not allowed to be smaller then %d.';
 
 // Dates
-$txt['app_web_validator_date_iso'] = 'Datum im ISO Format (YYYY-MM-DD) erwartet';
-$txt['app_web_validator_date'] = 'Es wird ein gültiges Datum erwartet';
+$txt['app_web_validator_date_iso'] = 'Date in ISO Format (YYYY-MM-DD) expected.';
+$txt['app_web_validator_date'] = 'Please provide proper date.';
 
 // Time
-$txt['app_web_validator_time24'] = 'Uhrzeit im 24h Format (HH:II) erwartet';
+$txt['app_web_validator_time24'] = 'Time in 24h format (HH:II:ss) expected';
 
 // Number
-$txt['web_validator_compare'] = 'Die Vergleichsprüfung schlug fehl. Geprüft wurde: $1 $3 $2';
+$txt['web_validator_compare'] = 'Comparecheck failed. Checked: $1 $3 $2';
 
 /*****************************************************************************/
 /* Models
 /*****************************************************************************/
-$txt['app_web_model_error_field_not_exist'] = 'Die Spalte [%s] existiert nicht im Model [%s].';
+$txt['app_web_model_error_field_not_exist'] = 'Column [%s] does not exist in model [%s].';
 
 /*****************************************************************************/
 /* TIMESTRINGS
 /*****************************************************************************/
-$txt['app_web_time_year'] = 'Jahr';
-$txt['app_web_time_years'] = 'Jahre';
-$txt['app_web_time_month'] = 'Monat';
-$txt['app_web_time_months'] = 'Monate';
-$txt['app_web_time_week'] = 'Woche';
-$txt['app_web_time_weeks'] = 'Wochen';
-$txt['app_web_time_day'] = 'Tag';
-$txt['app_web_time_days'] = 'Tage';
-$txt['app_web_time_hour'] = 'Stunde';
-$txt['app_web_time_hours'] = 'Stunden';
-$txt['app_web_time_minute'] = 'Minute';
-$txt['app_web_time_minutes'] = 'Minuten';
-$txt['app_web_time_second'] = 'Sekunde';
-$txt['app_web_time_seconds'] = 'Sekunden';
+$txt['app_web_time_year'] = 'year';
+$txt['app_web_time_years'] = 'years';
+$txt['app_web_time_month'] = 'month';
+$txt['app_web_time_months'] = 'months';
+$txt['app_web_time_week'] = 'week';
+$txt['app_web_time_weeks'] = 'weeks';
+$txt['app_web_time_day'] = 'day';
+$txt['app_web_time_days'] = 'days';
+$txt['app_web_time_hour'] = 'hour';
+$txt['app_web_time_hours'] = 'hours';
+$txt['app_web_time_minute'] = 'minute';
+$txt['app_web_time_minutes'] = 'minutes';
+$txt['app_web_time_second'] = 'second';
+$txt['app_web_time_seconds'] = 'seconds';
 ?>
