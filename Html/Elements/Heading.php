@@ -2,7 +2,7 @@
 namespace Web\Framework\Html\Elements;
 
 use Web\Framework\Lib\Abstracts\HtmlAbstract;
-use Web\Framework\Lib\Errors\NoValidParameterError;
+use Web\Framework\Lib\Error;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -58,7 +58,7 @@ class Heading extends HtmlAbstract
         );
 
         if (!in_array((int) $size, $sizes))
-            Throw new NoValidParameterError($size, $sizes);
+        	Throw new Error('Wrong size set.', 1000, array($size, $sizes));
 
         $this->size = $size;
     }

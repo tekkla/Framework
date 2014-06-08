@@ -223,13 +223,11 @@ final class Web extends SingletonAbstract
      */
     function addWebBasicCss()
     {
-        global $settings;
-
         // Should not be done on ajax request
         if ($this->request->isAjax())
             return;
 
-            // Add bootstrap main css file
+        // Add bootstrap main css file
         Css::useBootstrap(Cfg::get('Web', 'bootstrap_version'), Cfg::get('Web', 'url_css'));
 
         // Add existing user/theme related bootstrap theme cdd file
@@ -246,7 +244,7 @@ final class Web extends SingletonAbstract
      */
     function createJsScripts()
     {
-        // should not be done on ajax request
+        // Should not be done on ajax request
         if ($this->request->isAjax())
             return;
 

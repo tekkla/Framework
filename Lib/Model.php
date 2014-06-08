@@ -9,8 +9,6 @@ if (!defined('WEB'))
 // Used classes
 use Web\Framework\Lib\Data;
 use Web\Framework\Lib\Abstracts\MvcAbstract;
-use Web\Framework\Lib\Errors\MissingAppObjectError;
-use Web\Framework\Lib\Errors\NoValidDbQueryTypeError;
 
 /**
  * ORM like class to read from and write data to db
@@ -178,9 +176,9 @@ class Model extends MvcAbstract
     public static function factory(App $app, $model_name)
     {
         if (!isset($app) || (isset($app) && !$app instanceof App))
-            Throw new MissingAppObjectError();
+            Throw new Error('App object not set', 1000);
 
-            // Framework, SMF or App model? Create proper namespace.
+        // Framework, SMF or App model? Create proper namespace.
         $model_class = ($app->isSecure() ? '\\Web\\Framework\\AppsSec' : '\\Web\\Apps') . "\\" . $app->getName() . '\\Model\\' . $model_name . 'Model';
 
         // Create and return modelobject
@@ -1015,7 +1013,7 @@ class Model extends MvcAbstract
                 break;
 
             default :
-                Throw new NoValidDbQueryTypeError($this->query_type);
+                Throw new Error('Wrong query type', 1000, array($this->query_type));
                 break;
         }
 

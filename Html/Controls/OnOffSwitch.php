@@ -4,7 +4,7 @@ namespace Web\Framework\Html\Controls;
 use Web\Framework\Html\Form\Select;
 use Web\Framework\Html\Form\Option;
 use Web\Framework\Lib\Txt;
-use Web\Framework\Lib\Errors\NoValidParameterError;
+use Web\Framework\Lib\Error;
 
 /**
  * Creates a on/off switch control
@@ -90,7 +90,7 @@ class OnOffSwitch extends Select
         );
 
         if (!in_array($state, $states))
-            Throw new NoValidParameterError($state, $states);
+            Throw new Error('Wrong state for switch.', 1000, array($state, $states));
 
         switch ($state)
         {

@@ -9,7 +9,6 @@ if (!defined('WEB'))
 // Used classes
 use Web\Framework\Helper\FormDesigner;
 use Web\Framework\Lib\Abstracts\MvcAbstract;
-use Web\Framework\Lib\Errors\ProtectedVarError;
 
 /**
  * Controllers parent class. Each app controller has to be a child of this class.
@@ -457,14 +456,14 @@ class Controller extends MvcAbstract
             foreach ( $vars as $k => $v )
             {
                 if (in_array($k, $protected_var_names))
-                    Throw new ProtectedVarError($k, $protected_var_names);
+                    Throw new Error('Varname is protected. Use other name for your var.', 5000, array($k, $protected_var_names));
 
                 $this->view->setVar($k, $v);
             }
         } elseif ($num_arguments == 2)
         {
             if (in_array(func_get_arg(0), $protected_var_names))
-                Throw new ProtectedVarError(func_get_arg(0), $protected_var_names);
+            	Throw new Error('Varname is protected. Use other name for your var.', 5000, array(func_get_arg(0), $protected_var_names));
 
             $this->view->setVar(func_get_arg(0), func_get_arg(1));
         } else

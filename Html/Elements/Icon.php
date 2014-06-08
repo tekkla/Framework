@@ -2,7 +2,7 @@
 namespace Web\Framework\Html\Elements;
 
 use Web\Framework\Lib\Abstracts\HtmlAbstract;
-use Web\Framework\Lib\Errors\NoValidParameterError;
+use Web\Framework\Lib\Error;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -125,12 +125,16 @@ class Icon extends HtmlAbstract
         );
 
         if (!in_array($size, $sizes))
-            Throw new NoValidParameterError($size, $sizes);
+        	Throw new Error('Wrong size set.', 1000, array($size, $sizes));
 
         $this->size = $size;
         return $this;
     }
 
+    /**
+     * Flags icon to have a fixed with
+     * @return \Web\Framework\Html\Elements\Icon
+     */
     public function useFixedWidth()
     {
         $this->addCss('fa-fixed-width');
@@ -194,7 +198,7 @@ class Icon extends HtmlAbstract
         );
 
         if (!in_array($rotation, $rotas))
-            Throw new NoValidParameterError($$rotation, $rotas);
+        	Throw new Error('Wrong rotation degree set.', 1000, array($rotation, $rotas));
 
         if ($rotation == 0)
             unset($this->rotation);

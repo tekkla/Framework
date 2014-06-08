@@ -1,13 +1,9 @@
 <?php
-
 namespace Web\Framework\Lib;
 
 // Check for direct file access
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
-
-// Used classes
-use Web\Framework\Lib\Errors\MethodNotExistsError;
 
 /**
  * Handles menuhandler actions.
@@ -47,7 +43,7 @@ class Menu
 
             // Check for MenuHandler method. Throws an error if it is missing.
             if (!method_exists($app, 'menuHandler'))
-                Throw new MethodNotExistsError('menuHandler', Cfg::get('Web', 'menu_handler'));
+                Throw new Error('Method not found.', 5000, array('menuHandler', Cfg::get('Web', 'menu_handler')));
 
                 // Run MenuHandler method in app
             $app->menuHandler();

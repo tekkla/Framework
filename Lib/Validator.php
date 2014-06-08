@@ -1,11 +1,6 @@
 <?php
 namespace Web\Framework\Lib;
 
-use Framework\Lib\Errors\MissingModelError;
-use Framework\Lib\Errors\MissingModelDefinitionError;
-use Framework\Lib\Errors\MissingModelDataError;
-use Web\Framework\Lib\Errors\NoValidParameterError;
-
 // Check for direct file access
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
@@ -128,15 +123,16 @@ class Validator extends Lib
 	{
 		// No model, no validation, but error :P
 		if (!isset($this->model))
-			Throw new MissingModelError('validator');
+			Throw new Error('Model definition is missing');
+
 
 		// No data to validate? Throw error.
 		if (!$this->model->data)
-			Throw new MissingModelDataError('validator');
+			Throw new Error('No data to validate found.');
 
 		// No column definition in model? Throw error.
 		if (!isset($this->model->columns) && $this->model->getColumns() == false)
-			Throw new MissingModelDefinitionError('validator');
+			Throw new Error('No colums set to use for validation the data.');
 
 		// Try to validate all model data values
 		foreach ($this->model->data as $fld => $val)
@@ -532,7 +528,7 @@ class Validator extends Lib
 	    );
 
 	    if (!in_array($mode, $modes))
-	        Throw new NoValidParameterError($mode, $modes);
+	        Throw new Error('Parameter not allowed', 1001, array($mode, $modes));
 
 		switch ($mode)
 		{

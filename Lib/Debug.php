@@ -3,8 +3,6 @@
 namespace Web\Framework\Lib;
 
 use Web\Framework\Lib\Abstracts\ClassAbstract;
-use Web\Framework\Lib\Errors\NoValidParameterError;
-use Web\Framework\Lib\Errors\NeededPropertyNotSetError;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -64,7 +62,7 @@ class Debug extends ClassAbstract
         );
 
         if (!in_array($mode, $modes))
-            throw new NoValidParameterError($mode, $modes);
+            Throw new Error('Wrong mode set.', 1000, array($mode, $modes));
 
         $this->mode = $mode;
         return $this;
@@ -88,7 +86,7 @@ class Debug extends ClassAbstract
         );
 
         if (!in_array($target, $targets))
-            throw new NoValidParameterError($target, $targets);
+            Throw new Error('Wrong target set.', 1000, array($target, $targets));
 
         if ($target=='console' && !$this->request->isAjax())
             $target = 'return';
@@ -134,7 +132,7 @@ class Debug extends ClassAbstract
         // If var is not set explicit, the calling object will
         // be used for debug output.
         if (!isset($this->var))
-            Throw new NeededPropertyNotSetError('var');
+            Throw new Error('Var to debug not set.', 1001);
 
         switch ($this->mode)
         {

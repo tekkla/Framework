@@ -406,7 +406,7 @@ class App extends ClassAbstract
         // No dir? error exception !
         if (is_dir($dir) === false)
         {
-            Throw new PathError($dir);
+        	Throw new Error('File not found', 2000, array($dir));
             return;
         }
 
@@ -416,7 +416,7 @@ class App extends ClassAbstract
         // No handle, error exception
         if ($handle === false)
         {
-            Throw new PathError($dir);
+            Throw new Error('File not found', 2000, array($dir));
             return;
         }
 
@@ -577,7 +577,7 @@ class App extends ClassAbstract
         if ($this->js)
         {
             if (!$this->cfg('dir_js'))
-                Throw new Error('[App "' . $this->name . '" js folder does not exist. Create the js folder in apps folder and add app js file or unset the js flag in your app mainclass.');
+                Throw new Error('App "' . $this->name . '" js folder does not exist. Create the js folder in apps folder and add app js file or unset the js flag in your app mainclass.');
 
             if (FileIO::exists($this->cfg('dir_js') . '/' . $this->name . '.js'))
                 Javascript::useFile($this->cfg('url_js') . '/' . $this->name . '.js', false);

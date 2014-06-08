@@ -5,7 +5,6 @@ use Web\Framework\Lib\Error;
 use Web\Framework\Lib\Url;
 use Web\Framework\Html\Elements\Icon;
 use Web\Framework\Html\Elements\Link;
-use Web\Framework\Lib\Errors\NoValidParameterError;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -185,7 +184,7 @@ class UiButton extends Link
         );
 
         if (!in_array($mode, $modelist))
-            Throw new NoValidParameterError($mode, $modelist);
+        	Throw new Error('Wrong mode for UiButton.', 1000, array($mode, $modelist));
 
         $this->mode = $mode;
         return $this;
@@ -214,7 +213,7 @@ class UiButton extends Link
         );
 
         if (!in_array($type, $typelist))
-            Throw new NoValidParameterError($type, $typelist);
+        	Throw new Error('Wrong type for UiButton.', 1000, array($type, $typelist));
 
         $this->type = $type;
         return $this;

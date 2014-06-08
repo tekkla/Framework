@@ -24,7 +24,7 @@ class Error extends \Exception
      * @param Error $previous
      * @param string $trace
      */
-    public function __construct($message = '', $code = 0, Error $previous = null)
+    public function __construct($message = '', $code = 0, $data = array(), Error $previous = null)
     {
     	// On empty message the default error txt will be used
     	// and error tracing will be activated
@@ -35,7 +35,14 @@ class Error extends \Exception
         // The first entry with text for admin users
         // The second entry with text for normal useser
         if (is_array($message))
-        	$message = User::isAdmin() ? $message[0] : $message[1];
+        {
+        	// Set default error message if not set in message array
+        	if (!isset($message[1]))
+        		$message[1] = Txt::get('web_error');
+
+        	// First message is for admins. Second one for normal users.
+       		$message = User::isAdmin() ? $message[0] : $message[1];
+        }
 
         parent::__construct($message, $code, $previous);
     }

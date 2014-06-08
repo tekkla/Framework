@@ -1,9 +1,6 @@
 <?php
 namespace Web\Framework\Lib;
 
-use Web\Framework\Lib\Errors\ParameterNotSetError;
-use Web\Framework\Lib\Errors\MethodNotExistsError;
-
 // Check for direct file access
 if (!defined('WEB'))
     die('Cannot run without WebExt framework...');
@@ -76,7 +73,7 @@ final class Invoker
     {
         // Look for the method in object. Throw error when missing.
         if (!method_exists($this->obj, $this->method))
-            Throw new MethodNotExistsError($this->method, get_called_class());
+            Throw new Error('Method not found.', 5000, array($this->method, $this->obj));
 
         // Get reflection method
         $method = new \ReflectionMethod($this->obj, $this->method);
@@ -95,7 +92,7 @@ final class Invoker
 
             // Parameter is not optional and not set => throw error
             if (!$param->isOptional() && !isset($this->params->{$param_name}))
-                Throw new ParameterNotSetError($method->getName(), $param);
+                Throw new Error('Missing parameter', 2001, array($method->getName(), $param));
 
             // If parameter is optional and not set, set argument to null
             $args[] = $param->isOptional() && !isset($this->params->{$param_name}) ? null : $this->params->{$param_name};
