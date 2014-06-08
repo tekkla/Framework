@@ -17,6 +17,8 @@ final class Web extends App
 
 	public $lang = true;
 
+	public $css = true;
+
 	public $config = array(
 
 		// Group: Global
