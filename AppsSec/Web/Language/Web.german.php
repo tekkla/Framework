@@ -5,7 +5,7 @@ global $forum_copyright;
 // Version: 2.0; Web
 $txt['app_web_name'] = 'WebExt Framework';
 
-$forum_copyright .= '<br><small>erweitert durch ' . $txt['app_web_name'] . '</small>';
+$forum_copyright .= '<br><small>erweitert durch ' . $txt['app_web_name'] . ' © 2014, Michael "Tekkla" Zorn</small>';
 
 $txt['app_web_framework_config'] = $txt['app_web_name'];
 
@@ -23,17 +23,16 @@ $txt['app_web_info'] = 'Informationen';
 $txt['app_web_init'] = 'Initialisieren...';
 
 /* ERRORS */
-$txt['app_web_no_access'] = '<div class="grid_12"><h1>Kein Zugriff</h1><p class="strong">Dir fehlen die notwendigen Zugriffsrechte für diese Aktion!</p><p>Wenn dies ein Fehler sein sollte, dann wende dich bitte an </div>';
-$txt['app_web_error_no_controller_func'] = 'Keine Controller Funktion für den Auruf gefunden.';
-$txt['app_web_error_no_view_func'] = 'Fehler 404<br>Kann die Template-Funtion nicht finden';
+$txt['app_web_error_404'] = '<h2>404</h2>Die angeforderte Seite existiert nicht.';
+$txt['app_web_error_403'] = '<h2>403</h2>Keine Zugriffsberechtigung vorhanden.';
+$txt['app_web_error_500'] = '<h2>500</h2>Ein interner Fehler ist aufgetreten.';
 
 // Basics
-$txt['app_web_noscript'] = '<span style="color: #FF0000; font-size: 16px; border: 1px solid #FF0000; padding: 3px; width: 100%; text-align: center;">DIESE SEITE BENÖTIGT JAVASCRIPT.<br />BITTE AKTIVIERE ES IN DEINEN BRWOSEREINSTELLUNGEN.</span>';
 $txt['app_web_next'] = '&gt;&gt;';
 $txt['app_web_prev'] = '&lt;&lt;';
 
-$txt['app_web_save'] = 'SPEICHERN';
-$txt['app_web_cancel'] = 'ABBRECHEN';
+$txt['app_web_save'] = 'Speichern';
+$txt['app_web_cancel'] = 'Abbruch';
 
 // NED texts
 $txt['app_web_delete'] = 'L&ouml;schen';
@@ -44,10 +43,6 @@ $txt['app_web_edit'] = 'Bearbeiten';
 // allow or deny
 $txt['app_web_access_allow'] = 'Nur gewählten Gruppen anzeigen';
 $txt['app_web_access_deny'] = 'Vor gewählten Gruppen verstecken';
-
-// operatuional texts
-$txt['app_web_operation_not_allowed'] = '<h1>Dieser Vorgang ist nicht gestattet.</h1><p>Deine Benutzerrechte reichen nicht aus. Bei Fragen dazu bitte an den Webadmin wenden.</p>';
-$txt['app_web_operation_deleted'] = 'Löschvorgang durchgeführt.';
 
 /*****************************************************************************/
 /* CONFIG
@@ -65,14 +60,6 @@ $txt['app_web_cfg_content_handler_desc'] = 'Name einer App, an die der auszugebe
 $txt['app_web_cfg_menu_handler'] = 'Menu Handler App';
 $txt['app_web_cfg_menu_handler_desc'] = 'Name einer App, an die die Menubuttons zur weiteren Bearbeitung übergebne werden sollen.';
 
-$txt['app_web_cfg_group_jquery'] = 'jQuery Framework';
-$txt['app_web_cfg_jquery_use'] = 'jQuery nutzen?';
-$txt['app_web_cfg_jquery_use_desc'] = 'Die Nutzung von jQuery an- bzw- ausschalten.';
-$txt['app_web_cfg_jquery_area'] = 'jQuery Position';
-$txt['app_web_cfg_jquery_area_desc'] = 'Die Position des jQuery Links bei der ausgabe. Header steht für den Kopf der Ausgabe und Scripts foür das Ender der Seite.';
-$txt['app_web_cfg_jquery_version'] = 'jQuery Version';
-$txt['app_web_cfg_jquery_version_desc'] = 'Wenn der Wert verändert wird, so sollte darauf geachtet werden, dass diese Version auch lokal im Framework Javascript Verzeichnis hinterlegt wird.';
-
 // Minifier
 $txt['app_web_cfg_group_minify'] = 'Minify';
 $txt['app_web_cfg_css_minify'] = 'CSS Minifier';
@@ -82,14 +69,14 @@ $txt['app_web_cfg_js_minify_desc'] = 'Diese Option aktiviert die automatische Mi
 
 // Javascript
 $txt['app_web_cfg_group_js'] = 'Javascript';
-$txt['app_web_cfg_js_default_location'] = 'Standardposition';
-$txt['app_web_cfg_js_default_location_desc'] = '"Header" steht für eine Ausgabe im &lt;head&gt; der Seite. "Scripts" bedeutet eine Ausgabe direkt vor &lt;/body&gt;.';
 $txt['app_web_cfg_js_html5shim'] = 'html5shim';
 $txt['app_web_cfg_js_html5shim_desc'] = 'Option um html5shim auf der Seite einzusetzen. (siehe <a href="https://code.google.com/p/html5shim/">https://code.google.com/p/html5shim/</a>)';
 $txt['app_web_cfg_js_selectivizr']= 'Selectivizr';
 $txt['app_web_cfg_js_selectivizr_desc']= 'Option um Selectivizr auf der Seite zu nutzen. (siehe <a href="http://selectivizr.com/">http://selectivizr.com/</a>)';
 $txt['app_web_cfg_js_modernizr'] = 'Modernizer Support';
 $txt['app_web_cfg_js_modernizr_desc'] = 'Option um den Modernizer auf der Seite zu verwenden. (siehe <a href="http://modernizr.com/">http://modernizr.com/</a>)';
+$txt['app_web_cfg_js_fadeout_time'] = 'Fadeoutzeit';
+$txt['app_web_cfg_js_fadeout_time_desc'] = 'Zeit in Millisekunden, die im gesamten Framework für Fadeouttimer genutzt werden soll.';
 
 // Gestaltung
 $txt['app_web_cfg_group_style'] = 'Gestaltung';
