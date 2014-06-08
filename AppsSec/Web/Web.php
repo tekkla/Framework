@@ -43,12 +43,6 @@ final class Web extends App
 		),
 
 		// Group: JS Libs
-		'jquery_version' => array(
-			'group' => 'js',
-			'control' => 'input',
-			'default' => '1.11.0',
-			'translate' => false
-		),
 		'js_html5shim' => array(
 			'group' => 'js',
 			'control' => 'switch',
