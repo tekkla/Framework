@@ -29,7 +29,6 @@ final class Web extends SingletonAbstract
         'integrate_fallback_action' => 'Web::Class::Web\Framework\Lib\Web::getDefaultAction',
         'integrate_menu_buttons' => 'Web::Class::Web\Framework\Lib\Web::addMenuButtons',
         'integrate_actions' => 'Web::Class::Web\Framework\Lib\Web::addActions',
-        'integrate_output_error' => 'Web::Class::Web\Framework\Lib\Error::analyzeError',
         'integrate_pre_css_output' => 'Web::Class::Web\Framework\Lib\Css::compile',
         'integrate_pre_javascript_output' => 'Web::Class::Web\Framework\Lib\Javascript::compile'
     );
@@ -38,6 +37,22 @@ final class Web extends SingletonAbstract
      * Initializes the Web framework
      */
     public function init()
+    {
+        try
+        {
+
+        }
+        catch ( Error $e )
+        {
+            echo $e;
+            exit();
+        }
+    }
+
+    /**
+     * Starts WebExt
+     */
+    public function start()
     {
         try
         {
@@ -53,21 +68,7 @@ final class Web extends SingletonAbstract
             // FirePHP integration
             if (Cfg::get('Web', 'log_handler') == 'fire')
                 require_once (Cfg::get('Web', 'dir_tools') . '/FirePHPCore/fb.php');
-        }
-        catch ( Error $e )
-        {
-            echo $e->getComplete();
-            exit();
-        }
-    }
 
-    /**
-     * Starts WebExt
-     */
-    public function start()
-    {
-        try
-        {
             // link basic framework css styles
             // they can be overridden by a web.css file within the themes css folder.
             // the easiest way is to copy this basic css file into the themfolder and
@@ -86,14 +87,28 @@ final class Web extends SingletonAbstract
             // run the processor
             if (SMF != 'SSI')
             {
-                Content::init();
-                $this->run();
+               Content::init();
+               $this->run();
             }
         }
-        catch ( Error $e )
+        catch (Error $e)
         {
-            $this->message->danger($e->getComplete());
-            redirectexit($e->getRedirectUrl());
+
+            // Is error set to be fatal?
+        	if ($e->isFatal())
+          		fatal_error($e->getMessage(), 'critical');
+
+        	// If error has a redirection, the error message will be sent as
+        	// a message before redirecting to the redirect url
+        	if ($e->isRedirect())
+        	{
+        	    $this->message->danger($e);
+        		redirectexit($e->getRedirect());
+        	}
+
+        	// Usually we will never come this far but reaching this point
+        	// causes stopping all further actions.
+        	die($e);
         }
     }
 
