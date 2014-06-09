@@ -1,10 +1,7 @@
 <?php
-
 namespace Web\Framework\Lib;
 
-// Used classes
 use Web\Framework\Lib\Abstracts\ClassAbstract;
-use Web\Framework\Lib\Errors\PathError;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -88,21 +85,21 @@ class App extends ClassAbstract
      * Default: false
      * @var bool
      */
-    public $css = false;
+    protected $css = false;
 
     /**
      * Js file flag.
      * Default: false
      * @var bool
      */
-    public $js = false;
+    protected $js = false;
 
     /**
      * Language file flag.
      * Default: false
      * @var bool
      */
-    public $lang = false;
+    protected $lang = false;
 
     /**
      * Get an unique app object
@@ -309,7 +306,7 @@ class App extends ClassAbstract
     public function getController($controller_name)
     {
         // Init css and js only on non ajax requests
-        if (!Request::getInstance()->isAjax())
+        if (!$this->request->isAjax())
         {
             $this->initCss();
             $this->initJs();
@@ -396,8 +393,7 @@ class App extends ClassAbstract
     }
 
     /**
-     * Initializes the apps paths by creating the paths
-     * and writing them into the apps config.
+     * Initializes the apps paths by creating the paths and writing them into the apps config.
      * @throws PathError
      */
     protected function initPaths()
@@ -408,26 +404,8 @@ class App extends ClassAbstract
         // Define app dir to look for subdirs
         $dir = Cfg::get('Web', 'dir_' . $app_type) . '/' . $this->name . '/';
 
-        // No dir? error exception !
-        if (is_dir($dir) === false)
-        {
-            Throw new Error('File not found', 2000, array(
-                $dir
-            ));
-            return;
-        }
-
         // Get dir handle
         $handle = opendir($dir);
-
-        // No handle, error exception
-        if ($handle === false)
-        {
-            Throw new Error('File not found', 2000, array(
-                $dir
-            ));
-            return;
-        }
 
         // Read dir
         while ( ($file = readdir($handle)) !== false )
@@ -442,7 +420,7 @@ class App extends ClassAbstract
                 if (isset($this->exlude_dirs) && in_array($file, $this->exclude_dirs))
                     continue;
 
-                    // Add dir and url to app config
+                // Add dir and url to app config
                 $this->cfg('dir_' . String::uncamelize($file), $dir . $file);
                 $this->cfg('url_' . String::uncamelize($file), Cfg::get('Web', 'url_' . $app_type) . '/' . $this->name . '/' . $file);
             }
@@ -465,7 +443,7 @@ class App extends ClassAbstract
         if (isset($this->perms) && !empty($this->perms))
             $this->addHook('integrate_load_permissions', 'App', $this->name, 'addPermissions');
 
-            // Menu entries?
+        // Menu entries?
         if (method_exists($this, 'addMenuButtons'))
             $this->addHook('integrate_menu_buttons', 'App', $this->name, 'addMenuButtons');
 
@@ -502,11 +480,11 @@ class App extends ClassAbstract
         // Include lang file if exists
         if (file_exists($lang_file))
             template_include($lang_file);
-            // or log error on missing file
+        // or log error on missing file
         else
             log_error(sprintf(self::get('theme_language_error', 'SMF'), $this->name . '.' . $lang, 'App: ' . $this->name));
 
-            // Set flag for initiated lang
+        // Set flag for initiated lang
         self::$init_stages[$this->name]['lang'] = true;
 
         return $this;
@@ -514,9 +492,8 @@ class App extends ClassAbstract
 
     /**
      * Initiates apps css
-     * Each app can have it's own css file.
-     * If the public property $css is
-     * set and true, at this point the app init is trying to add this css file.
+     * Each app can have it's own css file. If the public property $css is set and true,
+     * at this point the app init is trying to add this css file.
      * @return \Web\Framework\Lib\App
      */
     public function initCss()
@@ -525,17 +502,18 @@ class App extends ClassAbstract
         if (self::$init_stages[$this->name]['css'])
             return;
 
-            // Css flag set that indicates app has a css file?
+        // Css flag set that indicates app has a css file?
         if ($this->css)
         {
-            if (FileIO::exists($this->cfg('dir_css') . '/' . $this->name . '.css'))
+            if (file_exists($this->cfg('dir_css') . '/' . $this->name . '.css'))
             {
                 Css::useLink($this->cfg('url_css') . '/' . $this->name . '.css', true);
                 $css_loaded = 'app';
-            } else
+            }
+            else
             {
                 // Add file when it exists or send error to the error_log
-                if (FileIO::exists(Settings::get('theme_dir') . '/css/App' . $this->name . '.css'))
+                if (file_exists(Settings::get('theme_dir') . '/css/App' . $this->name . '.css'))
                 {
                     Css::useLink(Settings::get('theme_url') . '/css/App' . $this->name . '.css', true);
                     $css_loaded = 'theme';
@@ -553,7 +531,7 @@ class App extends ClassAbstract
         // current themes folder. This will only work on included app css file.
         if ($css_loaded == 'app')
         {
-            if (FileIO::exists(Settings::get('theme_dir') . '/css/App' . $this->name . 'Theme.css'))
+            if (file_exists(Settings::get('theme_dir') . '/css/App' . $this->name . 'Theme.css'))
                 Css::useLink(Settings::get('theme_url') . '/css/App' . $this->name . 'Theme.css', true);
         }
 
@@ -561,7 +539,7 @@ class App extends ClassAbstract
         if (method_exists($this, 'addCss'))
             $this->addCss();
 
-            // Set flag for initiated css
+        // Set flag for initiated css
         self::$init_stages[$this->name]['css'] = true;
 
         return $this;
@@ -578,16 +556,16 @@ class App extends ClassAbstract
         if (self::$init_stages[$this->name]['js'])
             return;
 
-            // Each app can (like css) have it's own javascript file. If you want to have this file included, you have to set the public property $js in
-            // your app mainclass. Unlike the css include procedure, the $js property holds also the information where to include the apps .js file.
-            // You hve to set this property to "scripts" (included on the bottom of website) or "header" (included in header section of website).
-            // the apps js file is stored within the app folder structure in an directory named "js".
+        // Each app can (like css) have it's own javascript file. If you want to have this file included, you have to set the public property $js in
+        // your app mainclass. Unlike the css include procedure, the $js property holds also the information where to include the apps .js file.
+        // You hve to set this property to "scripts" (included on the bottom of website) or "header" (included in header section of website).
+        // the apps js file is stored within the app folder structure in an directory named "js".
         if ($this->js)
         {
             if (!$this->cfg('dir_js'))
                 Throw new Error('App "' . $this->name . '" js folder does not exist. Create the js folder in apps folder and add app js file or unset the js flag in your app mainclass.');
 
-            if (FileIO::exists($this->cfg('dir_js') . '/' . $this->name . '.js'))
+            if (file_exists($this->cfg('dir_js') . '/' . $this->name . '.js'))
                 Javascript::useFile($this->cfg('url_js') . '/' . $this->name . '.js', false);
             else
                 log_error('App "' . $this->name . '" Js file does not exist. Either create the js file or remove the js flag in your app mainclass.');
@@ -597,7 +575,7 @@ class App extends ClassAbstract
         if (method_exists($this, 'addJs'))
             $this->addJs();
 
-            // Set flag for initated js
+        // Set flag for initated js
         self::$init_stages[$this->name]['js'] = true;
 
         return $this;
@@ -613,25 +591,10 @@ class App extends ClassAbstract
         if (!isset($this->routes) || self::$init_stages[$this->name]['routes'] == true)
             return;
 
-            // Set but empty routes?
-        if (isset($this->routes) && empty($this->routes))
-        {
-            Throw new Error('Routes property set but not filled with routes. Fill in routes or remove route property.');
-            return;
-        }
-
         // Add routes to request handler
-        foreach ( $this->routes as $name => $route )
+        foreach ($this->routes as $name => $route)
         {
-            // Check for missing route string
-            if (!isset($route['route']))
-                Throw new Error('No route string set.');
-
-                // Chec kfor missing controller and action
-            if (!isset($route['ctrl']) || !isset($route['action']))
-                Throw new Error('App: ' . $this->name . ' | Route without controller or action found!.');
-
-                // Get method. Not defined methods are always GETs
+            // Get method. Not defined methods are always GETs
             $method = !array_key_exists('method', $route) ? 'GET' : $route['method'];
 
             // Get uncamelized app name
