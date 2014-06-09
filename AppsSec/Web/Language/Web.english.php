@@ -23,9 +23,10 @@ $txt['app_web_info'] = 'Informations';
 $txt['app_web_init'] = 'Init...';
 
 /* ERRORS */
-$txt['app_web_error_404'] = '<h2>404</h2>The requested document does not exist.';
-$txt['app_web_error_403'] = '<h2>403</h2>You are not allowed to access the requested document';
-$txt['app_web_error_500'] = '<h2>500</h2>An internal error occured.';
+$txt['app_web_error'] = 'A general error occured.';
+$txt['app_web_error_404'] = 'The requested document does not exist.';
+$txt['app_web_error_403'] = 'You are not allowed to access the requested document';
+$txt['app_web_error_500'] = 'An internal error occured.';
 
 // Basics
 $txt['app_web_noscript'] = '<span style="color: #FF0000; font-size: 16px; border: 1px solid #FF0000; padding: 3px; width: 100%; text-align: center;">DIESE SEITE BENÖTIGT JAVASCRIPT.<br />BITTE AKTIVIERE ES IN DEINEN BRWOSEREINSTELLUNGEN.</span>';
