@@ -1,6 +1,8 @@
 <?php
 namespace Web\Framework\Lib;
 
+use Web\Framework\Lib\Abstracts\ClassAbstract;
+
 // Check for direct file access
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
@@ -13,107 +15,168 @@ if (!defined('WEB'))
  * @package WebExt
  * @subpackage Lib
  */
-final class Url
+final class Url extends ClassAbstract
 {
 
-    private $ajax;
+    // WebExt related
 
-    private $page;
-
-    private $app;
-
-    private $ctrl;
-
-    private $func;
-
-    private $part;
-
-    private $action;
-
-    private $topic;
-
-    private $board;
-
-    private $target;
-
-    private $anchor;
-
-    private $params;
-
+    /**
+     * Name of route to compile
+     * @var string
+     */
     private $named_route;
 
     /**
-     * Returns an URL object
-     *
+     * Params for route compiling
+     * @var array
+     */
+    private $params = array();
+
+    /**
+     * App name
+     * @var string
+     */
+    private $app;
+
+    /**
+     * Controller name
+     * @var string
+     */
+    private $ctrl;
+
+    /**
+     * Action to call
+     * @var string
+     */
+    private $func;
+
+    /**
+     * Ajax flag
+     * @var int
+     */
+    private $ajax = false;
+
+    // ------------------------------------------
+    // SMF related
+    // ------------------------------------------
+
+    /**
+     * SMF action parameter
+     * @var string
+     */
+    private $action;
+
+    /**
+     * SMF topic parameter
+     * @var int|string
+     */
+    private $topic;
+
+    /**
+     * SMF board parameter
+     * @var int
+     */
+    private $board;
+
+    // ------------------------------------------
+    // Global
+    // ------------------------------------------
+
+    /**
+     * Target parameter
+     * @var string
+     */
+    private $target;
+
+    /**
+     * Anchor parameter
+     * @var string
+     */
+    private $anchor;
+
+    /**
+     * Fectory method which returns an URL object
+     * @param string $named_route Optional name of route to compile
+     * @param array $params Optional parameters to use on route
      * @return Url
      */
-    public static function factory($named_route = null, $params = null)
+    public static function factory($named_route='', $params=array())
     {
         $url = new Url();
 
-        if (isset($named_route))
+        if ($named_route)
         {
             $url->setNamedRoute($named_route);
 
-            if (isset($params))
-                $url->addParameter($params);
+            if ($params)
+                $url->setParameter($params);
         }
 
         return $url;
     }
 
-    private function __construct()
-    {
-        $this->params = new \stdClass();
-    }
-
-    private function reset()
-    {
-        foreach ( $this as &$property )
-        {
-            if (isset($property))
-                unset($property);
-        }
-        return $this;
-    }
-
+    /**
+     * Sets name of route to be compiled
+     * @param string $named_route
+     * @todo Mayve it is a good idea to check for route existance at this point rather than on compiling.
+     * @return \Web\Framework\Lib\Url
+     */
     public function setNamedRoute($named_route)
     {
         $this->named_route = $named_route;
         return $this;
     }
 
-    public function setAjax($bool)
+    /**
+     * Flags url to be ajax
+     * @param bootl $bool
+     * @return \Web\Framework\Lib\Url
+     */
+    public function setAjax($bool=true)
     {
         $this->ajax = $bool;
-        $this->addParameter('is_ajax', 1);
+        $this->setParameter('is_ajax', 1);
         return $this;
     }
 
-    public function setPage($page)
-    {
-        $this->page = $page;
-        return $this;
-    }
-
-    function setApp($app)
+    /**
+     * Sets name of app for route compiling.
+     * @param string $app
+     * @return \Web\Framework\Lib\Url
+     */
+    public function setApp($app)
     {
         $this->app = $app;
         return $this;
     }
 
+    /**
+     * Sets name of controller for route compiling.
+     * @param string $ctrl
+     * @return \Web\Framework\Lib\Url
+     */
     function setCtrl($ctrl)
     {
         $this->ctrl = $ctrl;
         return $this;
     }
 
+    /**
+     * Sets route function
+     * @param string $func
+     * @return \Web\Framework\Lib\Url
+     */
     function setFunc($func)
     {
         $this->func = $func;
         return $this;
     }
 
+    /**
+     * Sets SMF realted action parameter
+     * @param string $action
+     * @return \Web\Framework\Lib\Url
+     */
     function setAction($action)
     {
         $this->action = $action;
@@ -124,151 +187,156 @@ final class Url
         return $this;
     }
 
+    /**
+     * Sets a topic id and flags the url object to create a topic url
+     * @param int $topic Id of topic to create url for
+     * @param int $msg Optional message id
+     * @param string $anchor
+     * @return \Web\Framework\Lib\Url
+     */
     function setTopic($topic, $msg = null, $anchor = null)
     {
+        // Extend topic by message id
         if (isset($msg))
             $topic .= '.msg' . $msg;
 
+        // Set anchor
         if (isset($anchor))
-            $this->setAnchor($anchor);
+            $this->anchor = $anchor;
 
         $this->topic = $topic;
 
+        // Because we generate a SMF url the controller has to point to SMF
         $this->ctrl = 'smf';
 
+        // A set topic requires unset action or board parameter
         $this->unsetData('board');
         $this->unsetData('action');
 
         return $this;
     }
 
+    /**
+     * Sets a board id and flags the url object to create a board url
+     * @param int $board Id of board to create url for
+     * @return \Web\Framework\Lib\Url
+     */
     function setBoard($board)
     {
         $this->board = $board;
 
+        // Because we generate a SMF url the controller has to point to SMF
         $this->ctrl = 'smf';
 
+        // A set board requires unset action or topic parameter
         $this->unsetData('topic');
         $this->unsetData('action');
-        return $this;
-    }
 
-    function setPart($part)
-    {
-        $this->part = $part;
-        return $this;
-    }
-
-    function setTarget($target)
-    {
-        $this->addParameter('target', $target);
-        return $this;
-    }
-
-    function setSubaction($sa)
-    {
-        $this->addParameter('sa', $sa);
-        return $this;
-    }
-
-    public function setArea($area)
-    {
-        $this->addParameter('area', $area);
         return $this;
     }
 
     /**
-     * Add one parameter in form of key and value or a list of parameters as assoc array
+     * Adds target parameter
+     * @param string $target
+     * @return \Web\Framework\Lib\Url
+     */
+    function setTarget($target)
+    {
+        $this->setParameter('target', $target);
+        return $this;
+    }
+
+    /**
+     * Sets SMF realted subaction (sa) parameter
+     * @param string $sa
+     * @return \Web\Framework\Lib\Url
+     */
+    function setSubaction($sa)
+    {
+        $this->setParameter('sa', $sa);
+        return $this;
+    }
+
+    /**
+     * Sets SMF realted area parameter
+     * @param string $area
+     * @return \Web\Framework\Lib\Url
+     */
+    public function setArea($area)
+    {
+        $this->setParameter('area', $area);
+        return $this;
+    }
+
+    /**
+     * Adds one parameter in form of key and value or a list of parameters as assoc array.
+     * Setting an array as $arg1 and leaving $arg2 empty means to add an assoc array of paramters
+     * Setting $arg1 and $arg2 means to set on parameter by name and value.
+     * @var string|array $arg1 String with parametername or list of parameters of type assoc array
+     * @var string $arg2 Needs only to be set when seting on paramters by name and value.
+     * @var bool $reset Optional: Set this to true when you want to reset already existing parameters
      * @throws Error
      * @return \Web\Framework\Lib\Url
      */
-    function addParameter()
+    function setParameter($arg1, $arg2=null, $reset=false)
     {
-        if (func_num_args() == 1 && is_array(func_get_arg(0)) && !empty(func_get_arg(0)))
-        {
-            // if argument is an assoc array all is ok
-            if (Arrays::isAssoc(func_get_arg(0)))
-            {
-                $params = func_get_arg(0);
+        if ($reset===true)
+            $this->params = array();
 
-                foreach ( $params as $key => $val )
-                    $this->params->{$key} = $val;
-            }
-            else
-            {
-                // No assoc array => exception!
-                throw new Error('The array you are trying to add as url parameter is not an associative array!');
-            }
+        if ($arg2 === null && is_array($arg1) && !empty($arg1))
+        {
+            foreach ( $arg1 as $key => $val )
+                $this->params[$key] = $val;
         }
 
-        if (func_num_args() == 2)
-        {
-            if (is_string(func_get_arg(0)))
-                $this->params->{func_get_arg(0)} = func_get_arg(1);
-            else
-                throw new Error('The key of the url parameter to add is not of type sting!');
-        }
+        if (isset($arg2))
+            $this->params[$arg1] = $arg2;
 
         return $this;
     }
 
-    function setParameter()
+    /**
+     * Same as setParameter but without resetting existing parameters.
+     * @see setParameter()
+     * @return \Web\Framework\Lib\Url
+     */
+    public function addParameter($arg1, $arg2=null)
     {
-        $this->params = new \stdClass();
-
-        if (func_num_args() == 1 && is_array(func_get_arg(0)) && !empty(func_get_arg(0)))
-        {
-
-            // if argument is an assoc array all is ok
-            if (Arrays::isAssoc(func_get_arg(0)))
-            {
-                $params = func_get_arg(0);
-
-                foreach ( $params as $key => $val )
-                    $this->params->{$key} = $val;
-            }
-            else
-            {
-                // no assoc array => exception!
-                throw new Error('The array you are trying to add as url parameter is not an associative array!');
-            }
-        }
-
-        if (func_num_args() == 2)
-        {
-            if (is_string(func_get_arg(0)))
-                $this->params->{func_get_arg(0)} = func_get_arg(1);
-            else
-                throw new Error('The key of the url parameter to add is not of type sting!');
-        }
-
+        $this->setParameter($arg1, $arg2, false);
         return $this;
     }
 
+    /**
+     * Sets name of anchor
+     * @param string $anchor
+     * @return \Web\Framework\Lib\Url
+     */
     function setAnchor($anchor)
     {
         $this->anchor = $anchor;
         return $this;
     }
 
+    /**
+     * Processes all parameters and returns a fully compiled url as string.
+     * @return string
+     */
     function getUrl()
     {
-        $request = Request::getInstance();
-
-        // Page requests are simple an will be redirected as as
-        if (isset($this->page))
-            return $request->getRouteUrl('web_page', $this->params);
-
-            // if action isset, we have a smf url to build
+        // if action isset, we have a smf url to build
         if (isset($this->action) || isset($this->board) || isset($this->topic))
             return $this->getSmfURL();
 
         if (isset($this->named_route))
-            return $request->getRouteUrl($this->named_route, $this->params);
+            return $this->request->getRouteUrl($this->named_route, $this->params);
 
-        return '#';
+        return false;
     }
 
+    /**
+     * Returns an SMF style url with action, subactions and so on
+     * @return string
+     */
     private function getSmfUrl()
     {
         // build parameterlist
@@ -296,17 +364,21 @@ final class Url
                 $this->action
             );
 
-            if (isset($this->params->area))
-                $url_parts[] = 'area_' . $this->params->area;
+            if (isset($this->params['area']))
+                $url_parts[] = 'area_' . $this->params['area'];
 
-            if (isset($this->params->sa))
-                $url_parts[] = 'sa_' . $this->params->sa;
+            if (isset($this->params['sa']))
+                $url_parts[] = 'sa_' . $this->params['sa'];
 
             $url_base = '/' . implode('/', $url_parts) . '/';
         }
         return BOARDURL . $url_base . $params . $anchor;
     }
 
+    /**
+     *
+     * @param unknown $key
+     */
     private function unsetData($key)
     {
         if (isset($this->{$key}))
@@ -349,22 +421,21 @@ final class Url
             $parsed['params'][$key] = $val;
         }
 
-        // Empty params oder no 'action' set or not 'action' first query part? Return url unchnged
+        // Empty params or no 'action' set or not 'action' first query part? Return url unchanged
         if (empty($parsed['params']) || !isset($parsed['params']['action']) || key($parsed['params']) != 'action')
             return $raw_url[0];
 
-            // All checks done. Lets rewrite the url
+        // All checks done. Lets rewrite the url
         $url = self::factory();
 
         foreach ( $parsed['params'] as $key => $val )
         {
             $method = 'set' . String::camelize($key);
 
-            //
             if ($key != 'board' && $key != 'topic' && method_exists($url, $method))
                 $url->{$method}($val);
             else
-                $url->addParameter($key, $val);
+                $url->setParameter($key, $val);
         }
 
         // And finally return the rewritten url
