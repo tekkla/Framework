@@ -487,50 +487,39 @@ class Model extends MvcAbstract
     }
 
     /**
-     * Adds named parameters to the model
-     * @param mixed $data
+     * Adds one parameter in form of key and value or a list of parameters as assoc array by resetting existing parameters.
+     * Setting an array as $arg1 and leaving $arg2 empty means to add an assoc array of paramters
+     * Setting $arg1 and $arg2 means to set on parameter by name and value.
+     * @var string|array $arg1 String with parametername or list of parameters of type assoc array
+     * @var string $arg2 Needs only to be set when seting on paramters by name and value.
+     * @var bool $reset Optional: Set this to true when you want to reset already existing parameters
+     * @throws Error
+     * @return \Web\Framework\Lib\Url
      */
-    public function addParameter()
+    function setParameter($arg1, $arg2=null, $reset=true)
     {
-        if (!isset($this->params))
-            $this->params = array();
+    	if ($reset===true)
+    		$this->params = array();
 
-        if (func_num_args() == 2)
-            $this->params[func_get_arg(0)] = Lib::fromObjectToArray(func_get_arg(1));
+    	if ($arg2 === null && (is_array($arg1) || is_object($arg1)))
+    	{
+    		foreach ( $arg1 as $key => $val )
+    			$this->params[$key] = Lib::fromObjectToArray($val);
+    	}
 
-        if (func_num_args() == 1 && (is_array(func_get_arg(0)) || is_object(func_get_arg(0))))
-        {
-            foreach ( func_get_arg(0) as $key => $val )
-                $this->params[$key] = Lib::fromObjectToArray($val);
-        }
+    	if (isset($arg2))
+    		$this->params[$arg1] = Lib::fromObjectToArray($arg2);
 
-        return $this;
+    	return $this;
     }
 
     /**
-     * Sets named parameters to the model
-     * @param mixed $data
+     * Same as setParameter but without resetting existing parameters.
+     * @see setParameter()
      */
-    public function setParameter()
+    public function addParameter($arg1, $arg2=null)
     {
-        if (func_num_args() == 2)
-        {
-            $this->params = array();
-            $this->params[func_get_arg(0)] = func_get_arg(1);
-        }
-
-        if (func_num_args() == 1 && is_array(func_get_arg(0)))
-        {
-            $this->params = array();
-
-            foreach ( func_get_arg(0) as $k => $v )
-                $this->params[$k] = $v;
-        }
-
-        if (func_num_args() == 1 && is_object(func_get_arg(0)))
-            $this->params = (array) func_get_arg(0);
-
-        return $this;
+        $this->setParameter($arg1, $arg2, false);
     }
 
     /**
