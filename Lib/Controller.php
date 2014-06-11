@@ -30,7 +30,7 @@ class Controller extends MvcAbstract
      * Signals that the corresponding view will be rendered
      * @var Boolean
      */
-    public $render = true;
+    protected $render = true;
 
     /**
      * Action to render
@@ -42,11 +42,16 @@ class Controller extends MvcAbstract
      * Storage for access rights
      * @var array
      */
-    private $access = array();
+    protected $access = array();
+
+    /**
+     * Storage for events
+     * @var array
+     */
+    protected $events = array();
 
     /**
      * The View object
-     *
      * @var View
      */
     public $view;
@@ -55,7 +60,7 @@ class Controller extends MvcAbstract
      * Storage for parameter
      * @var Data
      */
-    public $params;
+    public $params = array();
 
     /**
      * Stores the controller bound Model object
@@ -103,7 +108,7 @@ class Controller extends MvcAbstract
         $this->setName($name);
 
         // run onload event
-        $this->onLoad();
+        $this->runEvent('load');
         $this->params = new Data();
     }
 
@@ -177,19 +182,22 @@ class Controller extends MvcAbstract
         if ($this->checkControllerAccess() == false)
             return false;
 
-            // We can set the controllers parameter by hand and will have automatic all
-            // parameters set by the request handler. If params are set manually, possible dublicates
-            // will overwrite controller params copied from request handler.
+       // We can set the controllers parameter by hand and will have automatic all
+       // parameters set by the request handler. If params are set manually, possible dublicates
+       // will overwrite controller params copied from request handler.
 
         // Copy request params to controller params.
         if (!$params)
             $this->params = $this->request->getAllParams();
 
-        // run possible onAction event handler
-        $this->onAction();
+        // run possible before event handler
+        $this->runEvent('before');
 
         // a little bit of reflection magic to pass request params into controller func
         $return = Invoker::run($this, $this->render_action, $this->params);
+
+        // run possible after event handler
+        $this->runEvent('after');
 
         // No result to return? Return false
         if (isset($return) && $return == false)
@@ -254,64 +262,15 @@ class Controller extends MvcAbstract
         $this->run($action, $params);
     }
 
-    /**
-     * Runs set onLoad events
-     */
-    public function onLoad()
+    private function runEvent($event)
     {
-        if (isset($this->events) && isset($this->events['load']))
+        if (isset($this->events[$this->render_action]) && isset($this->events[$this->render_action][$event]))
         {
-            foreach ( $this->events['load'] as $event_func )
+            if (!is_array($this->events[$this->render_action][$event]))
+                $this->events[$this->render_action][$event] = array($this->events[$this->render_action][$event]);
+
+            foreach ( $this->events[$this->render_action][$event] as $event_func )
                 Invoker::run($this, $event_func, $this->request->getAllParams());
-        }
-    }
-
-    /**
-     * Event manager called right before execution off function starts
-     * @param string $action @Example Define in your Controller
-     * @tutorial <code>
-     *           public $events = array(
-     *           'action' => array(
-     *           'YourAction' => 'funcToCallBefore' or array(ListOfFuncsToCallBefore)
-     *           )
-     *           );
-     *           </code>
-     */
-    public function onAction()
-    {
-        $log = 'Starting onAction event for controller [' . $this->name . '] on action [' . $this->render_action . ']...';
-
-        $actionlist = array();
-
-        // Global onAction events set?
-        if (isset($this->actions) && isset($this->actions['*']) && isset($this->actions['*']['on']))
-        {
-            $log = 'Global onAction funtions found...';
-
-            if (is_array($this->actions['*']['on']))
-                $actionlist = array_merge($actionlist, $this->actions['*']['on']);
-            else
-                $actionlist[] = $this->actions['*']['on'];
-        }
-
-        // Action specific event set?
-        if (isset($this->actions) && isset($this->actions[$this->render_action]) && isset($this->actions[$this->render_action]['on']))
-        {
-            if (is_array($this->actions[$this->render_action]['on']))
-                $actionlist = array_merge($actionlist, $this->actions['*']['on']);
-            else
-                $actionlist[] = $this->actions[$this->render_action]['on'];
-        }
-
-        // No events or actions defined in controller? do nothing if so.
-        if (empty($actionlist))
-            return;
-
-            // Run set actions
-        foreach ( $actionlist as $action_func )
-        {
-            $this->log('onAction Event function [' . $action_func . '] on controller [' . $this->name . '] at action[' . $this->render_action . ']...');
-            Invoker::Run($this, $action_func, $this->request->getAllParams());
         }
     }
 
