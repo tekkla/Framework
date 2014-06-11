@@ -167,7 +167,7 @@ class Controller extends MvcAbstract
      * @param string $params
      * @return boolean unknown void
      */
-    public function run($action = null, $params = null)
+    public function run($action = null, $params=array())
     {
         // Argument checks and name conversions.
         // If no func is set as arg, use the request action.
@@ -182,20 +182,8 @@ class Controller extends MvcAbstract
             // will overwrite controller params copied from request handler.
 
         // Copy request params to controller params.
-        if (!isset($params))
+        if (!$params)
             $this->params = $this->request->getAllParams();
-        else
-        {
-            if (!is_array($params))
-                $params = array(
-                    $params
-                );
-
-            if (!is_object($params))
-                $params = Lib::toObject($params);
-
-            $this->params = $params;
-        }
 
         // run possible onAction event handler
         $this->onAction();
@@ -223,7 +211,7 @@ class Controller extends MvcAbstract
      * @param string $params
      * @return string
      */
-    public function ajax($action = null, $params = null)
+    public function ajax($action = null, $params=array())
     {
         // get processed controller result
         $content = $this->run($action, $params);
