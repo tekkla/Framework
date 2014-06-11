@@ -15,7 +15,7 @@ if (!defined('WEB'))
  * @license BSD
  * @copyright 2014 by author
  */
-final class GeneralError extends ErrorAbstract
+final class DbError extends ErrorAbstract
 {
     protected $fatal = true;
 }

@@ -8,16 +8,23 @@ if (!defined('WEB'))
     die('Cannot run without WebExt framework...');
 
 /**
- * General error handling object
+ * Object error handling object
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
  * @subpackage Lib\Errors
  * @license BSD
  * @copyright 2014 by author
  */
-final class GeneralError extends ErrorAbstract
+class ObjectError extends ErrorAbstract
 {
+    protected $codes = array(
+        5000 => 'General',
+        5001 => 'MethodMissing',
+        5002 => 'PropertyMissing',
+        5003 => 'PropertyNotSet',
+        5004 => 'PropertyEmpty',
+    );
+
     protected $fatal = true;
 }
 ?>
-

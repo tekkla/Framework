@@ -8,16 +8,21 @@ if (!defined('WEB'))
     die('Cannot run without WebExt framework...');
 
 /**
- * General error handling object
+ * ParameterValue error handling object
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
  * @subpackage Lib\Errors
  * @license BSD
  * @copyright 2014 by author
  */
-final class GeneralError extends ErrorAbstract
+final class ParameterValueError extends ErrorAbstract
 {
+    private $codes = array(
+        1000 => 'General',
+        1001 => 'WrongParameter',
+        1001 => 'MissingParameter',
+    );
+
     protected $fatal = true;
 }
 ?>
-
