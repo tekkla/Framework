@@ -9,7 +9,6 @@ if (!defined('WEB'))
 // Used classes
 use Web\Framework\Helper\FormDesigner;
 use Web\Framework\Lib\Abstracts\MvcAbstract;
-use Web\Framework\Lib\Errors\ProtectedVarError;
 
 /**
  * Controllers parent class. Each app controller has to be a child of this class.
@@ -168,7 +167,7 @@ class Controller extends MvcAbstract
      * @param string $params
      * @return boolean unknown void
      */
-    public function run($action = null, $params = null)
+    public function run($action = null, $params=array())
     {
         // Argument checks and name conversions.
         // If no func is set as arg, use the request action.
@@ -183,20 +182,8 @@ class Controller extends MvcAbstract
             // will overwrite controller params copied from request handler.
 
         // Copy request params to controller params.
-        if (!isset($params))
+        if (!$params)
             $this->params = $this->request->getAllParams();
-        else
-        {
-            if (!is_array($params))
-                $params = array(
-                    $params
-                );
-
-            if (!is_object($params))
-                $params = Lib::toObject($params);
-
-            $this->params = $params;
-        }
 
         // run possible onAction event handler
         $this->onAction();
@@ -224,7 +211,7 @@ class Controller extends MvcAbstract
      * @param string $params
      * @return string
      */
-    public function ajax($action = null, $params = null)
+    public function ajax($action = null, $params=array())
     {
         // get processed controller result
         $content = $this->run($action, $params);
@@ -457,14 +444,14 @@ class Controller extends MvcAbstract
             foreach ( $vars as $k => $v )
             {
                 if (in_array($k, $protected_var_names))
-                    Throw new ProtectedVarError($k, $protected_var_names);
+                    Throw new Error('Varname is protected. Use other name for your var.', 5000, array($k, $protected_var_names));
 
                 $this->view->setVar($k, $v);
             }
         } elseif ($num_arguments == 2)
         {
             if (in_array(func_get_arg(0), $protected_var_names))
-                Throw new ProtectedVarError(func_get_arg(0), $protected_var_names);
+            	Throw new Error('Varname is protected. Use other name for your var.', 5000, array(func_get_arg(0), $protected_var_names));
 
             $this->view->setVar(func_get_arg(0), func_get_arg(1));
         } else

@@ -2,13 +2,11 @@
 
 namespace Web\Framework\Lib;
 
+use Web\Framework\Lib\Abstracts\ClassAbstract;
+
 // Check for direct file access
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
-
-// Used classes
-use Web\Framework\Lib\Errors\NoValidParameterError;
-use Web\Framework\Lib\Errors\NeededPropertyNotSetError;
 
 /**
  * Class with debugging functions
@@ -18,9 +16,8 @@ use Web\Framework\Lib\Errors\NeededPropertyNotSetError;
  * @package WebExt
  * @subpackage Lib
  */
-class Debug
+class Debug extends ClassAbstract
 {
-
     /**
      * The var to inspect
      * @var mixed
@@ -65,7 +62,7 @@ class Debug
         );
 
         if (!in_array($mode, $modes))
-            throw new NoValidParameterError($mode, $modes);
+            Throw new Error('Wrong mode set.', 1000, array($mode, $modes));
 
         $this->mode = $mode;
         return $this;
@@ -89,9 +86,9 @@ class Debug
         );
 
         if (!in_array($target, $targets))
-            throw new NoValidParameterError($target, $targets);
+            Throw new Error('Wrong target set.', 1000, array($target, $targets));
 
-        if ($target=='console' && !Request::getInstance()->isAjax())
+        if ($target=='console' && !$this->request->isAjax())
             $target = 'return';
 
         $this->target = $target;
@@ -128,9 +125,6 @@ class Debug
 
     /**
      * Debugs a variable or an object with various output
-     * @param string $var
-     * @param string $target
-     * @param string $type
      * @return void string
      */
     public function run()
@@ -138,7 +132,7 @@ class Debug
         // If var is not set explicit, the calling object will
         // be used for debug output.
         if (!isset($this->var))
-            Throw new NeededPropertyNotSetError('var');
+            Throw new Error('Var to debug not set.', 1001);
 
         switch ($this->mode)
         {
@@ -156,7 +150,7 @@ class Debug
 
         // Target 'console' is used for ajax requests and
         // returns the debug content to the browser console
-        if ($this->target == 'console' && Request::getInstance()->isAjax())
+        if ($this->target == 'console' && $this->request->isAjax())
         {
             // Create the ajax console.log ajax
             Ajax::factory()->log($output);

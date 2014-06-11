@@ -9,7 +9,6 @@ if (!defined('WEB'))
 // Used classes
 use Web\Framework\Lib\Data;
 use Web\Framework\Lib\Abstracts\MvcAbstract;
-use Framework\Lib\Errors\MissingAppObjectError;
 
 /**
  * ORM like class to read from and write data to db
@@ -21,7 +20,6 @@ use Framework\Lib\Errors\MissingAppObjectError;
  */
 class Model extends MvcAbstract
 {
-
     /**
      * Framwork component type
      * @var string
@@ -32,111 +30,116 @@ class Model extends MvcAbstract
      * Tablename
      * @var string
      */
-    public $tbl = '';
+    protected $tbl = '';
 
     /**
      * Table alias
      * @var string
      */
-    public $alias = '';
+    protected $alias = '';
 
     /**
      * Database table prefix
      * @var string
      */
-    public $prefix = NULL;
+    protected $prefix = NULL;
 
     /**
      * Name of primary key
      * @var string
      */
-    public $pk = '';
+    protected $pk = '';
 
     /**
      * Distinct flag
      * @var bool
      */
-    public $distinct = false;
+    private $distinct = false;
 
     /**
      * Filter statement
      * @var string
      */
-    public $filter = '';
+    private $filter = '';
 
     /**
      * Group by statement
      * @var string
      */
-    public $group_by = '';
+    private $group_by = '';
 
     /**
      * Queryparameters
      * @var array
      */
-    public $params = array();
+    private $params = array();
 
     /**
      * Query types
      * @var string
      */
-    public $query_type = 'row';
+    private $query_type = 'row';
 
     /**
      * Order by string
      * @var string
      */
-    public $order = '';
+    private $order = '';
 
     /**
      * Having string
      * @var string
      */
-    public $having = '';
+    private $having = '';
 
     /**
      * Limit statement
      * @var string
      */
-    public $limit = array();
+    private $limit = array();
 
     /**
      * List of fileds to query
      * @var array
      */
-    public $fields = array();
+    private $fields = array();
 
     /**
      * Join storage for multiple table joins
      * @var unknown
      */
-    public $join = array();
+    private $join = array();
 
     /**
      * Flag for $this->data cleaning before insert or update
      * @var bool
      */
-    public $clean = 1;
+    private $clean = 1;
 
     /**
      * Validation rules.
      * Set in Childmodels. Here only for error prevention
      * @var array
      */
-    public $validate = array();
+    protected $validate = array();
 
     /**
      * Errorstorage filled by validator
      * @var array
      */
-    public $errors = array();
+    private $errors = array();
 
     /**
      * Stores the definitions of tables fields
      * @var \stdClass
      */
-    public $columns;
-    public $serialized = array();
+    private $columns;
+
+    /**
+     * List of fields which are serializable
+     * @var array
+     */
+    protected $serialized = array();
 
     /**
      * Storage for the query results
@@ -148,7 +151,7 @@ class Model extends MvcAbstract
      * Storage for attached validator object
      * @var validator
      */
-    public $validator;
+    private $validator;
 
     /**
      * Stores sql string
@@ -160,7 +163,7 @@ class Model extends MvcAbstract
      * Database instance
      * @var Database
      */
-    public $db;
+    private $db;
 
     /**
      * Get an instance of a model by name as parameter or by controller name
@@ -173,9 +176,9 @@ class Model extends MvcAbstract
     public static function factory(App $app, $model_name)
     {
         if (!isset($app) || (isset($app) && !$app instanceof App))
-            Throw new MissingAppObjectError();
+            Throw new Error('App object not set', 1000);
 
-            // Framework, SMF or App model? Create proper namespace.
+        // Framework, SMF or App model? Create proper namespace.
         $model_class = ($app->isSecure() ? '\\Web\\Framework\\AppsSec' : '\\Web\\Apps') . "\\" . $app->getName() . '\\Model\\' . $model_name . 'Model';
 
         // Create and return modelobject
@@ -251,7 +254,7 @@ class Model extends MvcAbstract
     }
 
     /**
-     * Returns the type of the reuested field.
+     * Returns the type of the requested field.
      * Returns false on none existing fields.
      * @param sting $fld
      * @return Ambigous <boolean, string>
@@ -263,7 +266,6 @@ class Model extends MvcAbstract
 
     /**
      * Checks the definition of the filed if it allows null values.
-     *
      * @param string $fld The name of the field to check
      */
     public function isNullAllowed($fld)
@@ -485,50 +487,39 @@ class Model extends MvcAbstract
     }
 
     /**
-     * Adds named parameters to the model
-     * @param mixed $data
+     * Adds one parameter in form of key and value or a list of parameters as assoc array by resetting existing parameters.
+     * Setting an array as $arg1 and leaving $arg2 empty means to add an assoc array of paramters
+     * Setting $arg1 and $arg2 means to set on parameter by name and value.
+     * @var string|array $arg1 String with parametername or list of parameters of type assoc array
+     * @var string $arg2 Needs only to be set when seting on paramters by name and value.
+     * @var bool $reset Optional: Set this to true when you want to reset already existing parameters
+     * @throws Error
+     * @return \Web\Framework\Lib\Url
      */
-    public function addParameter()
+    function setParameter($arg1, $arg2=null, $reset=true)
     {
-        if (!isset($this->params))
-            $this->params = array();
+    	if ($reset===true)
+    		$this->params = array();
 
-        if (func_num_args() == 2)
-            $this->params[func_get_arg(0)] = Lib::fromObjectToArray(func_get_arg(1));
+    	if ($arg2 === null && (is_array($arg1) || is_object($arg1)))
+    	{
+    		foreach ( $arg1 as $key => $val )
+    			$this->params[$key] = Lib::fromObjectToArray($val);
+    	}
 
-        if (func_num_args() == 1 && (is_array(func_get_arg(0)) || is_object(func_get_arg(0))))
-        {
-            foreach ( func_get_arg(0) as $key => $val )
-                $this->params[$key] = Lib::fromObjectToArray($val);
-        }
+    	if (isset($arg2))
+    		$this->params[$arg1] = Lib::fromObjectToArray($arg2);
 
-        return $this;
+    	return $this;
     }
 
     /**
-     * Sets named parameters to the model
-     * @param mixed $data
+     * Same as setParameter but without resetting existing parameters.
+     * @see setParameter()
      */
-    public function setParameter()
+    public function addParameter($arg1, $arg2=null)
     {
-        if (func_num_args() == 2)
-        {
-            $this->params = array();
-            $this->params[func_get_arg(0)] = func_get_arg(1);
-        }
-
-        if (func_num_args() == 1 && is_array(func_get_arg(0)))
-        {
-            $this->params = array();
-
-            foreach ( func_get_arg(0) as $k => $v )
-                $this->params[$k] = $v;
-        }
-
-        if (func_num_args() == 1 && is_object(func_get_arg(0)))
-            $this->params = (array) func_get_arg(0);
-
-        return $this;
+        $this->setParameter($arg1, $arg2, false);
     }
 
     /**
@@ -830,7 +821,7 @@ class Model extends MvcAbstract
             $this->setField('Count(' . $this->pk . ')');
 
             // On pklist we only want the pk column
-        if ($query_type == 'pk')
+        if ($query_type == 'key')
             $this->setField($this->pk);
 
             // Build the sql string
@@ -878,8 +869,9 @@ class Model extends MvcAbstract
                         if (!isset($this->data->{$col}))
                             $val = in_array($col, $this->serialized) ? unserialize($val) : $val;
 
-                        $this->data->{$col} = $this->runCallbacks($callbacks, $val);
                     }
+
+                    $this->data = $this->runCallbacks($callbacks, $this->data);
 
                     // We only want truely only one row. Not more!
                     if ($counter == 1)
@@ -927,11 +919,12 @@ class Model extends MvcAbstract
              */
             case '*' :
 
-                // Prepare data object
-                $this->data = new Data();
-
                 while ( $row = $this->db->fetchAssoc($res) )
                 {
+                	// Prepare data object
+                	if (!$this->data)
+                		$this->data = new Data();
+
                     // Convert row to record object
                     $record = new Data($row);
 
@@ -983,7 +976,6 @@ class Model extends MvcAbstract
 
                 break;
 
-
             /**
              * Reads one value
              */
@@ -992,11 +984,6 @@ class Model extends MvcAbstract
                 $this->data = $this->runCallbacks($callbacks, $row[0]);
                 break;
 
-            case 'pklist' :
-            case 'pk' :
-            case 'onecol' :
-            case 'col' :
-            case 'keysonly' :
             case 'key' :
                 if ($this->db->numRows($res))
                 {
@@ -1012,21 +999,12 @@ class Model extends MvcAbstract
                         $this->data[$row[0]] = $row[0];
                     }
                 }
-
                 break;
 
             default :
-                $error = '<h4>Abfragetype: \'' . $this->query_type . '\' existiert nicht.</h4>';
-                $error .= 'Aufruf durch: ' . get_called_class() . '<br>';
-                $error .= '<code>' . $this->sql . '</code>';
-                Throw new Error($error);
+                Throw new Error('Wrong query type', 1000, array($this->query_type));
                 break;
         }
-
-        // #echo '<h3>Model</h3>';
-        // echo 'Method: ' . $method . '<br>';
-        // echo 'Sql: ' . $this->sql . '</br>';
-        // echo 'Params: <pre>' . print_r($this->params, true) . '</pre>';
 
         $this->db->freeResult($res);
 
@@ -1053,7 +1031,7 @@ class Model extends MvcAbstract
      * pk value and returns it after the data has been processed.
      * @return boolean multitype:\Web\Framework\Lib\id_of_table
      */
-    public function save($validate = true)
+    protected function save($validate = true)
     {
         // Make sure $this->data is an Data object
         if (!$this->data instanceof Data)
@@ -1329,7 +1307,10 @@ class Model extends MvcAbstract
     }
 
     /**
-     * !!! Truncates the complete tablecontent of the table linked to the model WITHOUT any confirmation question !!!
+     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+     * Truncates the complete tablecontent of the table linked to the model
+     * WITHOUT any further confirmation question
+     * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      */
     public function truncate()
     {
@@ -1647,7 +1628,7 @@ class Model extends MvcAbstract
             } else
                 $data = $this->{$callback}($data);
 
-                // Stop processing as soon as return value of callback is boolean false.
+            // Stop processing as soon as return value of callback is boolean false.
             if ($exit_on_false && $data === false)
                 break;
         }

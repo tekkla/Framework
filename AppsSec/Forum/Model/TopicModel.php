@@ -35,16 +35,18 @@ class TopicModel extends Model
 			// get topic id
 			$model = $this->app->getModel('Messages')
 						->setField(array(
-							'id_msg AS id_message',
-							'id_topic',
-							'id_board',
-							'subject'
+							'message.id_msg AS id_message',
+							'message.id_topic',
+							'message.id_board',
+							'message.subject'
 						))
-						->setFilter('subject={string:subject} AND id_member={int:id_member}')
-						->addParameter(array(
-							'subject' => $msgOptions['subject'],
-							'id_member'=> $posterOptions['id'],
-						));
+						->setFilter(
+							'message.subject={string:subject} AND message.id_member={int:id_member}',
+							array(
+								'subject' => $msgOptions['subject'],
+								'id_member'=> $posterOptions['id'],
+							)
+						);
 
 			return $model->read();
 		}

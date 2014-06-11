@@ -229,7 +229,7 @@ class FormDesigner extends Form
             'ajax',
             'submit'
         )))
-            Throw new Error('Wrong sendmode. Form sendmode has to be "ajax" or "submit" and not "' . $send_mode . '".');
+            Throw new Error('Wrong form sendmode.', 1000, array('ajax', 'submit'));
 
         $this->send_mode = $send_mode;
         return $this;
@@ -434,13 +434,13 @@ class FormDesigner extends Form
 
             case 'range' :
                 if (!isset($params))
-                    Throw new Error('Range elements need min and max parameters to be set. None was set.');
+                    Throw new Error('Range elements need min and max parameters to be set. None was set.', 1001);
 
                 if (count($params) < 2)
-                    Throw new Error('Range elements need min and max parameters to be set. You only set one parameter.');
+                    Throw new Error('Range elements need min and max parameters to be set. You only set one parameter.', 1001);
 
                 if (!is_int($params[0]) || !is_int($params[1]))
-                    Throw new Error('Range elements parameter need to be of type INT.');
+                    Throw new Error('Range elements parameter need to be of type INT.', 1000);
 
                 $element = Input::factory($name, 'number')->addCss('web-form-number')->addAttribute('min', $params[0])->addAttribute('max', $params[1]);
 
@@ -500,7 +500,7 @@ class FormDesigner extends Form
     public function build($wrapper = null)
     {
         if (empty($this->controls))
-            Throw new Error('FormDesigner: Your form has no controls to show. Add controls and try again.');
+            Throw new Error('Your form has no controls to show. Add controls and try again.', 10000);
 
         $base_form_name = 'web_appform';
 
@@ -515,10 +515,10 @@ class FormDesigner extends Form
         {
             // manual forms need a set app and model name
             if (!isset($this->app_name))
-                Throw new Error('With no model object assigned, your form needs an manual set app name.');
+                Throw new Error('With no model object assigned, your form needs an manual set app name.', 10000);
 
             if (!isset($this->model_name))
-                Throw new Error('With no model object assigned, your form needs an model name to use it as pseudo model.');
+                Throw new Error('With no model object assigned, your form needs an model name to use it as pseudo model.', 10000);
         }
 
         $this->app_name = String::uncamelize($this->app_name);

@@ -5,7 +5,6 @@ use Web\Framework\Lib\Error;
 use Web\Framework\Lib\Url;
 use Web\Framework\Html\Elements\Icon;
 use Web\Framework\Html\Elements\Link;
-use Web\Framework\Lib\Errors\NoValidParameterError;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -99,7 +98,7 @@ class UiButton extends Link
             $obj->url->setFunc($func);
 
         if (isset($params))
-            $obj->url->addParameter($params);
+            $obj->url->setParameter($params);
 
         return $obj;
     }
@@ -185,7 +184,7 @@ class UiButton extends Link
         );
 
         if (!in_array($mode, $modelist))
-            Throw new NoValidParameterError($mode, $modelist);
+        	Throw new Error('Wrong mode for UiButton.', 1000, array($mode, $modelist));
 
         $this->mode = $mode;
         return $this;
@@ -214,7 +213,7 @@ class UiButton extends Link
         );
 
         if (!in_array($type, $typelist))
-            Throw new NoValidParameterError($type, $typelist);
+        	Throw new Error('Wrong type for UiButton.', 1000, array($type, $typelist));
 
         $this->type = $type;
         return $this;
@@ -287,11 +286,24 @@ class UiButton extends Link
      * @param string $params
      * @return \Web\Framework\Html\Controls\UiButton
      */
-    public function setRoute($route, $params = null)
+    public function setRoute($route, $params=array())
     {
         $this->url->setNamedRoute($route);
-        $this->url->setParameter($params);
 
+        if ($params)
+            $this->url->setParameter($params, null, true);
+
+        return $this;
+    }
+
+    /**
+     * Adds one or more (assoc array) parameter to buttons url object by resetting already existing parameters.
+     * @param mixed One param = key, val | list of params = array(key => val)
+     * @return \Web\Framework\Html\Controls\UiButton
+     */
+    public function setParameter($arg1, $arg2=null)
+    {
+        $this->url->setParameter($arg1, $arg2, true);
         return $this;
     }
 
@@ -300,10 +312,10 @@ class UiButton extends Link
      * @param mixed One param = key, val | list of params = array(key => val)
      * @return \Web\Framework\Html\Controls\UiButton
      */
-    public function addParameter()
+    public function addParameter($arg1, $arg2=null)
     {
-        $this->url->addParameter(func_get_args());
-        return $this;
+    	$this->url->setParameter($arg1, $arg2, false);
+    	return $this;
     }
 
     /**

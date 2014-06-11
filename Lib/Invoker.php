@@ -1,9 +1,6 @@
 <?php
 namespace Web\Framework\Lib;
 
-use Web\Framework\Lib\Errors\ParameterNotSetError;
-use Web\Framework\Lib\Errors\MethodNotExistsError;
-
 // Check for direct file access
 if (!defined('WEB'))
     die('Cannot run without WebExt framework...');
@@ -34,9 +31,9 @@ final class Invoker
 
     /**
      * Parameters as method arguments
-     * @var \stdClass
+     * @var array
      */
-    private $params;
+    private $params = array();
 
     /**
      * Factory method
@@ -45,7 +42,7 @@ final class Invoker
      * @param \stdClass $params Optinal parameterlist
      * @return mixed
      */
-    public static function run(&$obj, $method, $params = null)
+    public static function run(&$obj, $method, $params=array())
     {
         $invoker = new Invoker($obj, $method, $params);
         return $invoker->executeInvoker();
@@ -57,13 +54,15 @@ final class Invoker
      * @param string $method Name of method to call
      * @param \stdClass $params Optinal parameterlist
      */
-    private function __construct($obj, $method, $params = null)
+    private function __construct($obj, $method, $params=array())
     {
         $this->obj = $obj;
         $this->method = $method;
 
-        if (isset($params))
-            $this->params = $params;
+        if(is_object($params))
+            $params = (array) $params;
+
+        $this->params = $params;
     }
 
     /**
@@ -76,7 +75,7 @@ final class Invoker
     {
         // Look for the method in object. Throw error when missing.
         if (!method_exists($this->obj, $this->method))
-            Throw new MethodNotExistsError($this->method, get_called_class());
+            Throw new Error('Method not found.', 5000, array($this->method, $this->obj));
 
         // Get reflection method
         $method = new \ReflectionMethod($this->obj, $this->method);
@@ -94,11 +93,11 @@ final class Invoker
             $param_name = $param->getName();
 
             // Parameter is not optional and not set => throw error
-            if (!$param->isOptional() && !isset($this->params->{$param_name}))
-                Throw new ParameterNotSetError($method->getName(), $param);
+            if (!$param->isOptional() && !isset($this->params[$param_name]))
+                Throw new Error('Missing parameter', 2001, array($method->getName(), $param));
 
             // If parameter is optional and not set, set argument to null
-            $args[] = $param->isOptional() && !isset($this->params->{$param_name}) ? null : $this->params->{$param_name};
+            $args[] = $param->isOptional() && !isset($this->params[$param_name]) ? null : $this->params[$param_name];
         }
 
         // Return result executed method

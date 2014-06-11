@@ -88,9 +88,9 @@ class Request extends SingletonAbstract
 
     /**
      * storage for GET parameters
-     * @var \stdClass
+     * @var array
      */
-    private $params = false;
+    private $params = array();
 
     /**
      * Name of current route
@@ -133,8 +133,6 @@ class Request extends SingletonAbstract
     );
 
     private $match = false;
-
-    private static $map = array();
 
     // ---------------------------------------------------------------------------
     // ROUTE HANDLING
@@ -188,10 +186,13 @@ class Request extends SingletonAbstract
      * @param string $route The route regex, custom regex must start with an @. You can use multiple pre-set regex filters, like [i:id]
      * @param mixed $target The target where this route should point to. Can be anything.
      * @param string $name Optional name of this route. Supply if you want to reverse route this url in your application.
-     * @param array $access Optional array with names of smf access rights.
+     * @param array $access Optional array with names of SMF access rights.
      */
-    public function mapRoute($method, $route, $target, $name = '', $access = array())
+    public function mapRoute2($method, $route, $target, $name = '', $access = array())
     {
+
+        var_dump($name);
+
         $map = array();
 
         if ($method != 'GET')
@@ -220,7 +221,17 @@ class Request extends SingletonAbstract
         if ($name)
         {
             if (isset($this->named_routes[$name]))
-                throw new Error("Can not redeclare route '{$name}'");
+                throw new Error(
+                    'Route has been already declared.',
+                    6002,
+                    array(
+                        'method' => $method,
+                        'route' => $route,
+                        'tatget' => $target,
+                        'name' => $name,
+                        'access' => $access
+                    )
+                );
             else
                 $this->named_routes[$name] = array(
                     'route' => $route,
@@ -232,6 +243,64 @@ class Request extends SingletonAbstract
     }
 
     /**
+     * Map a route to a target
+     * @param string $method One of 4 HTTP Methods, or a pipe-separated list of multiple HTTP Methods (GET|POST|PUT|DELETE)
+     * @param string $route The route regex, custom regex must start with an @. You can use multiple pre-set regex filters, like [i:id]
+     * @param mixed $target The target where this route should point to. Can be anything.
+     * @param string $name Optional name of this route. Supply if you want to reverse route this url in your application.
+     * @param array $access Optional array with names of SMF access rights.
+     */
+    public function mapRoute($route)
+    {
+        if (!isset($route['target']))
+            Throw new Error('A route needs a target', 6004, $route);
+
+        // Is this a named route?
+        if (isset($route['name']))
+        {
+            if (array_key_exists($route['name'], $this->named_routes))
+            {
+                throw new Error('Route "' . $route['name'] .'" has already been declared.', 6002, $route);
+            }
+            else
+            {
+                $named_route = array(
+                    'route' => $route['route']
+                );
+
+                if (isset($route['access']))
+                    $named_route['access'] = $route['access'];
+
+                $this->named_routes[$route['name']] = $named_route;
+            }
+        }
+
+        // Prepare route definition
+        $route_definition = array();
+
+        // Check for set route method
+        $route_definition[0] = isset($route['method']) ? $route['method'] : 'GET';
+
+        // Extend route with basepath
+        $route_definition[1] = $this->base_path . $route['route'];
+
+        // Set target
+        $route_definition[2] = $route['target'];
+
+        // Name set?
+        $route_definition[3] = isset($route['name']) ? $route['name'] : '';
+
+        // Access set?
+        $route_definition[4] = isset($route['access']) ? $route['access'] : array();
+
+        // Stor new route
+        $this->routes[] = $route_definition;
+
+        return $this;
+    }
+
+
+    /**
      * Reversed routing
      * Generate the URL for a named route.
      * Replace regexes with supplied parameters
@@ -239,17 +308,18 @@ class Request extends SingletonAbstract
      * @param array @params Associative array of parameters to replace placeholders with.
      * @return string The URL of the route with named parameters in place.
      */
-    public function getRouteUrl($route_name, $params = array())
+    public function getRouteUrl($route_name, $params=array())
     {
-        if (is_array($params))
-            $params = Lib::toObject($params);
-
-            // Check if named route exists
+        // Check if named route exists
         if (!isset($this->named_routes[$route_name]))
-        {
-            $this->debug($this->named_routes);
-            Throw new Error('Route "' . $route_name . '" does not exist.');
-        }
+            Throw new Error(
+                'Route "' . $route_name . '" does not exist.',
+                6000,
+                array(
+                    'route_name' => $route_name,
+                    'params' => $params,
+                )
+            );
 
         // Replace named parameters
         $route = $this->named_routes[$route_name];
@@ -269,14 +339,25 @@ class Request extends SingletonAbstract
                 if ($pre)
                     $block = substr($block, 1);
 
-                if (isset($params->{$param}))
-                    $url = str_replace($block, $params->{$param}, $url);
+                if (isset($params[$param]))
+                    $url = str_replace($block, $params[$param], $url);
                 elseif ($optional)
                     $url = str_replace($pre . $block, '', $url);
+                else
+                    Throw new Error(
+                        'Parameter missing.',
+                        6000,
+                        array(
+                            'route_name' => $route_name,
+                            'params' => $params,
+                            'block' => $block,
+                            'param' =>  $param
+                        )
+                    );
             }
         }
 
-        return BOARDURL . $url;
+        return BOARDURL . $this->base_path . $url;
     }
 
     /**
@@ -285,7 +366,7 @@ class Request extends SingletonAbstract
      * @param string $request_method
      * @return array boolean with route information on success, false on failure (no match).
      */
-    public function processRequest($request_url = null, $request_method = null)
+    public function processRequest($request_url=null, $request_method=null)
     {
         // Is this a web request?
         $this->is_web = isset($_REQUEST['action']) && $_REQUEST['action'] == 'web';
@@ -327,6 +408,7 @@ class Request extends SingletonAbstract
 
         foreach ( $this->routes as $handler )
         {
+
             list($method, $_route, $target, $name, $access) = $handler;
 
             // Method seems to match. First to do is a possible access check
@@ -412,8 +494,7 @@ class Request extends SingletonAbstract
                 foreach ( $target as $key => $val )
                     $this->{$key} = String::camelize($val);
 
-                foreach ( $params as $key => $val )
-                    $this->addParam($key, $val);
+                $this->params = $params;
 
                 return $this;
             }
@@ -422,7 +503,7 @@ class Request extends SingletonAbstract
         $this->match = false;
 
         if ($this->isWeb())
-            Throw new Error('No matching route for "' . $request_method . ':' . $request_url . '" found.');
+            Throw new Error('No matching route found.',6001, func_num_args());
 
         return $this;
     }
@@ -638,41 +719,30 @@ class Request extends SingletonAbstract
      */
     public function checkParam($key)
     {
-        return isset($this->params->{$key});
+        return isset($this->params[$key]);
     }
 
     /**
-     * Same functionality of setParam() but without the reset of existing parameterlist.
+     * Sets one or mor request parameter. Set $arg1 as assoc array to add multiple parameter.
+     * Both args ($arg1 and $arg2) set means to add a parameter by key ($arg1) and value ($arg2)
+     * @param string|array $arg1
+     * @param string $arg2
+     * @return \Web\Framework\Lib\Request
      */
-    public function addParam()
+    public function addParam($arg1, $arg2=null)
     {
-        if (!$this->params instanceof \stdClass)
-            $this->params = new \stdClass();
-
-        if (func_num_args() == 1 && is_array(func_get_arg(0)))
+        if ($arg2===null && is_array($arg1))
         {
-            // if argument is an assoc array all is ok
-            if (Arrays::isAssoc(func_get_arg(0)))
-            {
-                $param_list = func_get_arg(0);
+            $arg1 = Lib::fromObjectToArray($arg1);
 
-                foreach ( $param_list as $key => $val )
-                    $this->params->$key = $val;
-            }
-            else
-            {
-                // no assoc array => exception!
-                throw new Error('The array you are trying to add as request parameter is not an associative array!');
-            }
+            foreach ( $arg1 as $key => $val )
+                $this->params[$key] = $val;
         }
 
-        if (func_num_args() == 2)
-        {
-            if (is_string(func_get_arg(0)))
-                $this->params->{func_get_arg(0)} = func_get_arg(1);
-            else
-                throw new Error('The key "' . func_get_arg(0) . '" of the request parameter to add is not of type string!');
-        }
+        if ($arg2 !== null)
+            $this->params[$arg1] = Lib::fromObjectToArray($arg2);
+
+        return $this;
     }
 
     /**
@@ -681,8 +751,8 @@ class Request extends SingletonAbstract
      */
     public function getParam($key)
     {
-        if (isset($this->params->{$key}))
-            return $this->params->{$key};
+        if (isset($this->params[$key]))
+            return $this->params[$key];
     }
 
     /**

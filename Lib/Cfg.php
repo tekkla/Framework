@@ -6,9 +6,6 @@ namespace Web\Framework\Lib;
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
 
-// Used classes
-use Web\Framework\Lib\Errors\CfgNotExistsError;
-
 /**
  * Handles all WebExt low level config related stuff
  * @author Michael "Tekkla" Zorn (tekkla@tekkla.de)
@@ -42,7 +39,7 @@ final class Cfg
         if (isset($key) && isset(self::$config->{$app}) && isset(self::$config->{$app}->{$key}))
             return self::$config->{$app}->{$key};
 
-        Throw new CfgNotExistsError($app, $key);
+        Throw new Error('Config not found', 4000, array($app, $key));
     }
 
     /**

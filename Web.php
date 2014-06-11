@@ -30,7 +30,6 @@ define('WEBDIR', $boarddir . '/Web');
 
 // Register classloader
 require_once (WEBDIR . '/Framework/Tools/autoload/SplClassLoader.php');
-
 $loader = new SplClassLoader('Web', BOARDDIR);
 $loader->register();
 ?>

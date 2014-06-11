@@ -3,6 +3,7 @@ namespace Web\Framework\Html\Form;
 
 use Web\Framework\Html\Elements\FormElement;
 use Web\Framework\Lib\Errors\NoValidParameterError;
+use Web\Framework\Lib\Error;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -245,7 +246,7 @@ class Button extends FormElement
         );
 
         if (!in_array($type, $types))
-            Throw new NoValidParameterError($type, $types);
+        	Throw new Error('Wrong button type set.', 1000, array($type, $types));
 
         $this->type = $type;
         return $this;

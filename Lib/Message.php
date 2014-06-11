@@ -1,15 +1,11 @@
 <?php
-
 namespace Web\Framework\Lib;
+
+use Web\Framework\Lib\Abstracts\ClassAbstract;
 
 // Check for direct file access
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
-
-// Used classes
-use Web\Framework\Lib\Abstracts\ClassAbstract;
-use Web\Framework\Lib\Errors\NoValidParameterError;
-use Web\Framework\Lib\Errors\NeededPropertyNotSetError;
 
 /**
  * Message class for flash messages.
@@ -63,7 +59,7 @@ class Message extends ClassAbstract
     public static function factory($message, $type = 'info', $fadeout = true)
     {
         if (!in_array($type, self::$types))
-            Throw new NoValidParameterError($type, self::$types);
+            Throw new Error('Wrong message type.', 1000, array($type, self::$types));
 
         $obj = new Message();
         $obj->setMessage($message);
@@ -81,7 +77,7 @@ class Message extends ClassAbstract
     {
         // Errorhandling on no set message text
         if (!isset($this->message) || empty($this->message))
-            Throw new NeededPropertyNotSetError('Message::message');
+            Throw new Error('No message set', 5002);
 
             // Get current message counter
         $current_counter = $_SESSION['web']['message_counter'];
@@ -198,7 +194,7 @@ class Message extends ClassAbstract
     public function setType($type)
     {
         if (!in_array($type, self::$types))
-            Throw new NoValidParameterError($type, self::$types);
+            Throw new Error('Wron type set.', 1000, array($type, self::$types));
 
         $this->type = $type;
         return $this;

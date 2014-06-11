@@ -15,6 +15,10 @@ final class Web extends App
 
 	public $secure = true;
 
+	public $lang = true;
+
+	public $css = true;
+
 	public $config = array(
 
 		// Group: Global
@@ -41,12 +45,6 @@ final class Web extends App
 		),
 
 		// Group: JS Libs
-		'jquery_version' => array(
-			'group' => 'js',
-			'control' => 'input',
-			'default' => '1.11.0',
-			'translate' => false
-		),
 		'js_html5shim' => array(
 			'group' => 'js',
 			'control' => 'switch',

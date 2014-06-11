@@ -3,7 +3,7 @@ namespace Web\Framework\Html\Form;
 
 use Web\Framework\Lib\Abstracts\HtmlAbstract;
 use Web\Framework\Lib\Url;
-use Web\Framework\Lib\Errors\NoValidParameterError;
+use Web\Framework\Lib\Error;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -75,7 +75,7 @@ class Form extends HtmlAbstract
 
         // Safety first. Only allow 'post' or 'get' here.
         if (!in_array($method, $methods))
-            Throw new NoValidParameterError($method, $methods);
+        	Throw new Error('Wrong method set.', 1000, array($method, $methods));
 
         $this->addAttribute('method', $method);
         return $this;
@@ -117,7 +117,7 @@ class Form extends HtmlAbstract
         );
 
         if (!in_array($state, $states))
-            Throw new NoValidParameterError($state, $states);
+        	Throw new Error('Wrong autocomplete state.', 1000, array($state, $states));
 
         $this->addAttribute('autocomplete', $state);
         return $this;

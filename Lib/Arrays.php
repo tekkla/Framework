@@ -1,8 +1,6 @@
 <?php
 namespace Web\Framework\Lib;
 
-use Web\Framework\Lib\Errors\TypeMismatchError;
-
 // Check for direct file access
 if (!defined('WEB'))
     die('Cannot run without WebExt framework...');
@@ -28,10 +26,7 @@ class Arrays
     public static function addBySearchedKey(&$array, $search, $insert, $position = 0)
     {
         if (!is_array($array))
-            throw new TypeMismatchError($array, 'array');
-
-        if (!is_array($array))
-            throw new TypeMismatchError($insert, 'array');
+            throw new Error('Wrong parameter type.', 1000, array($array, 'array'));
 
         $counter = 0;
         $keylist = array_keys($array);
@@ -60,7 +55,7 @@ class Arrays
     public static function getSlicesBySearchedKey($array, $search, $position = 0)
     {
         if (!is_array($array))
-            throw new TypeMismatchError($array, 'array');
+            throw new Error('Wrong parameter type.', 1000, array($array, 'array'));
 
         $counter = 0;
         $keylist = array_keys($array);

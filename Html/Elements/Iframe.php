@@ -3,7 +3,7 @@ namespace Web\Framework\Html\Elements;
 
 use Web\Framework\Lib\Abstracts\HtmlAbstract;
 use Web\Framework\Lib\Url;
-use Web\Framework\Lib\Errors\NoValidParameterError;
+use Web\Framework\Lib\Error;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -83,7 +83,7 @@ class Iframe extends HtmlAbstract
         );
 
         if (!in_array($mode, $modes))
-            Throw new NoValidParameterError($mode, $modes);
+        	Throw new Error('Wrong sanbox mode.', 1000, array($mode, $modes));
 
         if (!in_array($mode, $this->sandbox))
             $this->sandbox[] = $mode;

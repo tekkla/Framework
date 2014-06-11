@@ -6,12 +6,6 @@ namespace Web\Framework\Lib;
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
 
-// Used classes
-use Web\Framework\Lib\Errors\PathError;
-use Web\Framework\Lib\Errors\FileAlreadyExistsError;
-use Web\Framework\Lib\Errors\FileMissingError;
-use Web\Framework\Lib\Errors\TypeMismatchError;
-
 /**
  * Class for function about file input/output
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
@@ -106,7 +100,7 @@ final class FileIO
     public static function moveUploadedFile($source, $destination, $check_exists = true)
     {
         if ($check_exists == true && self::exists($destination))
-            Throw new FileAlreadyExistsError($destination);
+            Throw new Error('File already exits', 2001, array($destination));
 
         return move_uploaded_file($source, $destination);
     }
@@ -123,7 +117,7 @@ final class FileIO
         $exists = file_exists($path);
 
         if (!$exists && $log_missing == true)
-            Throw new FileMissingError($path);
+            Throw new Error('File not found.', 2000, array($path));
 
         return $exists;
     }
@@ -137,7 +131,7 @@ final class FileIO
     public static function convFilesize($bytes)
     {
         if (!$bytes == '0'.$bytes)
-            Throw new TypeMismatchError($bytes, 'int');
+            Throw new Error('Wrong parameter type', array($bytes, 'int'));
 
         if ($bytes > 0)
         {
@@ -199,7 +193,7 @@ final class FileIO
         // No handle, error exception
         if ($handle === false)
         {
-            Throw new PathError($path);
+            Throw new Error('File not found.', 2000, array($path));
             return;
         }
 
