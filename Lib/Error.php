@@ -20,29 +20,13 @@ final class Error extends \Exception
 
 	private $codes = array(
 
-	    // 0-999 Generic
 	    0 => 'General',
-
-	    // 1000-1999 Parameter and Values
-	    1000 => 'WrongParameter',
-	    1001 => 'MissingParameter',
-
-	    // 2000-2999 Files
-	    2000 => 'FileNotFound',
-	    2001 => 'FileAlreadyExists',
-
-	    // 3000-3999 DB
-
-	    // 4000-4999 Config
-
-	    // 5000-5999 Object
-	    5000 => 'MethodMissing',
-	    5001 => 'PropertyMissing',
-	    5002 => 'PropertyNotSet',
-	    5003 => 'PropertyEmpty',
-
-	    // 6000-6999 Request
-	    6000 => 'RouteMissing',
+	    1000 => 'ParameterValue',
+	    2000 => 'File',
+	    3000 => 'Db',
+	    4000 => 'Config',
+	    5000 => 'Object',
+	    6000 => 'Request',
 	);
 
 	private $params = array();
@@ -62,12 +46,17 @@ final class Error extends \Exception
      */
     public function __construct($message = '', $code = 0, $params = array(), Error $previous = null)
     {
-        if (!array_key_exists('code', $this->codes))
-            $code = 0;
+        ksort($this->codes);
 
-        $handler_name = 'Web\\Framework\\Lib\\Errors\\' . $this->codes[$code] . 'Error';
+        foreach ($this->codes as $error_code => $handler_name)
+        {
+        	if ($error_code >= $code)
+        	    break;
+        }
 
-        $this->error_handler = new $handler_name($message, $code, $params);
+        $handler_class = 'Web\\Framework\\Lib\\Errors\\' . $handler_name . 'Error';
+
+        $this->error_handler = new $handler_class($message, $code, $params);
         $this->error_handler->process();
 
         parent::__construct(
@@ -92,33 +81,24 @@ final class Error extends \Exception
      */
     public function getComplete()
     {
-        $message = 'Code: ' . $this->getCode() . ' - ' . $this->getMessage();
+        $message = '<h5>WebExt error code: ' . $this->getCode() . '</h5>';
+
+        $message .= $this->getMessage();
 
         // Append more informations for admin users
         if (User::isAdmin())
         {
             $message .= '
+            <h4>Source</h4>
        		<p>In file: ' . $this->getFile() . ' (Line: ' . $this->getLine() . ')</p>
-    		<div style="max-height: 350px; overflow-y: scroll;">
-    			<pre>' . $this->getTraceAsString() . '</pre>
-    		</div>';
+       		<h4>Trace</h4>
+  			<pre>' . $this->getTraceAsString() . '</pre>';
         }
 
+        if ($this->error_handler->inBox())
+            $message = '<div style="border: 2px solid darkred; background-color: #eee; padding: 5px; border-radius: 5px; margin: 10px; color: #222;">' . $message . '</div>';
+
         return $message;
-    }
-
-    /**
-     * Sets an Url to use a redirect target on error handling
-     * @package string|Url $url String or Url object
-     * @return Error
-     */
-    protected function setRedirectUrl($url)
-    {
-    	if ($url instanceof Url)
-    		$url = $url->getUrl();
-
-    	$this->redirectUrl = $url;
-    	return $this;
     }
 
     /**
@@ -145,6 +125,54 @@ final class Error extends \Exception
     public function isFatal()
     {
         return $this->error_handler->isFatal();
+    }
+
+    public function getAdminMessage()
+    {
+        return $this->error_handler->getAdminMessage();
+    }
+
+    public function getUserMessage()
+    {
+        return $this->error_handler->getUseRMessage();
+    }
+
+    public function logError()
+    {
+        return $this->error_handler->logError();
+    }
+
+    public function getLogMessage()
+    {
+    	return $this->error_handler->getLogMessage();
+    }
+
+    public static function endHere(Error $e)
+    {
+        // Usually we will never come this far but reaching this point
+        // causes stopping all further actions.
+        header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+
+        $html = '
+        <html>
+
+        <head>
+            <title>Error</title>
+            <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+            <style type="text/css">
+            * { margin: 0; padding: 0; }
+            body { background-color: #aaa; color: #eee; font-family: Sans-Serif; }
+            h1 { margin: 3px 0 7px; }
+            p, pre { margin-bottom: 7px; }
+            pre { padding: 5px; border: 1px solid #333; max-height: 400px; overflow-y: scroll; background-color: #fff; display: block; }
+            </style>
+        </head>
+
+        <body>' . $e .  '</body>
+
+        </html>';
+
+        die($html);
     }
 }
 ?>
