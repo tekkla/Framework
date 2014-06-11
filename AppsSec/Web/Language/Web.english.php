@@ -1,7 +1,6 @@
 <?php
 global $forum_copyright;
 
-
 // Version: 2.0; Web
 $txt['app_web_name'] = 'WebExt Framework';
 
@@ -23,7 +22,8 @@ $txt['app_web_info'] = 'Informations';
 $txt['app_web_init'] = 'Init...';
 
 /* ERRORS */
-$txt['app_web_error'] = 'A general error occured.';
+$txt['app_web_error'] = 'Error';
+$txt['app_web_error_general'] = 'A general error occured.';
 $txt['app_web_error_404'] = 'The requested document does not exist.';
 $txt['app_web_error_403'] = 'You are not allowed to access the requested document';
 $txt['app_web_error_500'] = 'An internal error occured.';

@@ -23,7 +23,8 @@ $txt['app_web_info'] = 'Informationen';
 $txt['app_web_init'] = 'Initialisieren...';
 
 /* ERRORS */
-$txt['app_web_error'] = 'Ein allgemeiner Fehler ist aufgetreten.';
+$txt['app_web_error'] = 'Fehler';
+$txt['app_web_error_general'] = 'Ein allgemeiner Fehler ist aufgetreten.';
 $txt['app_web_error_404'] = 'Die angeforderte Seite existiert nicht.';
 $txt['app_web_error_403'] = 'Keine Zugriffsberechtigung vorhanden.';
 $txt['app_web_error_500'] = 'Ein interner Fehler ist aufgetreten.';
