@@ -53,9 +53,10 @@ class View extends MvcAbstract
 
     /**
      * Renders the view and returns the result
-     * @param string $func
+     * @param string $func Name of render method
+     * @param array $params Optional: Parameterlist to pass to render function
      */
-    function render($func, $params = null)
+    public function render($func, $params=array())
     {
         if (!method_exists($this, $func))
             return false;
@@ -78,11 +79,11 @@ class View extends MvcAbstract
         if (is_object($val) && method_exists($val, 'build'))
             $val = $val->build();
 
-            // Pass a model object as view var and only the data will be used.
+        // Pass a model object as view var and only the data will be used.
         if (is_object($val) && $val instanceof Model)
             $val = $val->data;
 
-            // Another lazy thing. It's for accessing vars in the view by $this->var_name
+        // Another lazy thing. It's for accessing vars in the view by $this->var_name
         $this->__magic_vars[$key] = $val;
     }
 
