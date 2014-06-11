@@ -591,20 +591,17 @@ class App extends ClassAbstract
         if (!isset($this->routes) || self::$init_stages[$this->name]['routes'] == true)
             return;
 
+        // Get uncamelized app name
+        $app_name = String::uncamelize($this->name);
+
         // Add routes to request handler
-        foreach ($this->routes as $name => $route)
+        foreach ($this->routes as $route)
         {
-            // Get method. Not defined methods are always GETs
-            $method = !array_key_exists('method', $route) ? 'GET' : $route['method'];
-
-            // Get uncamelized app name
-            $app_name = String::uncamelize($this->name);
-
             // Create route string
-            $route_regex = $route['route'] == '/' ? '/' . $app_name : '/' . (strpos($route['route'], '../') === false ? $app_name . $route['route'] : str_replace('../', '', $route['route']));
+            $route['route'] = $route['route'] == '/' ? '/' . $app_name : '/' . (strpos($route['route'], '../') === false ? $app_name . $route['route'] : str_replace('../', '', $route['route']));
 
             // Create target
-            $target = array(
+            $route['target'] = array(
                 // App not set means app will be set automatic.
                 'app' => !isset($route['app']) ? $app_name : $route['app'],
                 'ctrl' => $route['ctrl'],
@@ -614,10 +611,11 @@ class App extends ClassAbstract
             // The name of the route is set by the key in the routes array.
             // Is the name of type string it will be extended by the current
             // apps name.
-            $name = is_string($name) ? (!isset($route['app']) ? $app_name : $route['app']) . '_' . $name : null;
+            if (isset($route['name']))
+                $route['name'] = (!isset($route['app']) ? $app_name : $route['app']) . '_' . $route['name'];
 
             // Publish route
-            $this->request->mapRoute($method, $route_regex, $target, $name);
+            $this->request->mapRoute($route);
         }
 
         self::$init_stages[$this->name]['routes'] = true;
