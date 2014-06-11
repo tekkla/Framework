@@ -28,26 +28,11 @@ final class Web extends SingletonAbstract
         'integrate_default_action' => 'Web::Class::Web\Framework\Lib\Web::getDefaultAction',
         'integrate_fallback_action' => 'Web::Class::Web\Framework\Lib\Web::getDefaultAction',
         'integrate_menu_buttons' => 'Web::Class::Web\Framework\Lib\Web::addMenuButtons',
+        'integrate_error_types' => 'Web::Class::Web\Framework\Lib\Web::addErrorTypes',
         'integrate_actions' => 'Web::Class::Web\Framework\Lib\Web::addActions',
         'integrate_pre_css_output' => 'Web::Class::Web\Framework\Lib\Css::compile',
         'integrate_pre_javascript_output' => 'Web::Class::Web\Framework\Lib\Javascript::compile'
     );
-
-    /**
-     * Initializes the Web framework
-     */
-    public function init()
-    {
-        try
-        {
-
-        }
-        catch ( Error $e )
-        {
-            echo $e;
-            exit();
-        }
-    }
 
     /**
      * Starts WebExt
@@ -87,16 +72,19 @@ final class Web extends SingletonAbstract
             // run the processor
             if (SMF != 'SSI')
             {
-               Content::init();
-               $this->run();
+            	Content::init();
+            	$this->run();
             }
         }
         catch (Error $e)
         {
+            if ($e->logError())
+                log_error($e->getLogMessage(), 'WebExt', $e->getFile(), $e->getLine());
 
             // Is error set to be fatal?
         	if ($e->isFatal())
-          		fatal_error($e->getMessage(), 'critical');
+        	    setup_fatal_error_context($e->getMessage());
+
 
         	// If error has a redirection, the error message will be sent as
         	// a message before redirecting to the redirect url
@@ -106,9 +94,7 @@ final class Web extends SingletonAbstract
         		redirectexit($e->getRedirect());
         	}
 
-        	// Usually we will never come this far but reaching this point
-        	// causes stopping all further actions.
-        	die($e);
+        	Error::endHere($e);
         }
     }
 
@@ -141,14 +127,7 @@ final class Web extends SingletonAbstract
                         if ($file == '..' || $file == '.')
                             continue;
 
-                        Try
-                        {
-                            App::create($file);
-                        }
-                        catch ( Error $e )
-                        {
-                            echo $e->getMessage();
-                        }
+                        App::create($file);
                     }
                     closedir($dh);
                 }
@@ -293,7 +272,7 @@ final class Web extends SingletonAbstract
 
     /**
      * Runs the requested app
-     */
+
     public function run()
     {
         // Do the magic only on web calls
@@ -354,13 +333,78 @@ final class Web extends SingletonAbstract
         }
         catch ( Error $e )
         {
-            if ($this->request->isAjax() === true)
+           echo 'My';
+
+           if ($this->request->isAjax() === true)
             {
                 Ajax::factory('log')->Error($e->getComplete());
                 $this->content = Ajax::Process();
             }
             else
-                $this->content = $e->getComplete();
+               $this->content = $e->getComplete();
+
+            var_dump($e);
+            die($e);
+        }
+
+        // All work done, load the web template
+        loadTemplate('Web');
+    }
+    */
+
+    public function run()
+    {
+        // Do the magic only on web calls
+        if (!$this->request->isWeb())
+            return;
+
+        // Is there an requested app?
+        if (!$this->request->checkApp())
+        {
+            // No. Try to find a default app set in config
+            if (Cfg::exists('Web', 'default_app'))
+                $app = Cfg::get('Web', 'default_app');
+            // No default app means that there is nothing to do for us. Let us do SMF and the forum all the work!
+            else
+                redirectexit('action=forum');
+        }
+        else
+        {
+            // Get the requested apps name
+            $app_name = $this->request->getApp();
+        }
+
+        // Start with factoring this requested app
+        $app = App::create($app_name);
+
+        // Run methods are for apps which have to do work before the
+        // the controller and action is called. So call them - if exists.
+        if (method_exists($app, 'run'))
+            $app->run();
+
+        // All app wide access check passed. Now create controller object.
+        $controller = $app->getController($this->request->getCtrl());
+
+        // Ajax call or full call?
+        if ($this->request->isAjax() === true)
+        {
+            // Run controller as ajax call
+            $this->content = $controller->ajax();
+        }
+        else
+        {
+            // Normal controller run
+            $this->content = $controller->run();
+
+            // No content to show? Has app an onEmpty() method which give us content?
+            if (empty($this->content) && method_exists($app, 'onEmpty'))
+                $this->content = $app->onEmpty();
+
+            // If app function for content onBefore() exist, prepend it to content
+            $this->content = (method_exists($app, 'onBefore') ? $app->onBefore() : '') . $this->content;
+
+            // if app function for content onAfter() exist, append it to content
+            $this->content .= method_exists($app, 'onAfter') ? $app->onAfter() : '';
         }
 
         // All work done, load the web template
@@ -418,6 +462,11 @@ final class Web extends SingletonAbstract
         $after = array_slice($menu_buttons, 1);
 
         $menu_buttons = $before + $after;
+    }
+
+    public static function addErrorTypes(&$other_error_types)
+    {
+        $other_error_types[] = 'WebExt';
     }
 }
 
