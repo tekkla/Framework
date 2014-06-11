@@ -38,28 +38,33 @@ class Admin extends App
 
     // Used routes
     public $routes = array(
-        'index' => array(
+        array(
+            'name' => 'index',
             'route' => '/',
             'ctrl' => 'admin',
             'action' => 'index'
         ),
-        'app_install' => array(
+        array(
+            'name' => 'app_install',
             'route' => '/[a:app_name]/install',
             'ctrl' => 'config',
             'action' => 'install'
         ),
-        'app_remove' => array(
+        array(
+            'name' => 'app_remove',
             'route' => '/[a:app_name]/remove',
             'ctrl' => 'config',
             'action' => 'remove'
         ),
-        'app_config' => array(
+        array(
+            'name' => 'app_config',
             'method' => 'GET|POST',
             'route' => '/[a:app_name]/config',
             'ctrl' => 'config',
             'action' => 'config'
         ),
-        'app_reconfig' => array(
+        array(
+            'name' => 'app_reconfig',
             'route' => '/[a:app_name]/reconfig',
             'ctrl' => 'config',
             'action' => 'reconfigure'
