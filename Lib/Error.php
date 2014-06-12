@@ -19,7 +19,6 @@ final class Error extends \Exception
 	private $redirectUrl = false;
 
 	private $codes = array(
-
 	    0 => 'General',
 	    1000 => 'ParameterValue',
 	    2000 => 'File',
@@ -46,7 +45,8 @@ final class Error extends \Exception
      */
     public function __construct($message = '', $code = 0, $params = array(), Error $previous = null)
     {
-        ksort($this->codes);
+        // Get error handler group code from sent $code parameter
+        $code = floor($code/1000)*1000;
 
         foreach ($this->codes as $error_code => $handler_name)
         {
