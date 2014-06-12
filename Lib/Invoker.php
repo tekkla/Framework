@@ -58,10 +58,7 @@ final class Invoker
     {
         $this->obj = $obj;
         $this->method = $method;
-
-        if(is_object($params))
-            $params = (array) $params;
-
+        $params = Lib::fromObjectToArray($params);
         $this->params = $params;
     }
 
@@ -83,7 +80,7 @@ final class Invoker
         // Init empty arguments array
         $args = array();
 
-        // Get list of paremters from refelction method object
+        // Get list of parameters from reflection method object
         $param_list = $method->getParameters();
 
         // Let's see what arguments are needed and which are optional
