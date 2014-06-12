@@ -346,7 +346,7 @@ class Request extends SingletonAbstract
                 else
                     Throw new Error(
                         'Parameter missing.',
-                        6000,
+                        6001,
                         array(
                             'route_name' => $route_name,
                             'params' => $params,
