@@ -127,7 +127,7 @@ class Model extends MvcAbstract
      * Errorstorage filled by validator
      * @var array
      */
-    private $errors = array();
+    public $errors = array();
 
     /**
      * Stores the definitions of tables fields
