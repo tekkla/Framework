@@ -18,6 +18,7 @@ function webReadyAndAjax() {
 
     // Fade out elements
     $('.web-fadeout').delay(web_fadeout_time).slideUp(800, function() {
+
         $(this).remove();
     });
 }
@@ -26,6 +27,7 @@ function webReadyAndAjax() {
 // Eventhandler "ready"
 // ----------------------------------------------------------------------------
 $(document).ready(function() {
+
     // scroll to top button
     $(window).scroll(function() {
 
@@ -44,6 +46,7 @@ $(document).ready(function() {
 // Eventhandler on "ajaxStart"
 // ----------------------------------------------------------------------------
 $(document).ajaxStart(function() {
+
     // Show loading circle on ajax loads
     $('body').addClass("loading");
 });
@@ -52,6 +55,7 @@ $(document).ajaxStart(function() {
 // Do this on "ready" and on "ajaxComplete" events
 // ----------------------------------------------------------------------------
 $(document).ajaxStop(function(event) {
+
     // Hide loading circle
     $('body').removeClass("loading");
 });
