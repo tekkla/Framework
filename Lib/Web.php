@@ -84,8 +84,14 @@ final class Web extends SingletonAbstract
             // Ajax request errors will end with an alert(error_message)
             if ($this->request->isAjax())
             {
-                $this->ajax->alert($e->getMessage());
-                return;
+                // Create error alert
+                $this->message->danger($e->getMessage());
+
+                // Echo processed ajax
+                echo $this->ajax->process();
+
+                // and finally stop execution
+                exit;
             }
 
             // Is error set to be fatal?
