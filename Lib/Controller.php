@@ -60,7 +60,7 @@ class Controller extends MvcAbstract
      * Storage for parameter
      * @var Data
      */
-    public $params = array();
+    private $params = array();
 
     /**
      * Stores the controller bound Model object
@@ -109,7 +109,6 @@ class Controller extends MvcAbstract
 
         // run onload event
         $this->runEvent('load');
-        $this->params = new Data();
     }
 
     /**
@@ -182,13 +181,12 @@ class Controller extends MvcAbstract
         if ($this->checkControllerAccess() == false)
             return false;
 
-       // We can set the controllers parameter by hand and will have automatic all
-       // parameters set by the request handler. If params are set manually, possible dublicates
-       // will overwrite controller params copied from request handler.
+        // We can set the controllers parameter by hand and will have automatic all
+        // parameters set by the request handler. If params are set manually, possible dublicates
+        // will overwrite controller params copied from request handler.
 
         // Copy request params to controller params.
-        if (!$params)
-            $this->params = $this->request->getAllParams();
+        $this->params = $params ? $params : $this->request->getAllParams();
 
         // run possible before event handler
         $this->runEvent('before');
@@ -255,7 +253,7 @@ class Controller extends MvcAbstract
         if (isset($this->model))
             $this->model->reset(true);
 
-            // Reset post data
+        // Reset post data
         $this->request->clearPost();
 
         // Run redirect method
@@ -334,7 +332,7 @@ class Controller extends MvcAbstract
             // Global access for all actions?
             if(isset($this->access['*']))
             {
-                if (!array($this->access['*']))
+                if (!is_array($this->access['*']))
                     $perms[] = $this->access['*'];
                 else
                     $perms += $this->access['*'];
@@ -506,10 +504,7 @@ class Controller extends MvcAbstract
      */
     public function addParam($param, $value)
     {
-        if (!$this->params)
-            $this->params = new Data();
-
-        $this->params->{$param} = $value;
+        $this->params[$param] = $value;
     }
 }
 ?>
