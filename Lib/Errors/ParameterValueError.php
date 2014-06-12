@@ -24,5 +24,10 @@ final class ParameterValueError extends ErrorAbstract
     );
 
     protected $fatal = true;
+
+    protected function processMissingParameter()
+    {
+        $this->admin_message .= '<pre>' . print_r($this->params, true) . '</pre>';
+    }
 }
 ?>
