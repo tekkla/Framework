@@ -81,6 +81,13 @@ final class Web extends SingletonAbstract
             if ($e->logError())
                 log_error($e->getLogMessage(), 'WebExt', $e->getFile(), $e->getLine());
 
+            // Ajax request errors will end with an alert(error_message)
+            if ($this->request->isAjax())
+            {
+                $this->ajax->alert($e->getMessage());
+                return;
+            }
+
             // Is error set to be fatal?
         	if ($e->isFatal())
         	    setup_fatal_error_context($e->getMessage());
@@ -94,6 +101,7 @@ final class Web extends SingletonAbstract
         		redirectexit($e->getRedirect());
         	}
 
+        	// Falling through here means we have a really big error.
         	Error::endHere($e);
         }
     }
