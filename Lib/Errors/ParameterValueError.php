@@ -17,7 +17,7 @@ if (!defined('WEB'))
  */
 final class ParameterValueError extends ErrorAbstract
 {
-    private $codes = array(
+    protected $codes = array(
         1000 => 'General',
         1001 => 'WrongParameter',
         1001 => 'MissingParameter',
