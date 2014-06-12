@@ -5,7 +5,7 @@ use Web\Framework\Html\Controls\ModalWindow;
 
 // Check for direct file access
 if (!defined('WEB'))
-	die('Cannot run without WebExt framework...');
+    die('Cannot run without WebExt framework...');
 
 /**
  * Ajax commands which are managed by framework.js
@@ -15,7 +15,7 @@ if (!defined('WEB'))
  * @license BSD
  * @copyright 2014 by author
  */
-final class Ajax extends Lib
+final class Ajax
 {
     /**
      * Storage for ajax commands
@@ -91,12 +91,6 @@ final class Ajax extends Lib
     private $cmd_vars = array();
 
     /**
-     * create instance store
-     * @var unknown
-     */
-    private static $instance;
-
-    /**
      * Factory method
      * @return \Web\Framework\Lib\Ajax
      */
@@ -140,10 +134,10 @@ final class Ajax extends Lib
     }
 
     /**
-     * Create a HTML ajax
-     * @param $target => DOM id
-     * @param $content
-     * @param $mode optional => the edit mode replace(default)|append|prepend|remove|after|before
+     * Create a HTML ajax which changes the html of target selector
+     * @param $target Selector to be changed
+     * @param $content Content be used
+     * @param $mode Optional mode how to change the selected element. Can be: replace(default) | append | prepend | remove | after | before
      */
     public static function html($target, $content, $mode = 'replace')
     {
@@ -156,7 +150,7 @@ final class Ajax extends Lib
      */
     public static function error($error)
     {
-        self::factory()->setType('alert')->setTarget('#web-message')->setContent($error)->add();
+        self::appendHtml('#web-message', $error);
     }
 
     /**
@@ -471,14 +465,7 @@ final class Ajax extends Lib
         if ($messages)
         {
             foreach ( $messages as $message )
-            {
-                self::factory()
-                        ->setType('html')
-                        ->setMode('append')
-                        ->setTarget('#web-message')
-                        ->setContent($message->build())
-                        ->add();
-            }
+                self::factory()->setType('html')->setMode('append')->setTarget('#web-message')->setContent($message->build())->add();
         }
 
         // Output is json encoded
