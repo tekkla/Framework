@@ -18,7 +18,6 @@ function webReadyAndAjax() {
 
     // Fade out elements
     $('.web-fadeout').delay(web_fadeout_time).slideUp(800, function() {
-
         $(this).remove();
     });
 }
@@ -188,7 +187,7 @@ $(document).on('click', '*[data-web-ajax]', function(event) {
 
         parseWebJson({
             cmd : {
-                type : 'alert',
+                type : 'error',
                 target : '#web-message',
                 mode : 'replace',
                 content : XMLHttpRequest.responseText
