@@ -1061,7 +1061,7 @@ class Model extends MvcAbstract
      * Insert method used by save()
      * @return mixed PK value of created record
      */
-    private function insert()
+    protected function insert()
     {
         // Run beforeCreate event methods and stop when one of them return bool false
         if ($this->runBefore('create') === false)
