@@ -115,6 +115,30 @@ class Debug extends ClassAbstract
     }
 
     /**
+     * Light version of  debug_backtrace() which only creates and returns a trace of function and method calls.
+     * @param number $ignore Numeber of levels to ignore
+     * @return string
+     */
+    public static function traceCalls($ignore=2)
+    {
+        $trace = '';
+
+        foreach (debug_backtrace() as $k => $v)
+        {
+            if ($k < $ignore)
+        		continue;
+
+        	array_walk($v['args'], function (&$item, $key) {
+        		$item = var_export($item, true);
+        	});
+
+        	$trace .= '#' . ($k - $ignore) . ' ' . $v['file'] . '(' . $v['line'] . '): ' . (isset($v['class']) ? $v['class'] . '->' : '') . $v['function'] . "\n";
+        }
+
+        return $trace;
+    }
+
+    /**
      * Var dumps the given var to the given target
      * @return string
      */
