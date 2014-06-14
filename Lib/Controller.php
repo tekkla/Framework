@@ -1,14 +1,12 @@
 <?php
-
 namespace Web\Framework\Lib;
+
+use Web\Framework\Helper\FormDesigner;
+use Web\Framework\Lib\Abstracts\MvcAbstract;
 
 // Check for direct file access
 if (!defined('WEB'))
-	die('Cannot run without WebExt framework...');
-
-// Used classes
-use Web\Framework\Helper\FormDesigner;
-use Web\Framework\Lib\Abstracts\MvcAbstract;
+    die('Cannot run without WebExt framework...');
 
 /**
  * Controllers parent class. Each app controller has to be a child of this class.
@@ -321,7 +319,7 @@ class Controller extends MvcAbstract
     protected function checkControllerAccess($mode='smf', $force = false)
     {
         // Is there an global access method in the app main class to call?
-        if (method_exists($this->app, 'appAccess') && call_user_func_array(array($this->app, 'appAccess')) === false)
+        if (method_exists($this->app, 'appAccess') && $this->app->appAccess() === false)
             return false;
 
         // ACL set?
@@ -341,23 +339,19 @@ class Controller extends MvcAbstract
             // Actions access set?
             if (isset($this->access[$this->render_action]))
             {
-                if (!array($this->access[$this->render_action]))
+                if (!is_array($this->access[$this->render_action]))
                 	$perms[] = $this->access[$this->render_action];
                 else
                 	$perms += $this->access[$this->render_action];
             }
 
             // No perms until here means we can finish here and allow access by returning true
-            if (!$perms)
-                return true;
+            if ($perms)
+                return Security::checkAccess($perms, $mode, $force);
+        }
 
-            return Security::checkAccess($perms, $mode, $force);
-        }
-        else
-        {
-            // Not set ACL grants access by default
-            return true;
-        }
+        // Not set ACL or falling through here grants access by default
+        return true;
     }
 
     /**
@@ -372,17 +366,14 @@ class Controller extends MvcAbstract
 
     /**
      * Publish a value to the view
-     * @param string $key
-     * @param mixed $val
+     * @param string|array $arg1 Name of var or list of vars in an array
+     * @param mixed $arg2 Optional value to be ste when $arg1 is the name of a var
      */
-    public function setVar()
+    public function setVar($arg1, $arg2=null)
     {
         // On non existing view we do not have to set anything
         if (!isset($this->view) || !$this->view instanceof View)
             return;
-
-            // Get the number of arguments to switch in argument handling
-        $num_arguments = func_num_args();
 
         // Some vars are protected and not allowed to be used outside the framework
         $protected_var_names = array(
@@ -390,31 +381,30 @@ class Controller extends MvcAbstract
             'controller',
             'action',
             'view',
+        	'model',
             'cfg'
         );
 
         // One argument has to be an assoc array
-        if ($num_arguments == 1)
+        if (!isset($arg2))
         {
-            $vars = func_get_arg(0);
-
-            foreach ( $vars as $k => $v )
+            foreach ($arg1 as $var => $value)
             {
-                if (in_array($k, $protected_var_names))
-                    Throw new Error('Varname is protected. Use other name for your var.', 5000, array($k, $protected_var_names));
+                if (in_array($var, $protected_var_names))
+                    Throw new Error('Varname is protected. Use other name for your var.', 5005, array($var, $protected_var_names));
 
-                $this->view->setVar($k, $v);
+                $this->view->setVar($var, $value);
             }
-        } elseif ($num_arguments == 2)
-        {
-            if (in_array(func_get_arg(0), $protected_var_names))
-            	Throw new Error('Varname is protected. Use other name for your var.', 5000, array(func_get_arg(0), $protected_var_names));
-
-            $this->view->setVar(func_get_arg(0), func_get_arg(1));
-        } else
-        {
-            Throw new Error('The vars to set are not correct. Var is : ' . $this->debug(func_get_args(), false));
         }
+        elseif (isset($arg2))
+        {
+            if (in_array($arg1, $protected_var_names))
+            	Throw new Error('Varname is protected. Use other name for your var.', 5005, array(func_get_arg(0), $protected_var_names));
+
+            $this->view->setVar($arg1, $arg2);
+        }
+        else
+            Throw new Error('The vars to set are not correct.', 1001, func_get_args());
     }
 
     /**
