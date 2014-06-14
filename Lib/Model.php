@@ -603,8 +603,11 @@ class Model extends MvcAbstract
      * @param string $by
      * @param string $condition
      */
-    public final function addJoin($tbl, $as, $by, $condition)
+    public final function addJoin($tbl, $as, $by, $condition, $reset=false)
     {
+        if ($reset==true)
+        	$this->join = array();
+
         $this->join[] = array(
             'tbl' => $tbl,
             'as' => $as,
@@ -613,18 +616,6 @@ class Model extends MvcAbstract
         );
 
         return $this;
-    }
-
-    /**
-     * Resets join array and calls addJoin()
-     * @param string $tbl
-     * @param string $as
-     * @param string $by
-     * @param string $condition
-     */
-    public final function setJoin($tbl, $as, $by, $condition)
-    {
-        return $this->resetJoin()->addJoin($tbl, $as, $by, $condition);
     }
 
     /**
@@ -805,26 +796,127 @@ class Model extends MvcAbstract
     }
 
     /**
-     * Basic mathod to query data from db
-     * @param string $query_type
-     * @param string $callback Array of methodnames to call on loops through records
-     * @return Ambigous <\Web\Framework\Lib\mixed, number, mixed, unknown>|stdClass
+     * Processes aray based query defintion and sets corresponding properties accordingly.
+     * Resets the model (without data).
+     * @var array $def Query definition in form of array
+     * <code>
+     * <?php
+     * # Structure of query definition
+     * $query = array(
+     *  'type' => 'row',
+     *  'field' => array(
+     *      'field1',
+     *      'field2',
+     *  ),
+     *  'join' => array(
+     *      array($tbl, $as, $by, $condition),
+     *      array($tbl, $as, $by, $condition),
+     *  ),
+     *  'filter' => 'field1={type:param1}',
+     *  'param' => array(
+     *      'param1' => $val1
+     *  ),
+     *  'order' => 'field2 DESC',
+     *  'limit' => 50
+     * );
+     *
+     * return $this->read($query);
+     * ?>
+	 * </code>
+	 * @access private
      */
-    public final function read($query_type = 'row', $callbacks = array(), $preserve = false)
+    private function processQueryDefinition($def)
     {
-        // Manually set querytype
-        if (isset($query_type))
+        $this->reset();
+
+        // Use set query type or use 'row' as default
+        $this->query_type = isset($def['type']) ? $def['type'] : 'row';
+
+        // Set fields
+        if (isset($def['field']))
+            $this->fields = is_array($def['field']) ? $def['field'] : array($def['field']);
+        else
+            $this->fields = array('*');
+
+        // Set filter
+      	$this->filter = isset($def['filter']) ? $def['filter'] : '';
+
+        // Set params
+        if (isset($def['param']))
+        	$this->setParameter($def['param']);
+
+        // Set joins
+        if (isset($def['join']) && is_array($def['join']))
+        {
+            $this->resetJoin();
+
+            foreach ($def['join'] as $join)
+            {
+                if (Arrays::isAssoc($join))
+                {
+                    $this->join[] = array(
+                    	'tbl' => $join['tbl'],
+                    	'as' => $join['as'],
+                    	'by' => $join['by'],
+                    	'cond' => $join['condition']
+                    );
+                }
+                else
+                {
+                    $this->join[] = array(
+                    	'tbl' => $join[0],
+                    	'as' => $join[1],
+                    	'by' => $join[2],
+                    	'cond' => $join[3]
+                    );
+                }
+            }
+        }
+
+        // Limit to be set?
+        if (isset($def['limit']))
+        {
+            // Single int value as limit?
+            if (is_int($def['limit']))
+                $this->limit['lower'] = $def['limit'];
+
+            // Array but only one value`?
+            elseif(is_array($def['limit']) && count($def['limit']) == 1)
+                $this->limit['lower'] = (int) $def['limit'][0];
+
+            // Array and two values?
+            elseif(is_array($def['limit']) && count($def['limit']) == 2)
+            {
+                $this->limit['lower'] = (int) $def['limit'][0];
+                $this->limit['upper'] = (int) $def['limit'][1];
+            }
+        }
+    }
+
+    /**
+     * Basic mathod to query data from db
+     * @param string|array $query_type String with name of query type or query definition as array
+     * @param string $callback Array of methodnames to call on loops through records
+     * @return Ambigous
+     * @access public
+     */
+    public final function read($query_type='row', $callbacks=array())
+    {
+        // Is our query type an array which indicates we have to parse a query definition?
+        if (is_array($query_type))
+            $this->processQueryDefinition($query_type);
+        else
             $this->query_type = $query_type;
 
-            // On count we count only the pk column
-        if ($query_type == 'num')
+        // On count we count only the pk column
+        if ($this->query_type == 'num')
             $this->setField('Count(' . $this->pk . ')');
 
-            // On pklist we only want the pk column
-        if ($query_type == 'key')
+        // On pklist we only want the pk column
+        if ($this->query_type == 'key')
             $this->setField($this->pk);
 
-            // Build the sql string
+        // Build the sql string
         $this->buildSqlString();
 
         // Array check and conversion for list of serialized columns
@@ -1044,10 +1136,7 @@ class Model extends MvcAbstract
     {
         // Make sure $this->data is an Data object
         if (!$this->data instanceof Data)
-        {
-            $this->addError('@', 'Save: Data given to save is no Dataobject.');
-            return false;
-        }
+            Throw new Error('Data given to save is no Dataobject.', 1001, $this->data);
 
         // Validate given data.
         if ($validate)
@@ -1295,17 +1384,24 @@ class Model extends MvcAbstract
      * Setting the $pk parameter will override a model filter.
      * @param mixed $pk
      */
-    public final function delete($pk = null)
+    public final function delete($pk=null)
     {
-        $filter = isset($this->filter) ? ' WHERE ' . $this->filter : null;
-
+        // When pk is set
         if (isset($pk))
         {
-            $filter = ' WHERE ' . $this->pk . '={int:pk}';
-            $this->params = array(
-                'pk' => $pk
-            );
+            // Do we have a definition like filter and paramerter to process?
+            if (is_array($pk))
+                $this->processQueryDefinition($pk);
+            // Or is it a primary key value?
+            else
+            {
+                $this->params = array('pk' => $pk);
+                $this->filter = $this->pk . '={int:pk}';
+            }
         }
+
+        // Do we have to prepare a filter statement
+        $filter = isset($this->filter) ? ' WHERE ' . $this->filter : '';
 
         $sql = "DELETE FROM {db_prefix}{$this->tbl}{$filter}";
 
