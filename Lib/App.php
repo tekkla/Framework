@@ -102,6 +102,12 @@ class App extends ClassAbstract
     protected $lang = false;
 
     /**
+     * Hooks storage
+     * @var array
+     */
+    protected $hooks = array();
+
+    /**
      * Get an unique app object
      * @param string $name
      * @return App object
@@ -186,7 +192,8 @@ class App extends ClassAbstract
                 'hooks' => false,
                 'lang' => false,
                 'css' => false,
-                'js' => false
+                'js' => false,
+                'hooks' => false,
             );
 
             // Save app name as loaded. But only of none secured ones.
@@ -208,28 +215,26 @@ class App extends ClassAbstract
      */
     protected function init()
     {
-        // config will always be initiated. no matter what else follows.
+        // Config will always be initiated. no matter what else follows.
         $this->initCfg();
 
-        // init paths
+        // Init paths
         $this->initPaths();
 
         // Apps only need once be initiated
         if (in_array($this->name, self::$init_done))
             return;
 
-        if (method_exists($this, 'Requires'))
-            $this->Requires();
-
-            // Run init methods
+        // Run init methods
         $this->initRoutes();
         $this->initLang();
         $this->initHooks();
 
-        // and finally a possible headers methods
-        if (method_exists($this, 'Headers'))
-            $this->Headers();
+        // Finally call a possible headers methods
+        if (method_exists($this, 'addHeaders'))
+            $this->addHeaders();
 
+        // Store our apps name to be initiated
         self::$init_done[] = $this->name;
 
         return $this;
@@ -268,30 +273,16 @@ class App extends ClassAbstract
     }
 
     /**
-     * Add a functionname to add as smf integration hook
-     * @param string $hook
-     * @param string $function
-     */
-    public function addHook($hook, $type, $name, $method)
-    {
-        if (!isset($this->hooks))
-            $this->hooks = array();
-
-        $this->hooks[$hook] = 'Web::' . $type . '::' . $name . '::' . $method;
-    }
-
-    /**
      * Creates an app related model object
      * @param string $model_name The models name
      * @return Model
      */
-    public function getModel($model_name = null)
+    public function getModel($model_name = '')
     {
         if (!$model_name)
         {
             $dt = debug_backtrace();
             $parts = array_reverse(explode('\\', $dt[1]['class']));
-
             $model_name = $parts[0];
         }
 
@@ -359,13 +350,15 @@ class App extends ClassAbstract
         if (!isset($this->cfg))
             $this->cfg = new Data();
 
-        $this->cfg('app', $this->getName());
-        $this->cfg('app_id', $this->getId());
+        $this->cfg('app', $this->name);
+        $this->cfg('app_id', $this->id);
 
         // Copy existing config values to the apps config.
         if (Cfg::exists($this->name))
         {
-            foreach ( Cfg::get($this->getName()) as $key => $val )
+            $config = Cfg::get($this->getName());
+            
+            foreach($config as $key => $val)
             {
                 if (isset($this->config) && isset($this->config[$key]))
                     $this->cfg($key, $val);
@@ -439,20 +432,25 @@ class App extends ClassAbstract
      */
     protected function initHooks()
     {
+        if (self::$init_stages[$this->name]['hooks'])
+        	return;
+
         // Integrate possible permissions
         if (isset($this->perms) && !empty($this->perms))
-            $this->addHook('integrate_load_permissions', 'App', $this->name, 'addPermissions');
+            $this->hooks['integrate_load_permissions'] = 'Web::App::' . $this->name . '::addPermissions';
 
         // Menu entries?
         if (method_exists($this, 'addMenuButtons'))
-            $this->addHook('integrate_menu_buttons', 'App', $this->name, 'addMenuButtons');
+            $this->hooks['integrate_menu_buttons'] = 'Web::App::' . $this->name . '::addMenuButtons';
 
-            // Hooks to be included?
-        if (isset($this->hooks))
+        // Hooks to be included?
+        if ($this->hooks)
         {
             foreach ( $this->hooks as $hook => $function )
-                add_integration_function($hook, $function, false);
+                add_integration_function($hook, $function, false, false);
         }
+
+        self::$init_stages[$this->name]['hooks'] = true;
     }
 
     /**
