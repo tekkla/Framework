@@ -1248,8 +1248,11 @@ class Model extends MvcAbstract
     /**
      * Updates records of model with the data which was set
      */
-    public final function update()
+    public final function update($def=null)
     {
+        if (isset($def))
+            $this->processQueryDefinition($def);
+
         if (isset($this->fields) && $this->data)
             Throw new Error('Fieldset and data records are set for update. You can only have the one or the other. Not both. Stopping Update.');
 
