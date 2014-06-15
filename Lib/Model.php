@@ -913,7 +913,7 @@ class Model extends MvcAbstract
             $this->setField('Count(' . $this->pk . ')');
 
         // On pklist we only want the pk column
-        if ($this->query_type == 'key')
+        if ($this->query_type == 'key' && !$this->fields)
             $this->setField($this->pk);
 
         // Build the sql string
