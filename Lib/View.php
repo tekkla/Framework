@@ -125,5 +125,14 @@ class View extends MvcAbstract
     {
         return isset($this->__magic_vars[$key]);
     }
+
+    /**
+     * Returns a dumps all seth vars
+     * @return string
+     */
+    public function dump()
+    {
+        return '<pre>' . print_r($this->__magic_vars, true) . '</pre>';
+    }
 }
 ?>
