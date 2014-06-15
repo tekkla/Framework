@@ -1621,11 +1621,18 @@ class Model extends MvcAbstract
      * Method to count records
      * You do not need to set any field because this method overrides already set fields with "Count(pk_name)".
      * All other settings like filters, parameters or joins will be used.
-     *
+     * @var string $filter Optional filter string
+     * @var array $params Optional array of parameters used in filter
      * @return int
      */
-    public final function count()
+    public final function count($filter='', $params=array())
     {
+        if ($filter)
+            $this->filter = $filter;
+
+        if ($params)
+            $this->params = $params;
+
         return $this->read('num');
     }
 
