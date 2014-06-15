@@ -891,8 +891,6 @@ class Model extends MvcAbstract
                 $this->limit['upper'] = (int) $def['limit'][1];
             }
         }
-
-
     }
 
     /**
@@ -915,7 +913,7 @@ class Model extends MvcAbstract
             $this->setField('Count(' . $this->pk . ')');
 
         // On pklist we only want the pk column
-        if ($this->query_type == 'key' && !$this->fields)
+        if ($this->query_type == 'key')
             $this->setField($this->pk);
 
         // Build the sql string
@@ -1609,14 +1607,14 @@ class Model extends MvcAbstract
     }
 
     /**
-     * Counts the current data stored
+     * Counts the number of data values.
      * If data represents a record, the fieldnumber will be returned.
-     * If data represents a recordset, the number of records will be returned.
+     * If data represents a recordset, the number of records will be returnd
      * @return number
      */
     public final function countData()
     {
-       return $this->data !== false ? ($this->data instanceof Data ? $this->data->count() : count($this->data)): 0;
+        return $this->data == false ? 0 : $this->data->count();
     }
 
     /**
