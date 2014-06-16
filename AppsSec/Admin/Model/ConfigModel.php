@@ -135,7 +135,7 @@ class ConfigModel extends Model
 		String::uncamelize($app);
 
 		// Set data to model so the validator has work to do
-		$this->setData($data);
+		$this->data = $data;
 
 		// Get the keys from send data as fieldnames to check on validator
 		$data_fld_list = array_keys(get_object_vars($data));
