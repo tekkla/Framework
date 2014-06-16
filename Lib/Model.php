@@ -439,7 +439,7 @@ class Model extends MvcAbstract
     {
         $this->filter = $filter;
 
-        if (isset($params))
+        if (isset($params) && is_array($params));
             $this->params = $params;
 
         return $this;
@@ -862,6 +862,10 @@ class Model extends MvcAbstract
                 }
             }
         }
+
+        // Do we have an order statement?
+        if (isset($def['order']))
+            $this->order = $def['order'];
 
         // Limit to be set?
         if (isset($def['limit']))
