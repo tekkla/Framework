@@ -121,7 +121,7 @@ class Model extends MvcAbstract
      * Set in Childmodels. Here only for error prevention
      * @var array
      */
-    protected $validate = array();
+    public $validate = array();
 
     /**
      * Errorstorage filled by validator
@@ -1530,6 +1530,10 @@ class Model extends MvcAbstract
      */
     public final function checkFieldvalue($fld, $val)
     {
+        // Return NULL value as string 'NULL' to identify this value to be passed as raw type to query
+        if (is_null($val))
+        	return 'NULL';
+
         // trim the string, baby!
         if (is_string($val))
             $val = trim($val);
@@ -1568,7 +1572,7 @@ class Model extends MvcAbstract
         if (is_string($val) && $this->clean == 1)
             $val = Lib::sanitizeUserInput($val);
 
-        if (in_array($fld, $this->serialized))
+        if (in_array($fld, $this->serialized) && (is_array($val) || $val instanceof Data))
             $val = serialize($val);
 
         return $val;
@@ -1745,17 +1749,6 @@ class Model extends MvcAbstract
         }
 
         return $data;
-    }
-
-    public final function __get($key)
-    {
-        if (strpos($key, '@') !== 0)
-            return;
-
-        $key = substr($key, 1);
-
-        if ($this->data !== false && isset($this->data->{$key}))
-            return $this->data->{key};
     }
 }
 ?>
