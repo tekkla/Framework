@@ -30,7 +30,7 @@ class UiButton extends Link
      * Buttontype
      * @var string
      */
-    private $type;
+    private $type = 'text';
 
     /**
      *
@@ -48,31 +48,31 @@ class UiButton extends Link
      * Link title
      * @var string
      */
-    private $title;
+    private $title = '';
 
     /**
      * img object
      * @var Icon
      */
-    public $icon;
+    public $icon = false;
 
     /**
      * button text
      * @var string
      */
-    private $text;
+    private $text = '';
 
     /**
      * link object
      * @var Link
      */
-    public $link;
+    public $link = false;
 
     /**
      * Url object library
      * @var Url
      */
-    public $url;
+    public $url = false;
 
     /**
      * Factory method
@@ -326,23 +326,19 @@ class UiButton extends Link
      */
     public function build($wrapper = null)
     {
-        // -----------------------------------------
-        // Checks
-        // -----------------------------------------
-        if (!isset($this->type))
-            Throw new Error('Buttontype is not set. Use setType()-Method of button object. Select type from link, icon, button or imgbutton');
-
         if ($this->mode == 'ajax')
             $this->addData('web-ajax', 'link');
 
-            // -----------------------------------------
-            // build link attributes
-            // -----------------------------------------
+        // -----------------------------------------
+        // build link attributes
+        // -----------------------------------------
 
         // href url
         $this->setHref($this->url->getUrl());
 
-        // what content for our link?
+        // Set text and set icon means we have a button of type imagebutton
+        if  ($this->text && $this->icon)
+            $this->type = 'imgbutton';
 
         // icon/image
         if ($this->type == 'icon')
