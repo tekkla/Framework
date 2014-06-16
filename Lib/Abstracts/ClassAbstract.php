@@ -10,6 +10,7 @@ use Web\Framework\Lib\Request;
 use Web\Framework\Lib\Session;
 use Web\Framework\Lib\Message;
 use Web\Framework\AppsSec\Web\Web;
+use Web\Framework\Lib\Cfg;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -28,6 +29,7 @@ if (!defined('WEB'))
  */
 abstract class ClassAbstract
 {
+
     private $di = array();
 
     /**
@@ -54,13 +56,19 @@ abstract class ClassAbstract
                     $obj = Session::getInstance();
                     break;
 
-                case 'fire' :
-                    $obj = \FirePHP::getInstance(true);
-                    break;
-
                 case 'message' :
                     $obj = new Message();
                     break;
+
+                // Access FirePHP instance
+                case 'fire' :
+
+                    // Load FirePHP classfile only when class not exists
+                  	if (!class_exists('FirePHP'))
+                   		require_once (Cfg::get('Web', 'dir_tools') . '/FirePHPCore/FirePHP.class.php');
+
+                   		$obj = \FirePHP::getInstance(true);
+                   		break;
 
                 default :
                     Throw new Error('Requested DI object does not exist.', 5006, $key);
