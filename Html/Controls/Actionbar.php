@@ -14,7 +14,7 @@ if (!defined('WEB'))
  * Creates an Actiobar control
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
- * @subpackage Helper
+ * @subpackage Html/Controls
  * @license BSD
  * @copyright 2014 by author
  */
@@ -96,7 +96,6 @@ class Actionbar extends ClassAbstract
 
     /**
      * Creates a UiButton for the actionbar.
-     * You can
      * @param string $name
      * @param string $mode optional
      * @param string $type optional
