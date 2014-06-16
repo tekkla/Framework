@@ -107,12 +107,12 @@ final class Validator
 	);
 
 	/**
-	 * Injector for the model to check.
+	 * Constructor
 	 * @param Model $model
 	 */
-	public function attachModel(Model &$model)
+	public function __construct(Model &$model)
 	{
-		$this->model = $model;
+	    $this->model = $model;
 	}
 
 	/**
@@ -124,7 +124,6 @@ final class Validator
 		// No model, no validation, but error :P
 		if (!isset($this->model))
 			Throw new Error('Model definition is missing');
-
 
 		// No data to validate? Throw error.
 		if (!$this->model->data)
@@ -141,13 +140,6 @@ final class Validator
 			// Not set field means skip this field.
 			if (!isset($this->model->validate[$fld]))
 				continue;
-
-			// Only check fields, that exist in the definition
-			/*if (!isset($this->model->Definition->{$fld}))
-			{
-				error_log(sprintf(Txt::get('web_model_error_field_not_exist'), $fld, $this->name));
-				continue;
-			}*/
 
 			// Our current fieldname
 			$this->field = $fld;
