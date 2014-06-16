@@ -20,7 +20,6 @@ if (!defined('WEB'))
  */
 class Icon extends HtmlAbstract
 {
-
     /**
      * Icon name
      * @var string
