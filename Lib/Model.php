@@ -148,12 +148,6 @@ class Model extends MvcAbstract
     public $data = false;
 
     /**
-     * Storage for attached validator object
-     * @var validator
-     */
-    private $validator;
-
-    /**
      * Stores sql string
      * @var unknown
      */
@@ -204,10 +198,6 @@ class Model extends MvcAbstract
 
         // Load table definition
         $this->getColumns();
-
-        // Inject validator object
-        $this->validator = new Validator();
-        $this->validator->attachModel($this);
     }
 
     /**
@@ -1427,12 +1417,14 @@ class Model extends MvcAbstract
     }
 
     /**
-     * Stars the validation process and returns true or false
+     * Stars the validation process and returns true or false as result of this process
      * @return boolean
      */
-    public final function validate()
+    protected final function validate()
     {
-        $this->validator->validate();
+        $validator = new Validator($this);
+        $validator->validate();
+
         return $this->hasErrors() ? false : true;
     }
 
