@@ -357,7 +357,7 @@ class App extends ClassAbstract
         if (Cfg::exists($this->name))
         {
             $config = Cfg::get($this->getName());
-            
+
             foreach($config as $key => $val)
             {
                 if (isset($this->config) && isset($this->config[$key]))
@@ -447,7 +447,7 @@ class App extends ClassAbstract
         if ($this->hooks)
         {
             foreach ( $this->hooks as $hook => $function )
-                add_integration_function($hook, $function, false, false);
+                add_integration_function($hook, $function, null, false, false);
         }
 
         self::$init_stages[$this->name]['hooks'] = true;
@@ -480,7 +480,7 @@ class App extends ClassAbstract
             template_include($lang_file);
         // or log error on missing file
         else
-            log_error(sprintf(self::get('theme_language_error', 'SMF'), $this->name . '.' . $lang, 'App: ' . $this->name));
+            log_error(sprintf(Txt::get('theme_language_error', 'SMF'), $this->name . '.' . $lang, 'App: ' . $this->name));
 
         // Set flag for initiated lang
         self::$init_stages[$this->name]['lang'] = true;
