@@ -188,68 +188,6 @@ class Request extends SingletonAbstract
      * @param string $name Optional name of this route. Supply if you want to reverse route this url in your application.
      * @param array $access Optional array with names of SMF access rights.
      */
-    public function mapRoute2($method, $route, $target, $name = '', $access = array())
-    {
-
-        var_dump($name);
-
-        $map = array();
-
-        if ($method != 'GET')
-            $map['method'] = $method;
-
-        $map['route'] = $route;
-        $map['ctrl'] = $target['ctrl'];
-        $map['action'] = $target['action'];
-        $map['access'] = $access;
-
-        if (isset($name))
-            self::$map[$name] = $map;
-        else
-            self::$map[] = $map;
-
-        $route = $this->base_path . $route;
-
-        $this->routes[] = array(
-            $method,
-            $route,
-            $target,
-            $name,
-            $access
-        );
-
-        if ($name)
-        {
-            if (isset($this->named_routes[$name]))
-                throw new Error(
-                    'Route has been already declared.',
-                    6002,
-                    array(
-                        'method' => $method,
-                        'route' => $route,
-                        'tatget' => $target,
-                        'name' => $name,
-                        'access' => $access
-                    )
-                );
-            else
-                $this->named_routes[$name] = array(
-                    'route' => $route,
-                    'access' => $access
-                );
-        }
-
-        return $this;
-    }
-
-    /**
-     * Map a route to a target
-     * @param string $method One of 4 HTTP Methods, or a pipe-separated list of multiple HTTP Methods (GET|POST|PUT|DELETE)
-     * @param string $route The route regex, custom regex must start with an @. You can use multiple pre-set regex filters, like [i:id]
-     * @param mixed $target The target where this route should point to. Can be anything.
-     * @param string $name Optional name of this route. Supply if you want to reverse route this url in your application.
-     * @param array $access Optional array with names of SMF access rights.
-     */
     public function mapRoute($route)
     {
         if (!isset($route['target']))
@@ -568,8 +506,6 @@ class Request extends SingletonAbstract
         return $this->name;
     }
 
-    // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * Returns smf related infos
      * todo Why this? Is this still required?
@@ -674,7 +610,7 @@ class Request extends SingletonAbstract
      */
     public function checkCtrl()
     {
-        return isset($this->ctrl);
+        return !empty($this->ctrl);
     }
 
     /**
@@ -701,7 +637,7 @@ class Request extends SingletonAbstract
      */
     public function checkAction()
     {
-        return isset($this->action);
+        return !empty($this->action);
     }
 
     /**
@@ -723,6 +659,19 @@ class Request extends SingletonAbstract
     {
         $this->action = $action;
         return $this;
+    }
+
+    /**
+     * Returns requested app, controller and action as array
+     * @return multitype:string
+     */
+    public function getACA()
+    {
+        return array(
+        	'app' => $this->app,
+            'ctrl' => $this->ctrl,
+            'action' => $this->action
+        );
     }
 
     /**
@@ -760,12 +709,11 @@ class Request extends SingletonAbstract
 
     /**
      * Returns the value of a paramter as long as it exists.
-     * @param unknown $key
+     * @param string $key
      */
     public function getParam($key)
     {
-        if (isset($this->params[$key]))
-            return $this->params[$key];
+        return isset($this->params[$key]) ? $this->params[$key] : false;
     }
 
     /**
