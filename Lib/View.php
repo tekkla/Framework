@@ -132,7 +132,9 @@ class View extends MvcAbstract
      */
     public function dump()
     {
-        return '<pre>' . print_r($this->__magic_vars, true) . '</pre>';
+        ob_start();
+        echo var_dump($this->__magic_vars);
+        return ob_end_flush();
     }
 }
 ?>
