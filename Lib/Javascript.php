@@ -153,7 +153,7 @@ final class Javascript
 				$side = $defered==true ? 'below' : 'above';
 
 				// Write files to session so min can use it
-				$_SESSION['web']['js-' . $side] = $files;
+				cache_put_data('web_min_js_' . $side, $files);
 
 				// Add link to combined js file
 				loadJavascriptFile( Cfg::get( 'Web', 'url_tools' ) . '/min/g=js-' . $side, null, 'web-js-minified-' . $side );

@@ -93,7 +93,7 @@ final class Css
 
             if ($files)
             {
-                $_SESSION['web']['css'] = $files;
+                cache_put_data('web_min_css', $files);
 
                 // cache_put_data('web_css', $files);
                 loadCSSFile(Cfg::get('Web', 'url_tools') . '/min/g=css', null, 'web-css-minified');
