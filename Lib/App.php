@@ -110,25 +110,24 @@ class App extends ClassAbstract
     /**
      * Get an unique app object
      * @param string $name
-     * @return App object
+     * @return App
      */
     public static function &create($name, $do_init = true)
     {
-        // Create class name.
+        // Create app namespace and take care of secured apps.
         $class = !in_array($name, self::$secure_apps) ? '\\Web\\Apps\\' . $name . '\\' . $name : '\\Web\\Framework\\AppsSec\\' . $name . '\\' . $name;
 
         // Generate app id
         $id = uniqid($name . '_');
 
-        // app masterclasses are create objects and will be returned as referencs
-        // so we need to store the app object in the static instances array
+        // Create a new app object and store id with it's unique id in the instance storage
         self::$instances[$id] = new $class($id);
 
         // Init this app instance
         if ($do_init == true)
             self::$instances[$id]->init();
 
-            // Return app instance
+        // Return referenc to app object in instance storage
         return self::$instances[$id];
     }
 
@@ -140,24 +139,25 @@ class App extends ClassAbstract
      */
     public static function getInstance($name, $do_init = true)
     {
-        // Create class name with full namespace.
+        // Create app namespace and take care of secured apps.
         $class = !in_array($name, self::$secure_apps) ? '\\Web\\Apps\\' . $name . '\\' . $name : '\\Web\\Framework\\AppsSec\\' . $name . '\\' . $name;
 
         // Check for already existing instance of app
+        // and create new instance when none is found
         if (!array_keys(self::$instances, $name))
-            // Create new instance
             self::$instances[$name] = new $class($name);
 
-            // Init this app instance
+        // Init this app instance
         if ($do_init == true)
             self::$instances[$name]->init();
 
-            // Return app instance
+        // Return app instance
         return self::$instances[$name];
     }
 
     /**
-     * Returns all created app instance at once
+     * Returns an array with all created app instance.
+     * @deprecated
      * @return array
      */
     public static function getInstances()
@@ -196,7 +196,7 @@ class App extends ClassAbstract
                 'hooks' => false,
             );
 
-            // Save app name as loaded. But only of none secured ones.
+        // Save app name as loaded. But only of none secured ones.
         if ($this->secure == false)
             self::$loaded_apps[$this->getName()] = $this->getName();
     }
@@ -230,9 +230,16 @@ class App extends ClassAbstract
         $this->initLang();
         $this->initHooks();
 
-        // Finally call a possible headers methods
-        if (method_exists($this, 'addHeaders'))
-            $this->addHeaders();
+        // Init css and js only on non ajax requests
+        if (!$this->request->isAjax())
+        {
+        	$this->initCss();
+        	$this->initJs();
+
+            // Finally call a possible headers methods
+            if (method_exists($this, 'addHeaders'))
+                $this->addHeaders();
+        }
 
         // Store our apps name to be initiated
         self::$init_done[] = $this->name;
@@ -296,13 +303,6 @@ class App extends ClassAbstract
      */
     public function getController($controller_name)
     {
-        // Init css and js only on non ajax requests
-        if (!$this->request->isAjax())
-        {
-            $this->initCss();
-            $this->initJs();
-        }
-
         return Controller::factory($this, $controller_name);
     }
 
@@ -375,13 +375,8 @@ class App extends ClassAbstract
                 // When there is no config set but a default value defined for the app,
                 // the default value will be used then
                 if (!$this->cfg($key) && isset($cfg['default']))
-                {
-                    if (is_array($cfg['default']))
-                        ;
-
-                    $this->cfg($key, $cfg['default']);
-                }
-            }
+                     $this->cfg($key, $cfg['default']);
+             }
         }
     }
 
@@ -475,10 +470,9 @@ class App extends ClassAbstract
         // Create path to lang file
         $lang_file = $this->cfg('dir_language') . '/' . $this->name . '.' . $lang . '.php';
 
-        // Include lang file if exists
+        // Try to load lang file and log error when it's missing
         if (file_exists($lang_file))
             template_include($lang_file);
-        // or log error on missing file
         else
             log_error(sprintf(Txt::get('theme_language_error', 'SMF'), $this->name . '.' . $lang, 'App: ' . $this->name));
 
