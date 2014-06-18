@@ -491,8 +491,21 @@ class Request extends SingletonAbstract
 
                 $this->name = $name;
 
+                // Map target results to request properties
                 foreach ( $target as $key => $val )
-                    $this->{$key} = String::camelize($val);
+                {
+                    if (property_exists($this, $key))
+                        $this->{$key} = String::camelize($val);
+                }
+
+                // When no target controller defined in route but provided by parameter
+                // we use the parameter as requested controller
+                if (!$this->ctrl && isset($params['controller']))
+                    $this->ctrl = String::camelize($params['controller']);
+
+                // Same for action as for controller
+                if (!$this->action && isset($params['action']))
+                	$this->action = String::camelize($params['action']);
 
                 $this->params = $params;
 
