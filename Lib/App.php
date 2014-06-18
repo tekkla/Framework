@@ -42,6 +42,7 @@ class App extends ClassAbstract
      */
     private static $secure_apps = array(
         'Admin',
+        'Doc',
         'Forum',
         'Web'
     );
@@ -52,6 +53,7 @@ class App extends ClassAbstract
      */
     private static $allow_secure_instance = array(
         'Admin',
+        'Doc',
         'Forum',
         'Web'
     );
