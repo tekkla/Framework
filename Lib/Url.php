@@ -95,7 +95,7 @@ final class Url extends ClassAbstract
     private $anchor;
 
     /**
-     * Fectory method which returns an URL object
+     * Factory method which returns an URL object
      * @param string $named_route Optional name of route to compile
      * @param array $params Optional parameters to use on route
      * @return Url
@@ -113,6 +113,20 @@ final class Url extends ClassAbstract
         }
 
         return $url;
+    }
+
+    /**
+     * Factory method which returns an url string based on a compiled named route
+     * @param string $named_route Optional name of route to compile
+     * @param array $params Optional parameters to use on route
+     * @return string
+     */
+    public static function getNamedRouteUrl($named_route, $params=array())
+    {
+    	$url = new Url();
+  		$url->setNamedRoute($named_route);
+		$url->setParameter($params);
+    	return $url->getUrl();
     }
 
     /**
