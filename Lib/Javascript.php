@@ -88,7 +88,8 @@ final class Javascript
 		$ready = array();
 
 		// Include JSMin lib
-		require_once(Cfg::get('Web', 'dir_tools') . '/min/lib/JSMin.php');
+		if (Cfg::get('Web', 'js_minify'))
+		    require_once(Cfg::get('Web', 'dir_tools') . '/min/lib/JSMin.php');
 
 		/* @var $script Javascript */
 		foreach( self::$js as $script )
@@ -103,8 +104,7 @@ final class Javascript
 					break;
 
 				case 'script' :
-					$script = $script->getMinify() ? \JSMin::minify($script->getScript()) : $script->getScript();
-					addInlineJavascript( $script );
+					addInlineJavascript( Cfg::get( 'Web', 'js_minify' ) ? \JSMin::minify($script->getScript()) : $script->getScript() );
 					break;
 
 				case 'block' :
