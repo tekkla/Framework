@@ -61,6 +61,12 @@ class Controller extends MvcAbstract
     private $params = array();
 
     /**
+     * Flag about using a model or not
+     * @var boolean Default: false
+     */
+    protected $no_model = false;
+
+    /**
      * Stores the controller bound Model object
      * @var Model
      */
@@ -111,11 +117,11 @@ class Controller extends MvcAbstract
 
     /**
      * Binds an existing model to the controller.
-     * You can set the controllers "has_no_model" property to prevent this autobinding.
+     * You can set the controllers "no_model" property to prevent this autobinding.
      */
     public function autoBindModel()
     {
-        if (isset($this->has_no_model))
+        if ($this->no_model)
         {
             $this->model = false;
             return;
