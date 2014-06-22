@@ -215,3 +215,5 @@ pip-log.txt
 .mr.developer.cfg
 Tools/
 Tools\
+/.gitattributes
+/.gitignore
