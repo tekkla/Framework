@@ -104,7 +104,7 @@ final class Javascript
 					break;
 
 				case 'script' :
-					addInlineJavascript( Cfg::get( 'Web', 'js_minify' ) ? \JSMin::minify($script->getScript()) : $script->getScript() );
+					addInlineJavascript(JavaScriptEscape(Cfg::get( 'Web', 'js_minify' ) ? \JSMin::minify($script->getScript()) : $script->getScript() ));
 					break;
 
 				case 'block' :
@@ -117,7 +117,7 @@ final class Javascript
 					break;
 
 				case 'ready' :
-					$ready[] = Cfg::get( 'Web', 'js_minify' ) ? \JSMin::minify( $script->getScript() ) : $script->getScript();
+					$ready[] = JavaScriptEscape(Cfg::get( 'Web', 'js_minify' ) ? \JSMin::minify( $script->getScript() ) : $script->getScript());
 					break;
 			}
 		}
