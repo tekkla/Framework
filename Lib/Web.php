@@ -462,6 +462,10 @@ final class Web extends SingletonAbstract
         return Cfg::get('Web', 'default_action');
     }
 
+    /**
+     * Hook method to add forum button to menu
+     * @param array $menu_buttons List of menu buttons
+     */
     public static function addMenuButtons(&$menu_buttons)
     {
         $before = array_slice($menu_buttons, 0, 1);
@@ -478,9 +482,47 @@ final class Web extends SingletonAbstract
         $menu_buttons = $before + $after;
     }
 
+    /**
+     * Hook method to add WebExt as new errortype
+     * @param array $other_error_types List of error types
+     */
     public static function addErrorTypes(&$other_error_types)
     {
         $other_error_types[] = 'WebExt';
+    }
+
+
+    /**
+     * Method to handle WebExt related hook calls
+     * @param string $string WebExt hook definition
+     * @return array
+     */
+    public static function handleHook($string)
+    {
+        // Extracting basic informations from function string
+        $web_hook = explode('::', $string);
+
+        // Is it valid?
+        switch ($web_hook[1])
+        {
+        	Case 'App':
+        		// Getting app obj
+        		$web_object = App::create($web_hook[2]);
+        		$web_method = $web_hook[3];
+        		break;
+
+        	Case 'Ctrl':
+        		$web_object = App::create($web_hook[2])->Controller($web_hook[3]);
+        		$web_method = 'run';
+        		break;
+
+        	case 'Class':
+        		$web_object = $web_hook[2];
+        		$web_method = $web_hook[3];
+        		break;
+        }
+
+        return array($web_object, $web_method);
     }
 }
 
