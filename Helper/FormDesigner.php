@@ -375,10 +375,7 @@ class FormDesigner extends Form
 
             case 'multiselect' :
 				/* @var Select $element */
-				$element = Select::factory($name);
-                $element->isMultiple(1);
-                $element->setSize(10);
-                $element->addCss('web-form-multiselect');
+				$element = Select::factory($name)->isMultiple(1)->setSize(10)->addCss('web-form-multiselect');
                 break;
 
             case 'dataselect' :
@@ -386,17 +383,11 @@ class FormDesigner extends Form
                 break;
 
             case 'submit' :
-                $element = Button::factory($name);
-                $element->setType('submit');
-                $element->setInner(Txt::get('web_btn_save'));
-                $element->useIcon('save');
-                $element->isPrimary();
+                $element = Button::factory($name)->setType('submit')->setInner(Txt::get('web_btn_save'))->useIcon('save')->isPrimary();
                 break;
 
             case 'reset' :
-                $element = Button::factory($name);
-                $element->setType('reset');
-                $element->setInner(Txt::get('web_btn_reset'));
+                $element = Button::factory($name)->setType('reset')->setInner(Txt::get('web_btn_reset'));
                 break;
 
             case 'textarea' :
@@ -416,8 +407,7 @@ class FormDesigner extends Form
                 break;
 
             case 'button' :
-                $element = Button::factory($name);
-                $element->setType('button');
+                $element = Button::factory($name)->setType('button');
                 break;
 
             case 'ajaxbutton' :
@@ -731,7 +721,7 @@ class FormDesigner extends Form
                 if ($type == 'editor')
                     $control->setFormId($this->getId());
 
-                    // Set working state for fields to nothing
+                // Set working state for fields to nothing
                 $state = '';
 
                 // Add possible validation errors css to label and control
@@ -755,7 +745,7 @@ class FormDesigner extends Form
                     $control->setLabel($label);
                 }
 
-                // add possible label
+                // Add possible label
                 if ($control->hasLabel())
                 {
                     $control->label->setFor($control->getId());
@@ -777,7 +767,7 @@ class FormDesigner extends Form
                 // Insert label into controlcontainer
                 $container = str_replace('{label}', $label, $container);
 
-                // build possible description
+                // Build possible description
                 $help = $control->hasDescription() ? '<span class="help-block">' . $control->getDescription() . '</span>' : '';
 
                 // Insert description into controlcontainer
@@ -787,7 +777,7 @@ class FormDesigner extends Form
                 if ($type == 'checkbox' || $type == 'radio')
                     $container = str_replace('{id}', $control->getId(), $container);
 
-                    // Add max file size field before file input field
+                // Add max file size field before file input field
                 if ($control instanceof Input && $control->getType() == 'file')
                 {
                     $max_size_field = Input::factory('MAX_FILE_SIZE')->setType('hidden')->setValue(FileIO::getMaximumFileUploadSize());
@@ -802,7 +792,7 @@ class FormDesigner extends Form
                     $container = str_replace('{control}', '{control}' . $compare_control->build(), $container);
                 }
 
-                // build control
+                // Build control
                 $ctrl = $this->display_mode == 'h' && $control->hasLabel() ? '<div class="col-sm-8">' . $control->build() . '</div>' : $control->build();
 
                 if ($control->hasElementWidth())
