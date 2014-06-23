@@ -917,23 +917,22 @@ class Model extends MvcAbstract
         if (!is_array($this->serialized))
             $this->serialized = (array) $this->serialized;
 
-            // Array check for callback parameter
+        // Array check for callback parameter
         if (!is_array($callbacks))
             $callbacks = (array) $callbacks;
 
-            // Are we trying to entend non exiting data?
+        // Are we trying to entend non exiting data? Create Data object to prevent errors when it comes to extending.
         if ($this->query_type == 'ext' && $this->data == false)
-            // Create Data object to prevent errors when it comes to extending
             $this->data = new Data();
 
-            // Do the query!
+        // Do the query!
         $res = $this->db->query($this->sql, $this->params);
 
         // Reset data on all queries not of type 'ext'
         if ($this->query_type !== 'ext')
             $this->resetData();
 
-            // Process result
+        // Process result
         switch ($this->query_type)
         {
             /**
