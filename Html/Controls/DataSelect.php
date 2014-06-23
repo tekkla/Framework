@@ -68,8 +68,6 @@ class DataSelect extends Select
         // Get data from model and use is as datasource
         $this->datasource = Invoker::Run($model, $func, $params);
 
-        // var_dump($this->datasource);
-
         // Set the dataype
         $this->datatype = $datatype;
 
@@ -95,7 +93,7 @@ class DataSelect extends Select
     {
         foreach ( $this->datasource as $val => $inner )
         {
-            $option = $this->newOption();
+            $option = $this->createOption();
 
             // inner will always be used
             $option->setInner($inner);
