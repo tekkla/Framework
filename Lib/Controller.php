@@ -468,6 +468,7 @@ class Controller extends MvcAbstract
     {
         $form = new FormDesigner();
         $form->attachModel($this->model);
+        $form->setActionRoute($this->request->getCurrentRoute(), $this->params);
         return $form;
     }
 
