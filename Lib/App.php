@@ -472,7 +472,7 @@ class App extends ClassAbstract
         // Create path to lang file
         $lang_file = $this->cfg('dir_language') . '/' . $this->name . '.' . $lang . '.php';
 
-        // Try to load lang file and log error when it's missing
+        // Try to load lang file or log error when it's missing
         if (file_exists($lang_file))
             template_include($lang_file);
         else
@@ -496,6 +496,8 @@ class App extends ClassAbstract
         if (self::$init_stages[$this->name]['css'])
             return;
 
+        $css_loaded = false;
+
         // Css flag set that indicates app has a css file?
         if ($this->css)
         {
@@ -511,10 +513,10 @@ class App extends ClassAbstract
                 {
                     Css::useLink(Settings::get('theme_url') . '/css/App' . $this->name . '.css', true);
                     $css_loaded = 'theme';
-                } else
+                }
+                else
                 {
                     log_error('Apps "' . $this->name . '" css flag is set to true but no css file was found in themes or default themes css app folders.');
-                    $css_loaded = false;
                 }
             }
         }
