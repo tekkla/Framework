@@ -84,7 +84,7 @@ class Form extends HtmlAbstract
 
     	// Safety first. Only allow 'post' or 'get' here.
     	if (!in_array($enctype, $enctypes))
-    		Throw new Error('Wrong method set.', 1000, array($enctype, $enctypes));
+    	    Throw new Error('Wrong method set.', 1000, array($enctype, $enctypes));
 
     	$this->attribute['enctype'] = $enctype;
     	return $this;
@@ -126,7 +126,7 @@ class Form extends HtmlAbstract
         );
 
         if (!in_array($state, $states))
-        	Throw new Error('Wrong autocomplete state.', 1000, array($state, $states));
+            Throw new Error('Wrong autocomplete state.', 1000, array($state, $states));
 
         $this->attribute['autocomplete'] = $state;
         return $this;
