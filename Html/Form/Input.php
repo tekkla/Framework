@@ -1,34 +1,32 @@
 <?php
 namespace Web\Framework\Html\Form;
 
+use Web\Framework\Lib\Abstracts\FormElementAbstract;
 use Web\Framework\Lib\Error;
-use Web\Framework\Html\Elements\FormElement;
 
-class Input extends FormElement
+// Check for direct file access
+if (!defined('WEB'))
+	die('Cannot run without WebExt framework...');
+
+/**
+ * Input Form Element
+ * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
+ * @package WebExt
+ * @subpackage Html\Form
+ * @license BSD
+ * @copyright 2014 by author
+ */
+class Input extends FormElementAbstract
 {
 
     // element specific value for
     // type: text|hidden|button|submit
-    private $type;
-
-    /**
-     *
-     * @param string $name
-     * @param string $type
-     * @return \Web\Framework\Html\Form\Input
-     */
-    public static function factory($name)
-    {
-        $obj = new Input();
-        $obj->setName($name);
-        return $obj;
-    }
-
-    function __construct()
-    {
-        $this->setElement('input');
-        $this->setType('text');
-    }
+    // default: text
+    protected $type = 'text';
+    protected $element = 'input';
+    protected $data = array(
+    	'web-control' => 'input',
+    );
 
     public function setType($type)
     {
@@ -37,6 +35,14 @@ class Input extends FormElement
         $this->addData('web-control', $type == 'hidden' ? 'hidden' : 'input');
 
         return $this;
+    }
+
+    /*+
+     * Returns the input type attribute
+     */
+    public function getType()
+    {
+    	return $this->type;
     }
 
     public function setValue($value)
@@ -74,23 +80,33 @@ class Input extends FormElement
         return $this;
     }
 
-    public function isChecked()
-    {
-        $this->addAttribute('checked', 'checked');
-        return $this;
-    }
+	public function isChecked($state = null)
+	{
+		$attrib = 'checked';
+
+		if (!isset($state))
+			return $this->checkAttribute($attrib);
+
+		if ($state==0)
+			$this->removeAttribute($attrib);
+		else
+			$this->addAttribute($attrib, false);
+
+		return $this;
+	}
+
+	public function isMultiple($bool = true)
+	{
+		if ($bool == true)
+			$this->addAttribute('multiple');
+		else
+			$this->removeAttribute('multiple');
+	}
 
     public function build($wrapper = null)
     {
+        $this->addAttribute('type', $this->type);
         return parent::build($wrapper);
-    }
-
-    public function isMultiple($bool = true)
-    {
-        if ($bool == true)
-            $this->addAttribute('multiple');
-        else
-            $this->removeAttribute('multiple');
     }
 }
 ?>

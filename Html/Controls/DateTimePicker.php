@@ -19,8 +19,12 @@ if (!defined('WEB'))
  * @license BSD
  * @copyright 2014 by author
  */
-class DateTimePicker extends Input
+final class DateTimePicker extends Input
 {
+    protected $css = array(
+        'web-form-datepicker'
+    );
+
     /**
      * Default date format: ISO date
      * @var string
@@ -136,27 +140,6 @@ class DateTimePicker extends Input
      * @var bool
      */
     private static $translation_requested = false;
-
-    /**
-     * Control factory
-     * @param name of control $name
-     * @return \Web\Framework\Html\Controls\DateTimePicker
-     */
-    public static function factory($name)
-    {
-        $obj = new DateTimePicker();
-        $obj->setName($name);
-        return $obj;
-    }
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        parent::__construct();
-        $this->addCss('web-form-datepicker');
-    }
 
     /**
      * Returns set default date
@@ -520,4 +503,3 @@ class DateTimePicker extends Input
     }
 }
 ?>
-

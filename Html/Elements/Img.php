@@ -12,12 +12,14 @@ if (!defined('WEB'))
  * Creates a img html object
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
- * @subpackage Lib
+ * @subpackage Html\Element
  * @license BSD
  * @copyright 2014 by author
  */
 class Img extends HtmlAbstract
 {
+    protected $element = 'img';
+
     /**
      * Factory pattern
      * @param string|Url $src
@@ -28,14 +30,6 @@ class Img extends HtmlAbstract
         $obj = new Img();
         $obj->setSrc($src);
         return $obj;
-    }
-
-    /**
-     * Constructor
-     */
-    function __construct()
-    {
-        $this->setElement('img');
     }
 
     /**

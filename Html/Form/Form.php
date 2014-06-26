@@ -19,26 +19,12 @@ if (!defined('WEB'))
  */
 class Form extends HtmlAbstract
 {
-    /**
-     * Factory method
-     * @return Form
-     */
-    public static function factory()
-    {
-        return new Form();
-    }
-
-    /**
-     * Constructor
-     */
-    function __construct()
-    {
-        $this->setElement('form');
-        $this->addAttribute('role', 'form');
-
-        // Forms method is POST by default
-        $this->setMethod('post');
-    }
+    protected $element = 'form';
+    protected $attribute = array(
+    	'role' => 'form',
+        'method' => 'post',
+        'entype' => 'multipart/form-data',
+    );
 
     /**
      * Set the name of a route to compile as action url
@@ -79,6 +65,30 @@ class Form extends HtmlAbstract
 
         $this->addAttribute('method', $method);
         return $this;
+    }
+
+    /**
+     * Set the form method attribute.
+     * Use 'post' or 'get'.
+     * Form elements are using post by default.
+     * @param string $method Value for the method attribute of from
+     * @throws NoValidParameterError
+     * @return \Web\Framework\Html\Elements\Form
+     */
+    public function setEnctype($enctype)
+    {
+    	$enctypes = array(
+    		'application/x-www-form-urlencoded',
+    		'multipart/form-data',
+    	    'text/plain'
+    	);
+
+    	// Safety first. Only allow 'post' or 'get' here.
+    	if (!in_array($enctype, $enctypes))
+    		Throw new Error('Wrong method set.', 1000, array($enctype, $enctypes));
+
+    	$this->addAttribute('enctype', $enctype);
+    	return $this;
     }
 
     /**

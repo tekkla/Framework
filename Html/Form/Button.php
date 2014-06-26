@@ -1,8 +1,7 @@
 <?php
 namespace Web\Framework\Html\Form;
 
-use Web\Framework\Html\Elements\FormElement;
-use Web\Framework\Lib\Errors\NoValidParameterError;
+use Web\Framework\Lib\Abstracts\FormElementAbstract;
 use Web\Framework\Lib\Error;
 
 // Check for direct file access
@@ -17,7 +16,7 @@ if (!defined('WEB'))
  * @license BSD
  * @copyright 2014 by author
  */
-class Button extends FormElement
+class Button extends FormElementAbstract
 {
     /**
      * Name of icon to use
@@ -35,7 +34,7 @@ class Button extends FormElement
      * Type
      * @var string
      */
-    private $button_display = 'default';
+    private $button_type = 'default';
 
     /**
      * Size
@@ -43,30 +42,18 @@ class Button extends FormElement
      */
     private $button_size;
 
-    /**
-     * Factory method
-     * @param string $name
-     * @return \Web\Framework\Html\Form\Button
-     */
-    public static function factory($name = null)
-    {
-        $obj = new Button();
+    ## ------------------------------------------
+    ## General html element settings
+    ## ------------------------------------------
 
-        if ($name)
-            $obj->setName($name);
+    // Element type
+    protected $element = 'button';
 
-        return $obj;
-    }
+    // Basic css classes
+    protected $css = array('btn');
 
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->setElement('button');
-        $this->addCss('btn');
-        $this->addData('web-control', 'button');
-    }
+    // Basic data attributes
+    protected $data = array('web-control' => 'button');
 
     /**
      * Sets button value
@@ -258,15 +245,23 @@ class Button extends FormElement
      */
     public function build($wrapper = null)
     {
-        $this->addAttribute('type', $this->type);
+        // Switch element to be an input when type is anything else then 'button'
+        if ($this->type != 'button')
+        {
+            $this->element = 'input';
+            $this->attribute['type'] = $this->type;
+        }
 
+        // Has this button an icon top add?
         if (isset($this->button_icon))
-            $this->setInner('<i class="fa fa-' . $this->button_icon . '"></i> ' . $this->getInner());
+            $this->inner = '<i class="fa fa-' . $this->button_icon . '"></i> ' . $this->inner;
 
-        $this->addCss('btn-' . $this->button_display);
+        // Add button type css
+        $this->css[] = 'btn-' . $this->button_type;
 
+        // Do we have to add cs for a specific button size?
         if (isset($this->button_size))
-            $this->addCss('btn-' . $this->button_size);
+            $this->css[] = 'btn-' . $this->button_size;
 
         return parent::build($wrapper);
     }

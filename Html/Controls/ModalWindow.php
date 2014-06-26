@@ -9,11 +9,11 @@ if (!defined('WEB'))
  * Creates a Bootstrap modal window control
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
- * @subpackage Helper
+ * @subpackage Html\Controls
  * @license BSD
  * @copyright 2014 by author
  */
-class ModalWindow
+final class ModalWindow
 {
     /**
      * Windowtitle

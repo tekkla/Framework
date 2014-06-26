@@ -1,17 +1,12 @@
 <?php
 namespace Web\Framework\Helper;
 
-// Used libs
 use Web\Framework\Lib\Error;
 use Web\Framework\Lib\Model;
 use Web\Framework\Lib\Txt;
 use Web\Framework\Lib\String;
 use Web\Framework\Lib\FileIO;
-
-// Used helper
 use Web\Framework\Html\Controls\UiButton;
-
-// Used html stuff
 use Web\Framework\Html\Form\Form;
 use Web\Framework\Html\Form\Input;
 use Web\Framework\Html\Form\Textarea;
@@ -20,7 +15,6 @@ use Web\Framework\Html\Form\Select;
 use Web\Framework\Html\Form\Checkbox;
 use Web\Framework\Html\Elements\Div;
 use Web\Framework\Html\Elements\Heading;
-use Web\Framework\Html\Elements\FormElement;
 use Web\Framework\Html\Elements\Paragraph;
 use Web\Framework\Html\Controls\OptionGroup;
 use Web\Framework\Html\Controls\OnOffSwitch;
@@ -28,6 +22,7 @@ use Web\Framework\Html\Controls\Editor;
 use Web\Framework\Html\Controls\DataSelect;
 use Web\Framework\Html\Controls\Group;
 use Web\Framework\Html\Controls\DateTimePicker;
+use Web\Framework\Lib\Abstracts\FormElementAbstract;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -41,20 +36,15 @@ if (!defined('WEB'))
  * @subpackage Helper
  * @license BSD
  * @copyright 2014 by author
+ * @final
  */
-class FormDesigner extends Form
+final class FormDesigner extends Form
 {
     /**
      * Form controls storage
      * @var array
      */
     private $controls = array();
-
-    /**
-     * Forms name
-     * @var string
-     */
-    private $name;
 
     /**
      * Form send method
@@ -161,21 +151,6 @@ class FormDesigner extends Form
     private $grid_control;
 
     private $elements = array();
-
-    /**
-     * Factory method
-     * @return Form
-     */
-    public static function factory()
-    {
-        return new FormDesigner();
-    }
-
-    function __construct()
-    {
-        parent::__construct();
-        $this->setEnctype('multipart/form-data');
-    }
 
     /**
      * Inject model dependency
@@ -467,7 +442,7 @@ class FormDesigner extends Form
         else
         {
             // Set element as unbound as long as it is no UiButton
-            if ($element instanceof FormElement)
+            if ($element instanceof FormElementAbstract)
                 $element->setUnbound();
         }
 
@@ -524,10 +499,10 @@ class FormDesigner extends Form
         $control_id_prefix = 'web_' . $this->app_name . '_' . $this->model_name;
 
         // set name only when no name was set
-        $this->setName($form_name);
+        $this->name = $form_name;
 
         // set id only when no id was set
-        $this->setId($form_name);
+        $this->id = $form_name;
 
         // Create display mode
         switch ($this->display_mode)
@@ -632,7 +607,7 @@ class FormDesigner extends Form
                 $html_control .= $control->build();
             }
             // No ajax button. Normal form control.
-            elseif ($control instanceof FormElement)
+            elseif ($control instanceof FormElementAbstract)
             {
                 // Only visible fields get a tabindex
                 if (!$control instanceof Input || ($control instanceof Input && $control->getType() !== 'hidden'))
@@ -710,16 +685,16 @@ class FormDesigner extends Form
                     }
                 }
 
+                // Set the form id to editor controls
+                if ($type == 'editor')
+                	$control->setFormId($this->getId());
+
                 // Hidden controls dont need any label or other stuff to display
                 if ($type == 'hidden')
                 {
                     $html_control .= $control->build();
                     continue;
                 }
-
-                // Set the form id to editor controls
-                if ($type == 'editor')
-                    $control->setFormId($this->getId());
 
                 // Set working state for fields to nothing
                 $state = '';

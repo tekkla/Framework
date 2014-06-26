@@ -13,13 +13,15 @@ if (!defined('WEB'))
  * Creates an iframe html object.
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
- * @subpackage Lib
+ * @subpackage Html\Element
  * @license BSD
  * @copyright 2014 by author
  */
 class Iframe extends HtmlAbstract
 {
     private $sandbox = array();
+
+    protected $element = 'iframe';
 
     /**
      * Factory pattern.
@@ -31,14 +33,6 @@ class Iframe extends HtmlAbstract
         $obj = new Iframe();
         $obj->setSrc($src);
         return $obj;
-    }
-
-    /**
-     * Constructor
-     */
-    function __construct()
-    {
-        $this->setElement('iframe');
     }
 
     /**

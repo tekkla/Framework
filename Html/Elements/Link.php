@@ -3,7 +3,7 @@ namespace Web\Framework\Html\Elements;
 
 use Web\Framework\Lib\Abstracts\HtmlAbstract;
 use Web\Framework\Lib\Url;
-use Web\Framework\Lib\Errors\NoValidParameterError;
+use Web\Framework\Lib\Error;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -19,6 +19,8 @@ if (!defined('WEB'))
  */
 class Link extends HtmlAbstract
 {
+    protected $element = 'a';
+
     /**
      * Factory method
      * @param string|Url $url
@@ -32,14 +34,6 @@ class Link extends HtmlAbstract
             $obj->setHref($url);
 
         return $obj;
-    }
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->setElement('a');
     }
 
     /**
@@ -87,7 +81,7 @@ class Link extends HtmlAbstract
         );
 
         if (!in_array($rel, $rels))
-            throw new NoValidParameterError($rel, $rels);
+            throw new Error('Not valid rel attribute', 1000, array($rel, $rels));
 
         $this->addAttribute('rel', $rel);
         return $this;

@@ -5,7 +5,7 @@ use Web\Framework\Lib\Javascript;
 use Web\Framework\Lib\Cfg;
 use Web\Framework\Html\Form\Input;
 use Web\Framework\Html\Elements\Div;
-use Web\Framework\Html\Elements\FormElement;
+use Web\Framework\Lib\Abstracts\FormElementAbstract;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -19,7 +19,7 @@ if (!defined('WEB'))
  * @license BSD
  * @copyright 2014 by author
  */
-class Editor extends FormElement
+final class Editor extends FormElementAbstract
 {
 
     /**
@@ -38,7 +38,7 @@ class Editor extends FormElement
      * Use filebrowser flag
      * @var bool
      */
-    private $filebrowser_use = false;
+    private $filebrowser_use = true;
 
     /**
      * Filebrowser width
@@ -78,26 +78,21 @@ class Editor extends FormElement
 
     public static function factory()
     {
-        $obj = new Editor();
-
-        // add needed js libraries
-        $obj->addEditorScript();
-
-        return $obj;
+        return new self;
     }
 
     public function __construct()
     {
         // our editor will be uesd as inline editor
-        $this->edit_element = Div::factory()->addAttribute('contenteditable', 'true')->addData('url', Cfg::Get('web', 'url_tools'))->addCss('web_form_editor web_border web_pad web_bg');
+        $this->edit_element = Div::factory()->addAttribute('contenteditable', 'true')->addData('url', Cfg::Get('Web', 'url_tools'));
 
         // we need an hidden form field for content to post
-        $this->content_element = Input::factory('', 'hidden');
-    }
+        $this->content_element = Input::factory()->setType('hidden');
 
-    private function addEditorScript()
-    {
-        Javascript::useFile( Cfg::Get('web', 'url_tools') . '/ckeditor/ckeditor.js?' . time(), true);
+        $this->addData('web-control', 'editor');
+
+        // Add needed CKE js library
+        Javascript::useFile( Cfg::Get('Web', 'url_tools') . '/ckeditor/ckeditor.js?' . time());
     }
 
     public function getType()
@@ -128,6 +123,8 @@ class Editor extends FormElement
 
     public function setFormId($form_id)
     {
+        echo __METHOD__;
+
         $this->form_id = $form_id;
         return $this;
     }
@@ -169,38 +166,45 @@ class Editor extends FormElement
         $script = "
 		if (typeof CKEDITOR !== undefined)
 		{
-			CKEDITOR.disableAutoInline = true;
+			$(document).ready(function() {
+			    CKEDITOR.disableAutoInline = true;
 
-			var editor = CKEDITOR.inline( '{$this->edit_element->getId()}',
-			{
-				on :
-				{
-					instanceReady : function( ev )
-					{
-						// Output paragraphs as <p>Text</p>.
-						this.dataProcessor.writer.setRules( 'p',
-						{
-							indent : false,
-							breakBeforeOpen : false,
-							breakAfterOpen : false,
-							breakBeforeClose : false,
-							breakAfterClose : false
-						});
-					}
-				},
-				language : $('#{$this->edit_element->getId()}').data('lang'),
-				filebrowserBrowseUrl : $('#{$this->edit_element->getId()}').data('url') + '/kcfinder/browse.php?opener=ckeditor&type=files',
-				filebrowserUploadUrl : $('#{$this->edit_element->getId()}').data('url') + '/kcfinder/upload.php?opener=ckeditor&type=files',
-				filebrowserImageBrowseUrl : $('#{$this->edit_element->getId()}').data('url') + '/kcfinder/browse.php?opener=ckeditor&type=images',
-				filebrowserImageUploadUrl : $('#{$this->edit_element->getId()}').data('url') + '/kcfinder/upload.php?opener=ckeditor&type=images',
+                CKEDITOR.stylesSet.add( 'my_styles', [
+                    // Block-level styles
+                    { name: 'BS Code', element: 'code' },
+                    { name: 'BS Jumbotron', element: 'div', attributes: { 'class': 'jumbotron' } },
+                ] );
+
+			    var editor = CKEDITOR.inline('{$this->edit_element->getId()}', {
+			        stylesSet : 'my_styles',
+			        on : {
+			            instanceReady : function(){
+			                this.dataProcessor.writer.setRules('p', {
+			                    indent : false,
+			                    breakBeforeOpen : false,
+			                    breakAfterOpen : false,
+			                    breakBeforeClose : false,
+			                    breakAfterClose : false
+						    });
+					   },
+				    },
+				    extraPlugins: 'bs-highlight,bs-jumbotron,bs-heading,bs-callout',
+				    language : smf_lang_dictionary,
+				    filebrowserBrowseUrl : $('#{$this->edit_element->getId()}').data('url') + '/kcfinder/browse.php?opener=ckeditor&type=files',
+				    filebrowserUploadUrl : $('#{$this->edit_element->getId()}').data('url') + '/kcfinder/upload.php?opener=ckeditor&type=files',
+				    filebrowserImageBrowseUrl : $('#{$this->edit_element->getId()}').data('url') + '/kcfinder/browse.php?opener=ckeditor&type=images',
+				    filebrowserImageUploadUrl : $('#{$this->edit_element->getId()}').data('url') + '/kcfinder/upload.php?opener=ckeditor&type=images',
+                });
 			});
 
-			$('#{$this->form_id}').submit(function() {
+			$('#{$this->form_id}').submit(function(e) {
 				$('#{$this->content_element->getId()}').val( editor.getData() );
+				bootbox(editor.getData());
+				e.preventDefault();
 			});
 		}";
 
-        Javascript::useScript($script, true );
+        Javascript::useScript($script);
 
         $html = $this->content_element->build();
         $html .= $this->edit_element->build();

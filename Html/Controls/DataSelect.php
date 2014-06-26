@@ -13,11 +13,11 @@ if (!defined('WEB'))
  * Creates a data driven select element
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
- * @subpackage Helper
+ * @subpackage Html\Controls
  * @license BSD
  * @copyright 2014 by author
  */
-class DataSelect extends Select
+final class DataSelect extends Select
 {
     /**
      * The data from which the options of the select will be created
@@ -37,19 +37,6 @@ class DataSelect extends Select
      * @var mixed
      */
     private $selected;
-
-    /**
-     * Returns an DataSelect object
-     * @param string $app
-     * @param string $model
-     * @return \web\framework\Html\controls\DataSelect
-     */
-    public static function factory($name)
-    {
-        $obj = new DataSelect();
-        $obj->setName($name);
-        return $obj;
-    }
 
     /**
      * Sets a datasource

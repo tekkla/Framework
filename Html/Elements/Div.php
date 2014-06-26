@@ -17,15 +17,6 @@ if (!defined('WEB'))
  */
 class Div extends HtmlAbstract
 {
-    public static function factory()
-    {
-        $obj = new Div();
-        return $obj;
-    }
-
-    function __construct()
-    {
-        $this->setElement('div');
-    }
+    protected $element = 'div';
 }
 ?>

@@ -18,7 +18,7 @@ if (!defined('WEB'))
  * @license BSD
  * @copyright 2014 by author
  */
-class UiButton extends Link
+final class UiButton extends Link
 {
     /**
      * Static instance counter
@@ -142,8 +142,6 @@ class UiButton extends Link
      */
     public function __construct()
     {
-        parent::__construct();
-
         // Update instance counter for uniqe auto ids
         self::$instance_count++;
 
