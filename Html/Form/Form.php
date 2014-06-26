@@ -13,7 +13,7 @@ if (!defined('WEB'))
  * Creates a form html object
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
- * @subpackage Lib
+ * @subpackage Html\Form
  * @license BSD
  * @copyright 2014 by author
  */
@@ -38,11 +38,10 @@ class Form extends HtmlAbstract
         $this->route = $route;
 
         // Compile route and set url as action url
-        $this->addAttribute('action', Url::factory($route, $params)->getUrl());
+        $this->attribute['action'] = Url::factory($route, $params)->getUrl();
 
         return $this;
     }
-
 
     /**
      * Set the form method attribute.
@@ -61,9 +60,9 @@ class Form extends HtmlAbstract
 
         // Safety first. Only allow 'post' or 'get' here.
         if (!in_array($method, $methods))
-        	Throw new Error('Wrong method set.', 1000, array($method, $methods));
+            Throw new Error('Wrong method set.', 1000, array($method, $methods));
 
-        $this->addAttribute('method', $method);
+        $this->attribute['method'] = $method;
         return $this;
     }
 
@@ -78,8 +77,8 @@ class Form extends HtmlAbstract
     public function setEnctype($enctype)
     {
     	$enctypes = array(
-    		'application/x-www-form-urlencoded',
-    		'multipart/form-data',
+    	    'application/x-www-form-urlencoded',
+    	    'multipart/form-data',
     	    'text/plain'
     	);
 
@@ -87,7 +86,7 @@ class Form extends HtmlAbstract
     	if (!in_array($enctype, $enctypes))
     		Throw new Error('Wrong method set.', 1000, array($enctype, $enctypes));
 
-    	$this->addAttribute('enctype', $enctype);
+    	$this->attribute['enctype'] = $enctype;
     	return $this;
     }
 
@@ -98,7 +97,7 @@ class Form extends HtmlAbstract
      */
     public function setAcceptCharset($accept_charset)
     {
-        $this->addAttribute('accept_charset', $accept_charset);
+        $this->attribute['accept_charset'] = $accept_charset;
         return $this;
     }
 
@@ -109,7 +108,7 @@ class Form extends HtmlAbstract
      */
     public function setTarget($target)
     {
-        $this->addAttribute('target', $target);
+        $this->attribute['target'] = $target;
         return $this;
     }
 
@@ -129,7 +128,7 @@ class Form extends HtmlAbstract
         if (!in_array($state, $states))
         	Throw new Error('Wrong autocomplete state.', 1000, array($state, $states));
 
-        $this->addAttribute('autocomplete', $state);
+        $this->attribute['autocomplete'] = $state;
         return $this;
     }
 
@@ -139,7 +138,7 @@ class Form extends HtmlAbstract
      */
     public function noValidate()
     {
-        $this->addAttribute('novalidate');
+        $this->attribute['novalidate'] = false;
         return $this;
     }
 }
