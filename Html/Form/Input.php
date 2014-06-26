@@ -31,9 +31,8 @@ class Input extends FormElementAbstract
     public function setType($type)
     {
         $this->type = $type;
-        $this->addAttribute('type', $type);
-        $this->addData('web-control', $type == 'hidden' ? 'hidden' : 'input');
-
+        $this->attribute['type'] = $type;
+        $this->data['web-control'] = $type == 'hidden' ? 'hidden' : 'input';
         return $this;
     }
 
@@ -47,7 +46,7 @@ class Input extends FormElementAbstract
 
     public function setValue($value)
     {
-        $this->addAttribute('value', $value);
+        $this->attribute['value'] = $value;
         return $this;
     }
 
@@ -61,7 +60,7 @@ class Input extends FormElementAbstract
         if (!is_int($size))
             Throw new Error('Framework: Input size needs to be an integer.');
 
-        $this->addAttribute('size', $size);
+        $this->attribute['size'] = $size;
         return $this;
     }
 
@@ -70,13 +69,13 @@ class Input extends FormElementAbstract
         if (!is_int($maxlenght))
             Throw new Error('Framework: Input maxlenght needs to be an integer.');
 
-        $this->addAttribute('maxlenght', $maxlenght);
+        $this->attribute['maxlenght'] = $maxlenght;
         return $this;
     }
 
     public function setPlaceholder($placeholder)
     {
-        $this->addAttribute('placeholder', $placeholder);
+        $this->attribute['placeholder'] = $placeholder;
         return $this;
     }
 
@@ -90,7 +89,7 @@ class Input extends FormElementAbstract
 		if ($state==0)
 			$this->removeAttribute($attrib);
 		else
-			$this->addAttribute($attrib, false);
+			$this->attribute[$attrib] = false;
 
 		return $this;
 	}
@@ -98,14 +97,14 @@ class Input extends FormElementAbstract
 	public function isMultiple($bool = true)
 	{
 		if ($bool == true)
-			$this->addAttribute('multiple');
+			$this->attribute['multiple'] = false;
 		else
 			$this->removeAttribute('multiple');
 	}
 
     public function build($wrapper = null)
     {
-        $this->addAttribute('type', $this->type);
+        $this->attribute['type'] = $this->type;
         return parent::build($wrapper);
     }
 }
