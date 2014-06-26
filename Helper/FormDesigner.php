@@ -144,8 +144,6 @@ final class FormDesigner extends Form
 
     private $grid_control;
 
-    private $elements = array();
-
     /**
      * Inject model dependency
      * @param Model $model
