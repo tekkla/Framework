@@ -42,7 +42,7 @@ class Img extends HtmlAbstract
         if ($src instanceof Url)
             $src = $src->getUrl();
 
-        $this->addAttribute('src', $src);
+        $this->attribute['src'] = $src;
         return $this;
     }
 
@@ -53,7 +53,7 @@ class Img extends HtmlAbstract
      */
     public function setAlt($alt)
     {
-        $this->addAttribute('alt', (string) $alt);
+        $this->attribute['alt'] = $alt;
         return $this;
     }
 
@@ -64,7 +64,7 @@ class Img extends HtmlAbstract
      */
     public function setTitle($title)
     {
-        $this->addAttribute('title', (string) $title);
+        $this->attribute['title'] = $title;
         return $this;
     }
 
@@ -74,7 +74,7 @@ class Img extends HtmlAbstract
      */
     public function setWidth($width)
     {
-        $this->addAttribute('width', (int) $width);
+        $this->attribute['width'] = (int) $width;
         return $this;
     }
 
@@ -85,7 +85,7 @@ class Img extends HtmlAbstract
      */
     public function setHeight($height)
     {
-        $this->addAttribute('height', (int) $height);
+        $this->attribute['height'] =  (int) $height;
         return $this;
     }
 
@@ -96,7 +96,7 @@ class Img extends HtmlAbstract
      */
     public function setIsMap()
     {
-        $this->addAttribute('ismap');
+        $this->attribute['ismap'] = false;
         return $this;
     }
 
@@ -107,7 +107,7 @@ class Img extends HtmlAbstract
      */
     public function useMap($name)
     {
-        $this->addAttribute('usemap', $name);
+        $this->attribute['usemap'] = $name;
         return $this;
     }
 }

@@ -45,7 +45,7 @@ class Iframe extends HtmlAbstract
         if ($src instanceof Url)
             $src = $src->getUrl();
 
-        $this->addAttribute('src', $src);
+        $this->attribute['src'] = $src;
         return $this;
     }
 
@@ -56,7 +56,7 @@ class Iframe extends HtmlAbstract
      */
     public function setSrcDoc($srcdoc)
     {
-        $this->addAttribute('srcdoc', (string) $srcdoc);
+        $this->attribute['srcdoc'] = $srcdoc;
         return $this;
     }
 
@@ -92,7 +92,7 @@ class Iframe extends HtmlAbstract
      */
     public function setWidth($width)
     {
-        $this->addAttribute('width', (int) $width);
+        $this->attribute['width'] = (int) $width;
         return $this;
     }
 
@@ -103,7 +103,7 @@ class Iframe extends HtmlAbstract
      */
     public function setHeight($height)
     {
-        $this->addAttribute('height', (int) $height);
+        $this->attribute['height'] = (int) $height;
         return $this;
     }
 
@@ -114,7 +114,7 @@ class Iframe extends HtmlAbstract
     public function setSeamless($state = true)
     {
         if ($state === true)
-            $this->addAttribute('seamless');
+            $this->attribute['seamless'] = false;
         else
             $this->removeAttribute('seamless');
 
@@ -128,7 +128,7 @@ class Iframe extends HtmlAbstract
     public function build($wrapper = null)
     {
         if ($this->sandbox)
-            $this->addAttribute('sandbox', implode(' ', $this->sandbox));
+            $this->attribute['sandbox'] = implode(' ', $this->sandbox);
 
         return parent::build($wrapper);
     }

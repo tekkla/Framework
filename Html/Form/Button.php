@@ -62,7 +62,7 @@ class Button extends FormElementAbstract
      */
     public function setValue($value)
     {
-        $this->addAttribute('value', $value);
+        $this->attribute['value'] = $value;
         return $this;
     }
 

@@ -45,7 +45,7 @@ class Link extends HtmlAbstract
         if ($url instanceof Url)
             $url->getUrl();
 
-        $this->addAttribute('href', $url);
+        $this->attribute['href'] = $url;
         return $this;
     }
 
@@ -55,7 +55,7 @@ class Link extends HtmlAbstract
      */
     public function setTarget($target)
     {
-        $this->addAttribute('target', $target);
+        $this->attribute['ismap'] = $target;
         return $this;
     }
 
@@ -83,7 +83,7 @@ class Link extends HtmlAbstract
         if (!in_array($rel, $rels))
             throw new Error('Not valid rel attribute', 1000, array($rel, $rels));
 
-        $this->addAttribute('rel', $rel);
+        $this->attribute['rel'] = $rel;
         return $this;
     }
 
@@ -93,7 +93,7 @@ class Link extends HtmlAbstract
      */
     public function isDownload()
     {
-        $this->addAttribute('download');
+        $this->attribute['download'] = false;
         return $this;
     }
 
@@ -104,7 +104,7 @@ class Link extends HtmlAbstract
      */
     public function setMedia($media)
     {
-        $this->addAttribute('media', $media);
+        $this->attribute['media'] = $media;
         return $this;
     }
 
@@ -115,7 +115,7 @@ class Link extends HtmlAbstract
      */
     public function setType($type)
     {
-    	$this->addAttribute('type', $type);
+        $this->attribute['type'] = $type;
     	return $this;
     }
 }

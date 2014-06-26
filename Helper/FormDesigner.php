@@ -226,7 +226,7 @@ final class FormDesigner extends Form
 
         $this->group_name = $group_name;
 
-        $this->addControl($this->group_name, Group::factory($group_name));
+        $this->controls[$this->group_name] = Group::factory($group_name);
 
         return $this->controls[$this->group_name];
     }
@@ -238,7 +238,7 @@ final class FormDesigner extends Form
     {
         if (isset($this->group_name))
         {
-            $this->addControl($this->group_name . '_close', 'close_group');
+            $this->controls[$this->group_name . '_close'] = 'close_group';
             unset($this->group_name);
         }
     }
@@ -433,7 +433,7 @@ final class FormDesigner extends Form
         }
         else
         {
-            // Set element as unbound as long as it is no UiButton
+            // Set element as unbound as long as it is a FormElement subclass
             if ($element instanceof FormElementAbstract)
                 $element->setUnbound();
         }
