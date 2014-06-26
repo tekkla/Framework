@@ -17,21 +17,6 @@ if (!defined('WEB'))
  */
 class Span extends HtmlAbstract
 {
-    /**
-     * Factory method
-     * @return \Web\Framework\Html\Elements\Span
-     */
-    public static function factory()
-    {
-        return new Span();
-    }
-
-    /**
-     * Constructor
-     */
-    function __construct()
-    {
-        $this->setElement('span');
-    }
+    protected $element = 'span';
 }
 ?>

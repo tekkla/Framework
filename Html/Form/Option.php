@@ -1,29 +1,27 @@
 <?php
-
 namespace Web\Framework\Html\Form;
 
-use Web\Framework\Lib\Interfaces\HtmlInterface;
-use Web\Framework\Html\Elements\FormElement;
+use Web\Framework\Lib\Abstracts\FormElementAbstract;
 use Web\Framework\Lib\Error;
 
+// Check for direct file access
+if (!defined('WEB'))
+	die('Cannot run without WebExt framework...');
+
 /**
- *
- * @author michael
- *
+ * Option Form Element
+ * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
+ * @package WebExt
+ * @subpackage Html\Form
+ * @license BSD
+ * @copyright 2014 by author
  */
-class Option extends FormElement implements HtmlInterface
+class Option extends FormElementAbstract
 {
-
-	public static function factory()
-	{
-		return new Option();
-	}
-
-	function __construct()
-	{
-		$this->setElement('option');
-		$this->addData('web-control', 'option');
-	}
+    protected $element = 'option';
+    protected $data = array(
+        'web-control' => 'option'
+    );
 
 	/**
 	 * Selected attribute setter and checker. Accepts parameter "null", "0" and "1".
@@ -57,7 +55,7 @@ class Option extends FormElement implements HtmlInterface
 	{
 		if ($value===null)
 			Throw new Error('Your are not allowed to set a NULL as value for a html option.');
-		
+
 		$this->addAttribute('value', $value);
 		return $this;
 	}
@@ -70,7 +68,5 @@ class Option extends FormElement implements HtmlInterface
 	{
 		return $this->getAttribute('value');
 	}
-
 }
-
 ?>

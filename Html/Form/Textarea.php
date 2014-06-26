@@ -1,36 +1,27 @@
 <?php
-
 namespace Web\Framework\Html\Form;
 
+use Web\Framework\Lib\Abstracts\FormElementAbstract;
 use Web\Framework\Lib\Error;
 
-use Web\Framework\Lib\Interfaces\HtmlInterface;
-use Web\Framework\Html\Elements\FormElement;
+// Check for direct file access
+if (!defined('WEB'))
+	die('Cannot run without WebExt framework...');
 
 /**
- *
- * @author michael
- *
+ * Textarea Form Element
+ * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
+ * @package WebExt
+ * @subpackage Html\Form
+ * @license BSD
+ * @copyright 2014 by author
  */
-class Textarea extends FormElement implements HtmlInterface
+final class Textarea extends FormElementAbstract
 {
-
-	public static function factory($name)
-	{
-		$obj = new Textarea();
-		$obj->setName($name);
-		return $obj;
-	}
-
-	function __construct()
-	{
-		$this->setElement('textarea');
-		$this->addCss(array(
-			'form-control',
-			'web_form_textarea',
-		));
-		$this->addData('web-control', 'textarea');
-	}
+    protected $element = 'textarea';
+    protected $data = array(
+    	'web-control' => 'textarea',
+    );
 
 	public function setPlaceholder($placeholder)
 	{
@@ -70,7 +61,5 @@ class Textarea extends FormElement implements HtmlInterface
 		$this->addAttribute('maxlength', $maxlength);
 		return $this;
 	}
-
 }
-
 ?>

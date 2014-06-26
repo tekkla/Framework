@@ -13,11 +13,11 @@ if (!defined('WEB'))
  * Creates a data driven select element
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
- * @subpackage Helper
+ * @subpackage Html\Controls
  * @license BSD
  * @copyright 2014 by author
  */
-class DataSelect extends Select
+final class DataSelect extends Select
 {
     /**
      * The data from which the options of the select will be created
@@ -39,19 +39,6 @@ class DataSelect extends Select
     private $selected;
 
     /**
-     * Returns an DataSelect object
-     * @param string $app
-     * @param string $model
-     * @return \web\framework\Html\controls\DataSelect
-     */
-    public static function factory($name)
-    {
-        $obj = new DataSelect();
-        $obj->setName($name);
-        return $obj;
-    }
-
-    /**
      * Sets a datasource
      * @param string $app Name of app the model is of
      * @param string $model Name of model
@@ -67,8 +54,6 @@ class DataSelect extends Select
 
         // Get data from model and use is as datasource
         $this->datasource = Invoker::Run($model, $func, $params);
-
-        // var_dump($this->datasource);
 
         // Set the dataype
         $this->datatype = $datatype;
@@ -95,7 +80,7 @@ class DataSelect extends Select
     {
         foreach ( $this->datasource as $val => $inner )
         {
-            $option = $this->newOption();
+            $option = $this->createOption();
 
             // inner will always be used
             $option->setInner($inner);

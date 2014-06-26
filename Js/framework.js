@@ -27,6 +27,7 @@ function webReadyAndAjax() {
 // Eventhandler "ready"
 // ----------------------------------------------------------------------------
 $(document).ready(function() {
+
     // scroll to top button
     $(window).scroll(function() {
 
@@ -45,6 +46,7 @@ $(document).ready(function() {
 // Eventhandler on "ajaxStart"
 // ----------------------------------------------------------------------------
 $(document).ajaxStart(function() {
+
     // Show loading circle on ajax loads
     $('body').addClass("loading");
 });
@@ -53,6 +55,7 @@ $(document).ajaxStart(function() {
 // Do this on "ready" and on "ajaxComplete" events
 // ----------------------------------------------------------------------------
 $(document).ajaxStop(function(event) {
+
     // Hide loading circle
     $('body').removeClass("loading");
 });
@@ -83,9 +86,17 @@ $(document).on('keyup input paste', 'textarea[maxlength]', function() {
 // ----------------------------------------------------------------------------
 $(document).on('click', '#web-scrolltotop', function(event) {
 
-    $('body,html').animate({
-        scrollTop : 0
-    }, 400);
+    if (navigator.userAgent.match(/(iPod|iPhone|iPad|Android)/)) {           
+        window.scrollTo(0,0) // first value for left offset, second value for top offset
+    }else{
+        $('html,body').animate({
+            scrollTop: 0,
+            scrollLeft: 0
+        }, 800, function(){
+            $('html,body').clearQueue();
+        });
+    }    
+
     return false;
 });
 
@@ -188,7 +199,7 @@ $(document).on('click', '*[data-web-ajax]', function(event) {
 
         parseWebJson({
             cmd : {
-                type : 'alert',
+                type : 'error',
                 target : '#web-message',
                 mode : 'replace',
                 content : XMLHttpRequest.responseText

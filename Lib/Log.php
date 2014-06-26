@@ -143,7 +143,7 @@ final class Log
 
             // Trace append requested?
         if ($trace == true)
-            $msg = '<pre>' . print_r(debug_backtrace(), true) . '<pre>';
+            $msg .= '<pre>' . print_r(Debug::traceCalls(), true) . '<pre>';
 
             // Putting all together to the log
         $log->setType($app . '::' . $function);

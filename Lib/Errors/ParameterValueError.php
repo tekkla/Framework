@@ -17,12 +17,17 @@ if (!defined('WEB'))
  */
 final class ParameterValueError extends ErrorAbstract
 {
-    private $codes = array(
+    protected $codes = array(
         1000 => 'General',
         1001 => 'WrongParameter',
         1001 => 'MissingParameter',
     );
 
     protected $fatal = true;
+
+    protected function processMissingParameter()
+    {
+        $this->admin_message .= '<pre>' . print_r($this->params, true) . '</pre>';
+    }
 }
 ?>

@@ -63,8 +63,7 @@ class Lib
     }
 
     /**
-     * Converts an object and its members into an array.
-     * This method works recursive.
+     * Converts an object and it's public members recursively into an array.
      * Use this if you want to convert objects into array.
      * @param object $obj
      * @return array

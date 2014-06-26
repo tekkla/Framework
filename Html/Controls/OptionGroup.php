@@ -1,11 +1,11 @@
 <?php
 namespace Web\Framework\Html\Controls;
 
-use Web\Framework\Lib\Error;
-use Web\Framework\Html\Elements\FormElement;
+use Web\Framework\Lib\Abstracts\FormElementAbstract;
 use Web\Framework\Html\Form\Label;
 use Web\Framework\Html\Form\Option;
 use Web\Framework\Html\Form\Checkbox;
+use Web\Framework\Lib\Error;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -16,29 +16,17 @@ if (!defined('WEB'))
  * It is a set of checkboxes grouped together.
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
- * @subpackage Html\Form
+ * @subpackage Html\Controls
  * @license BSD
  * @copyright 2014 by author
  */
-class OptionGroup extends FormElement
+final class OptionGroup extends FormElementAbstract
 {
     /**
      * Options storage
      * @var array
      */
     private $options = array();
-
-    /**
-     * Returns an OptionGroup Object
-     * @param string $model
-     * @return \web\framework\Html\controls\OptionGroup
-     */
-    public static function factory($name)
-    {
-        $obj = new OptionGroup();
-        $obj->setName($name);
-        return $obj;
-    }
 
     /**
      * Add an option to the optionslist and returns a reference to it.

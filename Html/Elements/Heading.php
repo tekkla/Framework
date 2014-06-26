@@ -12,7 +12,7 @@ if (!defined('WEB'))
  * Creates a heading html object
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
- * @subpackage Lib
+ * @subpackage Html\Element
  * @license BSD
  * @copyright 2014 by author
  */

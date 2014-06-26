@@ -1,6 +1,6 @@
 <?php
 
-namespace Web\Framework\Html\Elements;
+namespace Web\Framework\Lib\Abstracts;
 
 use Web\Framework\Lib\Error;
 use Web\Framework\Lib\String;
@@ -8,7 +8,7 @@ use Web\Framework\Lib\Errors\NoValidParameterError;
 use Web\Framework\Lib\Abstracts\HtmlAbstract;
 use Web\Framework\Html\Form\Label;
 
-class FormElement extends HtmlAbstract
+class FormElementAbstract extends HtmlAbstract
 {
 
 	/**
@@ -79,7 +79,7 @@ class FormElement extends HtmlAbstract
 	/**
 	 * Creates a Label html object and injects it into the element
 	 * @param string $label_text The text to show as label
-	 * @return \Web\Framework\Html\Elements\FormElement
+	 * @return \Web\Framework\Html\Elements\FormElementAbstract
 	 */
 	public function setLabel($label_text)
 	{
@@ -155,7 +155,7 @@ class FormElement extends HtmlAbstract
 	/**
 	 * Set the field this element is bound to
 	 * @param string $app
-	 * @return \Web\Framework\Html\Elements\FormElement
+	 * @return \Web\Framework\Html\Elements\FormElementAbstract
 	 */
 	public function setField($field_name)
 	{
@@ -179,7 +179,7 @@ class FormElement extends HtmlAbstract
 	/**
 	 * Create the name of the form element by using names of app, $model and field
 	 * @throws Error
-	 * @return \Web\Framework\Html\Elements\FormElement
+	 * @return \Web\Framework\Html\Elements\FormElementAbstract
 	 */
 	public function createName()
 	{
@@ -200,7 +200,7 @@ class FormElement extends HtmlAbstract
 	/**
 	 * Creates the dom id using app, model and field names
 	 * @throws Error
-	 * @return \Web\Framework\Html\Elements\FormElement
+	 * @return \Web\Framework\Html\Elements\FormElementAbstract
 	 */
 	public function createId()
 	{
@@ -220,7 +220,7 @@ class FormElement extends HtmlAbstract
 
 	/**
 	 * Add autofocus attribute
-	 * @return \Web\Framework\Html\Elements\FormElement
+	 * @return \Web\Framework\Html\Elements\FormElementAbstract
 	 */
 	public function setAutofocus()
 	{
@@ -231,7 +231,7 @@ class FormElement extends HtmlAbstract
 	/**
 	 * Declare this element as unbound, so the FormDesigner does not need to
 	 * try to fill it with data from the Model.
-	 * @return \Web\Framework\Html\Elements\FormElement
+	 * @return \Web\Framework\Html\Elements\FormElementAbstract
 	 */
 	public function setUnbound()
 	{
@@ -264,7 +264,7 @@ class FormElement extends HtmlAbstract
 	/**
 	 * Set a description which will be used as a help block
 	 * @param sting $text
-	 * @return \Web\Framework\Html\Elements\FormElement
+	 * @return \Web\Framework\Html\Elements\FormElementAbstract
 	 */
 	public function setDescription($text)
 	{
@@ -293,7 +293,7 @@ class FormElement extends HtmlAbstract
 	 * Handles the creation state of an hidden element for comparision.
 	 * If $compare parameter not set, the method returns the current state.
 	 * @param boolean $state
-	 * @return boolean \Web\Framework\Html\Elements\FormElement
+	 * @return boolean \Web\Framework\Html\Elements\FormElementAbstract
 	 */
 	public function hasCompare($compare = null)
 	{
@@ -311,7 +311,7 @@ class FormElement extends HtmlAbstract
 	 * Assign an bootstrap element width.
 	 * @param string $element_width BS grid sizes like "sm-3" or "lg-5". Needed "col-" will be added by the method.
 	 * @throws NoValidParameterError
-	 * @return \Web\Framework\Html\Elements\FormElement
+	 * @return \Web\Framework\Html\Elements\FormElementAbstract
 	 */
 	public function setElementWidth($element_width = 'sm-3')
 	{
@@ -325,7 +325,7 @@ class FormElement extends HtmlAbstract
 	    }
 
 	    if (!in_array($element_width, $allowed_widths))
-	        throw new NoValidParameterError($element_width, $allowed_widths);
+	        throw new Error('Element with is no valid', 1000, array($element_width, $allowed_widths));
 
 		$this->element_width = 'col-' . $element_width;
 		return $this;
@@ -351,7 +351,7 @@ class FormElement extends HtmlAbstract
 	/**
 	 * Sets an input mask for the elements
 	 * @param string $mask
-	 * @return \Web\Framework\Html\Elements\FormElement
+	 * @return \Web\Framework\Html\Elements\FormElementAbstract
 	 */
 	public function setMask($mask)
 	{

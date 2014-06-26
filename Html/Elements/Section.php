@@ -17,22 +17,6 @@ if (!defined('WEB'))
  */
 class Section extends HtmlAbstract
 {
-
-    /**
-     * Factory method
-     * @return \Web\Framework\Html\Elements\Section
-     */
-    public function factory()
-    {
-        return new Section();
-    }
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-    	$this->setElement('section');
-    }
+    protected $element = 'section';
 }
 ?>

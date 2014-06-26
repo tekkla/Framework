@@ -1,5 +1,4 @@
 <?php
-
 namespace Web\Framework\AppsSec\Admin\Model;
 
 use Web\Framework\Lib\Model;
@@ -9,11 +8,19 @@ use Web\Framework\Web;
 use Web\Framework\Lib\String;
 use Web\Framework\Lib\Data;
 
-class ConfigModel extends Model
+/**
+ * Description
+ * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
+ * @package AppSec Admin
+ * @subpackage Model/Config
+ * @license BSD
+ * @copyright 2014 by author
+ */
+final class ConfigModel extends Model
 {
-	public $tbl = 'web_config';
-	public $alias = 'cfg';
-	public $pk = 'id_config';
+	protected $tbl = 'web_config';
+	protected $alias = 'cfg';
+	protected $pk = 'id_config';
 
 	public function loadConfig()
 	{
@@ -135,7 +142,7 @@ class ConfigModel extends Model
 		String::uncamelize($app);
 
 		// Set data to model so the validator has work to do
-		$this->setData($data);
+		$this->data = $data;
 
 		// Get the keys from send data as fieldnames to check on validator
 		$data_fld_list = array_keys(get_object_vars($data));

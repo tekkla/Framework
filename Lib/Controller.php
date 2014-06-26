@@ -1,14 +1,12 @@
 <?php
-
 namespace Web\Framework\Lib;
+
+use Web\Framework\Helper\FormDesigner;
+use Web\Framework\Lib\Abstracts\MvcAbstract;
 
 // Check for direct file access
 if (!defined('WEB'))
-	die('Cannot run without WebExt framework...');
-
-// Used classes
-use Web\Framework\Helper\FormDesigner;
-use Web\Framework\Lib\Abstracts\MvcAbstract;
+    die('Cannot run without WebExt framework...');
 
 /**
  * Controllers parent class. Each app controller has to be a child of this class.
@@ -30,7 +28,7 @@ class Controller extends MvcAbstract
      * Signals that the corresponding view will be rendered
      * @var Boolean
      */
-    public $render = true;
+    protected $render = true;
 
     /**
      * Action to render
@@ -42,11 +40,16 @@ class Controller extends MvcAbstract
      * Storage for access rights
      * @var array
      */
-    private $access = array();
+    protected $access = array();
+
+    /**
+     * Storage for events
+     * @var array
+     */
+    protected $events = array();
 
     /**
      * The View object
-     *
      * @var View
      */
     public $view;
@@ -55,7 +58,13 @@ class Controller extends MvcAbstract
      * Storage for parameter
      * @var Data
      */
-    public $params;
+    private $params = array();
+
+    /**
+     * Flag about using a model or not
+     * @var boolean Default: false
+     */
+    protected $no_model = false;
 
     /**
      * Stores the controller bound Model object
@@ -103,17 +112,16 @@ class Controller extends MvcAbstract
         $this->setName($name);
 
         // run onload event
-        $this->onLoad();
-        $this->params = new Data();
+        $this->runEvent('load');
     }
 
     /**
      * Binds an existing model to the controller.
-     * You can set the controllers "has_no_model" property to prevent this autobinding.
+     * You can set the controllers "no_model" property to prevent this autobinding.
      */
     public function autoBindModel()
     {
-        if (isset($this->has_no_model))
+        if ($this->no_model)
         {
             $this->model = false;
             return;
@@ -177,19 +185,21 @@ class Controller extends MvcAbstract
         if ($this->checkControllerAccess() == false)
             return false;
 
-            // We can set the controllers parameter by hand and will have automatic all
-            // parameters set by the request handler. If params are set manually, possible dublicates
-            // will overwrite controller params copied from request handler.
+        // We can set the controllers parameter by hand and will have automatic all
+        // parameters set by the request handler. If params are set manually, possible dublicates
+        // will overwrite controller params copied from request handler.
 
         // Copy request params to controller params.
-        if (!$params)
-            $this->params = $this->request->getAllParams();
+        $this->params = $params ? $params : $this->request->getAllParams();
 
-        // run possible onAction event handler
-        $this->onAction();
+        // run possible before event handler
+        $this->runEvent('before');
 
         // a little bit of reflection magic to pass request params into controller func
         $return = Invoker::run($this, $this->render_action, $this->params);
+
+        // run possible after event handler
+        $this->runEvent('after');
 
         // No result to return? Return false
         if (isset($return) && $return == false)
@@ -247,71 +257,22 @@ class Controller extends MvcAbstract
         if (isset($this->model))
             $this->model->reset(true);
 
-            // Reset post data
+        // Reset post data
         $this->request->clearPost();
 
         // Run redirect method
         $this->run($action, $params);
     }
 
-    /**
-     * Runs set onLoad events
-     */
-    public function onLoad()
+    private function runEvent($event)
     {
-        if (isset($this->events) && isset($this->events['load']))
+        if (isset($this->events[$this->render_action]) && isset($this->events[$this->render_action][$event]))
         {
-            foreach ( $this->events['load'] as $event_func )
+            if (!is_array($this->events[$this->render_action][$event]))
+                $this->events[$this->render_action][$event] = array($this->events[$this->render_action][$event]);
+
+            foreach ( $this->events[$this->render_action][$event] as $event_func )
                 Invoker::run($this, $event_func, $this->request->getAllParams());
-        }
-    }
-
-    /**
-     * Event manager called right before execution off function starts
-     * @param string $action @Example Define in your Controller
-     * @tutorial <code>
-     *           public $events = array(
-     *           'action' => array(
-     *           'YourAction' => 'funcToCallBefore' or array(ListOfFuncsToCallBefore)
-     *           )
-     *           );
-     *           </code>
-     */
-    public function onAction()
-    {
-        $log = 'Starting onAction event for controller [' . $this->name . '] on action [' . $this->render_action . ']...';
-
-        $actionlist = array();
-
-        // Global onAction events set?
-        if (isset($this->actions) && isset($this->actions['*']) && isset($this->actions['*']['on']))
-        {
-            $log = 'Global onAction funtions found...';
-
-            if (is_array($this->actions['*']['on']))
-                $actionlist = array_merge($actionlist, $this->actions['*']['on']);
-            else
-                $actionlist[] = $this->actions['*']['on'];
-        }
-
-        // Action specific event set?
-        if (isset($this->actions) && isset($this->actions[$this->render_action]) && isset($this->actions[$this->render_action]['on']))
-        {
-            if (is_array($this->actions[$this->render_action]['on']))
-                $actionlist = array_merge($actionlist, $this->actions['*']['on']);
-            else
-                $actionlist[] = $this->actions[$this->render_action]['on'];
-        }
-
-        // No events or actions defined in controller? do nothing if so.
-        if (empty($actionlist))
-            return;
-
-            // Run set actions
-        foreach ( $actionlist as $action_func )
-        {
-            $this->log('onAction Event function [' . $action_func . '] on controller [' . $this->name . '] at action[' . $this->render_action . ']...');
-            Invoker::Run($this, $action_func, $this->request->getAllParams());
         }
     }
 
@@ -364,7 +325,7 @@ class Controller extends MvcAbstract
     protected function checkControllerAccess($mode='smf', $force = false)
     {
         // Is there an global access method in the app main class to call?
-        if (method_exists($this->app, 'appAccess') && call_user_func_array(array($this->app, 'appAccess')) === false)
+        if (method_exists($this->app, 'appAccess') && $this->app->appAccess() === false)
             return false;
 
         // ACL set?
@@ -375,7 +336,7 @@ class Controller extends MvcAbstract
             // Global access for all actions?
             if(isset($this->access['*']))
             {
-                if (!array($this->access['*']))
+                if (!is_array($this->access['*']))
                     $perms[] = $this->access['*'];
                 else
                     $perms += $this->access['*'];
@@ -384,23 +345,19 @@ class Controller extends MvcAbstract
             // Actions access set?
             if (isset($this->access[$this->render_action]))
             {
-                if (!array($this->access[$this->render_action]))
+                if (!is_array($this->access[$this->render_action]))
                 	$perms[] = $this->access[$this->render_action];
                 else
                 	$perms += $this->access[$this->render_action];
             }
 
             // No perms until here means we can finish here and allow access by returning true
-            if (!$perms)
-                return true;
+            if ($perms)
+                return Security::checkAccess($perms, $mode, $force);
+        }
 
-            return Security::checkAccess($perms, $mode, $force);
-        }
-        else
-        {
-            // Not set ACL grants access by default
-            return true;
-        }
+        // Not set ACL or falling through here grants access by default
+        return true;
     }
 
     /**
@@ -415,17 +372,14 @@ class Controller extends MvcAbstract
 
     /**
      * Publish a value to the view
-     * @param string $key
-     * @param mixed $val
+     * @param string|array $arg1 Name of var or list of vars in an array
+     * @param mixed $arg2 Optional value to be ste when $arg1 is the name of a var
      */
-    public function setVar()
+    public function setVar($arg1, $arg2=null)
     {
         // On non existing view we do not have to set anything
         if (!isset($this->view) || !$this->view instanceof View)
             return;
-
-            // Get the number of arguments to switch in argument handling
-        $num_arguments = func_num_args();
 
         // Some vars are protected and not allowed to be used outside the framework
         $protected_var_names = array(
@@ -433,31 +387,30 @@ class Controller extends MvcAbstract
             'controller',
             'action',
             'view',
+        	'model',
             'cfg'
         );
 
         // One argument has to be an assoc array
-        if ($num_arguments == 1)
+        if (!isset($arg2))
         {
-            $vars = func_get_arg(0);
-
-            foreach ( $vars as $k => $v )
+            foreach ($arg1 as $var => $value)
             {
-                if (in_array($k, $protected_var_names))
-                    Throw new Error('Varname is protected. Use other name for your var.', 5000, array($k, $protected_var_names));
+                if (in_array($var, $protected_var_names))
+                    Throw new Error('Varname is protected. Use other name for your var.', 5005, array($var, $protected_var_names));
 
-                $this->view->setVar($k, $v);
+                $this->view->setVar($var, $value);
             }
-        } elseif ($num_arguments == 2)
-        {
-            if (in_array(func_get_arg(0), $protected_var_names))
-            	Throw new Error('Varname is protected. Use other name for your var.', 5000, array(func_get_arg(0), $protected_var_names));
-
-            $this->view->setVar(func_get_arg(0), func_get_arg(1));
-        } else
-        {
-            Throw new Error('The vars to set are not correct. Var is : ' . $this->debug(func_get_args(), false));
         }
+        elseif (isset($arg2))
+        {
+            if (in_array($arg1, $protected_var_names))
+            	Throw new Error('Varname is protected. Use other name for your var.', 5005, array(func_get_arg(0), $protected_var_names));
+
+            $this->view->setVar($arg1, $arg2);
+        }
+        else
+            Throw new Error('The vars to set are not correct.', 1001, func_get_args());
     }
 
     /**
@@ -515,6 +468,7 @@ class Controller extends MvcAbstract
     {
         $form = new FormDesigner();
         $form->attachModel($this->model);
+        $form->setActionRoute($this->request->getCurrentRoute(), $this->params);
         return $form;
     }
 
@@ -547,10 +501,7 @@ class Controller extends MvcAbstract
      */
     public function addParam($param, $value)
     {
-        if (!$this->params)
-            $this->params = new Data();
-
-        $this->params->{$param} = $value;
+        $this->params[$param] = $value;
     }
 }
 ?>

@@ -5,7 +5,7 @@ use Web\Framework\Html\Controls\ModalWindow;
 
 // Check for direct file access
 if (!defined('WEB'))
-	die('Cannot run without WebExt framework...');
+    die('Cannot run without WebExt framework...');
 
 /**
  * Ajax commands which are managed by framework.js
@@ -15,15 +15,13 @@ if (!defined('WEB'))
  * @license BSD
  * @copyright 2014 by author
  */
-final class Ajax extends Lib
+final class Ajax
 {
-
     /**
      * Storage for ajax commands
      * @var \stdClass
      */
     private static $ajax;
-
 
     /**
      * Name of the app this ajax is related to
@@ -76,7 +74,6 @@ final class Ajax extends Lib
     /**
      * The mode how the content is to be injected into the DOM
      * @var string Select
-     *
      * @example from replace, prepend, append
      */
     private $mode = 'replace';
@@ -92,19 +89,6 @@ final class Ajax extends Lib
      * @var array
      */
     private $cmd_vars = array();
-
-    /**
-     * create instance store
-     * @var unknown
-     */
-    private static $instance;
-
-    /**
-     * *********************************************
-     */
-    /*
-     * METAFUNCTIONS /***********************************************
-     */
 
     /**
      * Factory method
@@ -150,10 +134,10 @@ final class Ajax extends Lib
     }
 
     /**
-     * Create a HTML ajax
-     * @param $target => DOM id
-     * @param $content
-     * @param $mode optional => the edit mode replace(default)|append|prepend|remove|after|before
+     * Create a HTML ajax which changes the html of target selector
+     * @param $target Selector to be changed
+     * @param $content Content be used
+     * @param $mode Optional mode how to change the selected element. Can be: replace(default) | append | prepend | remove | after | before
      */
     public static function html($target, $content, $mode = 'replace')
     {
@@ -166,7 +150,7 @@ final class Ajax extends Lib
      */
     public static function error($error)
     {
-        self::factory()->setType('alert')->setTarget('#web-message')->setContent($error)->add();
+        self::appendHtml('#web-message', $error);
     }
 
     /**
@@ -216,36 +200,69 @@ final class Ajax extends Lib
         self::factory()->setType('style')->setTarget($target)->setMode($mode)->setContent($content)->add();
     }
 
+    /**
+     * Replaces content of a target.
+     * @param string $target jQuery selector replace content of
+     * @param string $content The data to be insert
+     */
     public static function replaceHtml($target, $content)
     {
         self::factory()->setType('html')->setMode('replace')->setTarget($target)->setContent($content)->add();
     }
 
+    /**
+     * Inserts content after a target.
+     * @param string $target jQuery selector to insert content after
+     * @param string $content The data to be insert
+     */
     public static function afterHtml($target, $content)
     {
         self::factory()->setType('html')->setMode('after')->setTarget($target)->setContent($content)->add();
     }
 
+    /**
+     * Inserts content before a target.
+     * @param string $target jQuery selector to insert content before
+     * @param string $content The data to be insert
+     */
     public static function beforeHtml($target, $content)
     {
         self::factory()->setType('html')->setMode('before')->setTarget($target)->setContent($content)->add();
     }
 
+    /**
+     * Appends content to a target.
+     * @param string $target jQuery selector to append content to
+     * @param string $content The data to be appended
+     */
     public static function appendHtml($target, $content)
     {
         self::factory()->setType('html')->setMode('append')->setTarget($target)->setContent($content)->add();
     }
 
+    /**
+     * Prepends content to a target.
+     * @param string $target jQuery selector to prepend content to
+     * @param string $content The data to be prepended
+     */
     public static function prependHtml($target, $content)
     {
         self::factory()->setType('html')->setMode('prepend')->setTarget($target)->setContent($content)->add();
     }
 
+    /**
+     * Removes the html specified by $target parameter
+     * @param string $target jQuery selector to be removed from DOM
+     */
     public static function removeHtml($target)
     {
         self::factory()->setType('html')->setMode('remove')->setTarget($target)->add();
     }
 
+    /**
+     * Creates ajax response to load a js file.
+     * @param string $file Complete url of file to load
+     */
     public static function loadScript($file)
     {
         self::factory()->setType('load_script')->setContent($file)->add();
@@ -260,7 +277,21 @@ final class Ajax extends Lib
         self::factory()->setType('console')->setContent($msg)->add();
     }
 
+    /**
+     * Creates a print_r console output of provided $var
+     * @param mixed $var
+     */
+    public static function dump($var)
+    {
+        self::factory()->setType('console')->setContent(print_r($var, true))->add();
+    }
 
+    /**
+     * Adds additional vars to a command
+     * @param string $name
+     * @param string $value
+     * @return \Web\Framework\Lib\Ajax
+     */
     public function addCmdVars($name, $value)
     {
         $this->cmd_vars[$name] = $value;
@@ -434,14 +465,7 @@ final class Ajax extends Lib
         if ($messages)
         {
             foreach ( $messages as $message )
-            {
-                self::factory()
-                        ->setType('html')
-                        ->setMode('append')
-                        ->setTarget('#web-message')
-                        ->setContent($message->build())
-                        ->add();
-            }
+                self::factory()->setType('html')->setMode('append')->setTarget('#web-message')->setContent($message->build())->add();
         }
 
         // Output is json encoded

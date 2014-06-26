@@ -14,7 +14,7 @@ if (!defined('WEB'))
  * @subpackage Lib
  * @todo Split into validator and function?
  */
-class Validator extends Lib
+final class Validator
 {
 	/**
 	 * The field name to check
@@ -107,12 +107,12 @@ class Validator extends Lib
 	);
 
 	/**
-	 * Injector for the model to check.
+	 * Constructor
 	 * @param Model $model
 	 */
-	public function attachModel(Model &$model)
+	public function __construct(Model &$model)
 	{
-		$this->model = $model;
+	    $this->model = $model;
 	}
 
 	/**
@@ -124,7 +124,6 @@ class Validator extends Lib
 		// No model, no validation, but error :P
 		if (!isset($this->model))
 			Throw new Error('Model definition is missing');
-
 
 		// No data to validate? Throw error.
 		if (!$this->model->data)
@@ -141,13 +140,6 @@ class Validator extends Lib
 			// Not set field means skip this field.
 			if (!isset($this->model->validate[$fld]))
 				continue;
-
-			// Only check fields, that exist in the definition
-			/*if (!isset($this->model->Definition->{$fld}))
-			{
-				error_log(sprintf(Txt::get('web_model_error_field_not_exist'), $fld, $this->name));
-				continue;
-			}*/
 
 			// Our current fieldname
 			$this->field = $fld;
@@ -233,7 +225,7 @@ class Validator extends Lib
 	 */
 	private function __Required()
 	{
-		$this->result = isset($this->model->data->{$this->field}) && !empty($this->model->data->{$this->field});
+		$this->result = isset($this->model->data->{$this->field});
 		$this->error = Txt::get('web_validator_required');
 	}
 
@@ -251,7 +243,7 @@ class Validator extends Lib
 	 */
 	private function __Empty()
 	{
-		$this->result = empty($this->value) ? ($this->value == '0'.$this->value ? true : false) : true;
+		$this->result = isset($this->model->data->{$this->field}) && empty($this->value) ? ($this->value == '0'.$this->value ? true : false) : true;
 		$this->error = Txt::get('web_validator_empty');
 	}
 
@@ -280,7 +272,7 @@ class Validator extends Lib
 	}
 
 	/**
-	 * Checks the value for the minimum and maximum length (string) or amount (numeric) given by the parameters
+	 * Checks the value for the minimum and maximum length (string) or amount (number) given by the parameters
 	 * @param int $min
 	 * @param int $max
 	 */

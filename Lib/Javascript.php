@@ -88,7 +88,8 @@ final class Javascript
 		$ready = array();
 
 		// Include JSMin lib
-		require_once(Cfg::get('Web', 'dir_tools') . '/min/lib/JSMin.php');
+		if (Cfg::get('Web', 'js_minify'))
+		    require_once(Cfg::get('Web', 'dir_tools') . '/min/lib/JSMin.php');
 
 		/* @var $script Javascript */
 		foreach( self::$js as $script )
@@ -103,8 +104,7 @@ final class Javascript
 					break;
 
 				case 'script' :
-					$script = $script->getMinify() ? \JSMin::minify($script->getScript()) : $script->getScript();
-					addInlineJavascript( $script );
+					addInlineJavascript( Cfg::get( 'Web', 'js_minify' ) ? \JSMin::minify($script->getScript()) : $script->getScript() );
 					break;
 
 				case 'block' :
@@ -153,7 +153,7 @@ final class Javascript
 				$side = $defered==true ? 'below' : 'above';
 
 				// Write files to session so min can use it
-				$_SESSION['web']['js-' . $side] = $files;
+				cache_put_data('web_min_js_' . $side, $files);
 
 				// Add link to combined js file
 				loadJavascriptFile( Cfg::get( 'Web', 'url_tools' ) . '/min/g=js-' . $side, null, 'web-js-minified-' . $side );
