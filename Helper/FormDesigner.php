@@ -47,12 +47,6 @@ final class FormDesigner extends Form
     private $controls = array();
 
     /**
-     * Form send method
-     * @var string Default: post
-     */
-    private $method = 'post';
-
-    /**
      * The mode the data will be send to server
      * @var string Options: full | ajax / Default: full
      */
