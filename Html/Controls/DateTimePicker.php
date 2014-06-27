@@ -443,7 +443,7 @@ final class DateTimePicker extends Input
         return $this;
     }
 
-    public function build($wrapper = null)
+    public function build()
     {
         // Get translation
         $this->loadTranslation();
@@ -490,7 +490,7 @@ final class DateTimePicker extends Input
         // Add options as json encoded data attribute
         $this->addData('web-datepicker-options', json_encode($options));
 
-        return parent::build($wrapper);
+        return parent::build();
     }
 
     /**

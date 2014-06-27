@@ -102,7 +102,7 @@ class Select extends FormElementAbstract
 		return implode(',', $values);
 	}
 
-	public function build($wrapper=null)
+	public function build()
 	{
 		$inner = '';
 
@@ -114,7 +114,7 @@ class Select extends FormElementAbstract
 		if ($this->isMultiple())
 			$this->setName($this->getName() . '[]');
 
-		return parent::build($wrapper);
+		return parent::build();
 	}
 }
 ?>

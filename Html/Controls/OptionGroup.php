@@ -46,7 +46,7 @@ final class OptionGroup extends FormElementAbstract
      * @see \Web\Framework\Lib\Html::build()
      * @return string
      */
-    public function build($wrapper = null)
+    public function build()
     {
         if (empty($this->options))
             Throw new Error('OptionGroup Control: No Options set.');

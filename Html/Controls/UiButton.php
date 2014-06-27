@@ -322,7 +322,7 @@ final class UiButton extends Link
      * @throws Error
      * @return string
      */
-    public function build($wrapper = null)
+    public function build()
     {
         if ($this->mode == 'ajax')
             $this->addData('web-ajax', 'link');

@@ -116,7 +116,7 @@ class Actionbar extends Div
      * Builds and returns actionbar element
      * @return boolean string
      */
-    public function build($wrapper=null)
+    public function build()
     {
         // no buttons no actionbar but an empty string
         if (empty($this->buttons))
@@ -161,7 +161,7 @@ class Actionbar extends Div
             }
         }
 
-        return parent::build($wrapper);
+        return parent::build();
     }
 }
 ?>

@@ -337,7 +337,7 @@ class Button extends FormElementAbstract
      * (non-PHPdoc)
      * @see \Web\Framework\Lib\Abstracts\HtmlAbstract::build()
      */
-    public function build($wrapper = null)
+    public function build()
     {
         $this->attribute['type'] = $this->type;
 
@@ -352,7 +352,7 @@ class Button extends FormElementAbstract
         if (isset($this->button_size))
             $this->css[] = 'btn-' . $this->button_size;
 
-        return parent::build($wrapper);
+        return parent::build();
     }
 }
 ?>

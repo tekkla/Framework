@@ -161,7 +161,7 @@ class Group extends Div
 	 * (non-PHPdoc)
 	 * @see \Web\Framework\Lib\Abstracts\HtmlAbstract::build()
 	 */
-	public function build($wrapper=null)
+	public function build()
 	{
 		// Prepare group template.
 		$html = '';
@@ -244,7 +244,7 @@ class Group extends Div
 
 		$this->setInner($html);
 
-		return parent::build($wrapper);
+		return parent::build();
 
 	}
 }

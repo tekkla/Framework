@@ -125,12 +125,12 @@ class Iframe extends HtmlAbstract
      * (non-PHPdoc)
      * @see \Web\Framework\Lib\Abstracts\HtmlAbstract::build()
      */
-    public function build($wrapper = null)
+    public function build()
     {
         if ($this->sandbox)
             $this->attribute['sandbox'] = implode(' ', $this->sandbox);
 
-        return parent::build($wrapper);
+        return parent::build();
     }
 }
 ?>

@@ -161,7 +161,7 @@ final class Editor extends FormElementAbstract
         return $this;
     }
 
-    public function build($wrapper = null)
+    public function build()
     {
         $script = "
 		if (typeof CKEDITOR !== undefined)

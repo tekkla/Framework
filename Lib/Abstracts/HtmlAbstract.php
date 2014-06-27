@@ -447,7 +447,7 @@ abstract class HtmlAbstract extends ClassAbstract
      * @param string $wrapper
      * @return string
      */
-    public function build($wrapper = null)
+    public function build()
     {
         $html_attr = array();
 
@@ -522,9 +522,6 @@ abstract class HtmlAbstract extends ClassAbstract
                 $html = '<' . $this->element . ' ' . $html_attr . '>' . $this->inner . '</' . $this->element . '>';
                 break;
         }
-
-        if (isset($wrapper))
-            $html = '<' . $wrapper . '>' . $html . '</' . $wrapper . '>';
 
         return $html;
     }

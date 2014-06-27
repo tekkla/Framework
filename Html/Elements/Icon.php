@@ -253,7 +253,7 @@ class Icon extends HtmlAbstract
      * Icon creation
      * @see \Web\Framework\Lib\Html::build()
      */
-    public function build($wrapper = null)
+    public function build()
     {
         // first step is to set the icon name itself
         $this->addCss('fa-' . $this->icon);
@@ -332,7 +332,7 @@ class Icon extends HtmlAbstract
                 $this->addCss('fa-spin');
         }
 
-        $icon_2 = parent::build($wrapper);
+        $icon_2 = parent::build();
 
         if (isset($stack))
         {

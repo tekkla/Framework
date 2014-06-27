@@ -454,7 +454,7 @@ final class FormDesigner extends Form
         return $this;
     }
 
-    public function build($wrapper = null)
+    public function build()
     {
         if (empty($this->controls))
             Throw new Error('Your form has no controls to show. Add controls and try again.', 10000);
@@ -785,7 +785,7 @@ final class FormDesigner extends Form
 
         $this->setInner($html_control);
 
-        return parent::build($wrapper);
+        return parent::build();
     }
 
     private function hasModel()

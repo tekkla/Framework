@@ -102,10 +102,10 @@ class Input extends FormElementAbstract
 			$this->removeAttribute('multiple');
 	}
 
-    public function build($wrapper = null)
+    public function build()
     {
         $this->attribute['type'] = $this->type;
-        return parent::build($wrapper);
+        return parent::build();
     }
 }
 ?>
