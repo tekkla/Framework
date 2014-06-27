@@ -299,9 +299,9 @@ class Button extends FormElementAbstract
     public function setFormEnctype($enctype)
     {
     	$enctypes = array(
-    			'application/x-www-form-urlencoded',
-    			'multipart/form-data',
-    			'text/plain'
+    	    'application/x-www-form-urlencoded',
+    	    'multipart/form-data',
+    	    'text/plain'
     	);
 
     	// Safety first. Only allow 'post' or 'get' here.
