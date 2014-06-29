@@ -211,7 +211,7 @@ final class Web extends SingletonAbstract
     private function initHooks()
     {
         foreach ( $this->hooks as $hook => $function )
-            add_integration_function($hook, $function, false);
+            add_integration_function($hook, $function, '', false, false);
     }
 
     /**
