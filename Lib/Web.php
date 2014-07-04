@@ -244,6 +244,7 @@ final class Web extends SingletonAbstract
         // Add font-awesome font icon css
         Css::useFontAwesome(Cfg::get('Web', 'fontawesome_version'), Cfg::get('Web', 'url_css'));
 
+        // Add WebExt css file
         Css::useLink(Cfg::get('Web', 'url_css') . '/Web.css');
     }
 
