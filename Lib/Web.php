@@ -211,7 +211,7 @@ final class Web extends SingletonAbstract
     private function initHooks()
     {
         foreach ( $this->hooks as $hook => $function )
-            add_integration_function($hook, $function, '', false, false);
+            add_integration_function($hook, $function, false);
     }
 
     /**
@@ -244,8 +244,7 @@ final class Web extends SingletonAbstract
         // Add font-awesome font icon css
         Css::useFontAwesome(Cfg::get('Web', 'fontawesome_version'), Cfg::get('Web', 'url_css'));
 
-        // Add WebExt css file
-        Css::useLink(Cfg::get('Web', 'url_css') . '/Web.css');
+        Css::useLink(Cfg::get('Web', 'url_css') . '/web.css');
     }
 
     /**
