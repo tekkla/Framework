@@ -25,8 +25,6 @@ final class Web extends SingletonAbstract
 
     // something to integrate into smf?
     private $hooks = array(
-        'integrate_default_action' => 'Web::Class::Web\Framework\Lib\Web::getDefaultAction',
-        'integrate_fallback_action' => 'Web::Class::Web\Framework\Lib\Web::getDefaultAction',
         'integrate_menu_buttons' => 'Web::Class::Web\Framework\Lib\Web::addMenuButtons',
         'integrate_error_types' => 'Web::Class::Web\Framework\Lib\Web::addErrorTypes',
         'integrate_actions' => 'Web::Class::Web\Framework\Lib\Web::addActions',
@@ -41,35 +39,151 @@ final class Web extends SingletonAbstract
     {
         try
         {
-            // Start WebExt session
+            ## Start WebExt session
             $this->session->init();
 
-            // Bind hooks
-            $this->initHooks();
+            ## Bind hooks
+            foreach ( $this->hooks as $hook => $function )
+                add_integration_function($hook, $function, '', false, false);
 
-            // Start with config params to be loaded
-            $this->initConfig();
+            ## Start with config params to be loaded
 
-            // FirePHP integration
+            // Load the config
+            Cfg::load();
+
+            $config = App::getInstance('Web', false)->getConfigDefinition();
+
+            // Add default values for not set config
+            foreach ( $config as $key => $cfg )
+            {
+                if (!Cfg::exists('Web', $key) && isset($cfg['default']) && $cfg['default'] !== '')
+                    Cfg::set('Web', $key, $cfg['default']);
+            }
+
+            // Add dirs to config
+            $dirs = array(
+                // Framework directory
+                'fw' => '/Web/Framework',
+
+                // Framwork subdirectories
+                'css' => '/Web/Framework/Css',
+                'js' => '/Web/Framework/Js',
+                'lib' => '/Web/Framework/Lib',
+                'html' => '/Web/Framework/Html',
+                'tools' => '/Web/Framework/Tools',
+                'cache' => '/Web/Cache',
+
+                // Application dir
+                'apps' => '/Web/Apps',
+
+                // Secure Application dir
+                'appssec' => '/Web/Framework/AppsSec'
+            );
+
+            // Write dirs to config storage
+            foreach ( $dirs as $key => $val )
+                Cfg::set('Web', 'dir_' . $key, BOARDDIR . $val);
+
+            // Add urls to config
+            $urls = array(
+                'apps' => '/Web/Apps',
+                'css' => '/Web/Framework/Css',
+                'js' => '/Web/Framework/Js',
+                'tools' => '/Web/Framework/Tools',
+                'cache' => '/Web/Cache',
+                'appssec' => '/Web/Framework/AppsSec'
+            );
+
+            // Write urls to config storage
+            foreach ( $urls as $key => $val )
+                Cfg::set('Web', 'url_' . $key, BOARDURL . $val);
+
+            ## FirePHP integration
             if (Cfg::get('Web', 'log_handler') == 'fire')
                 require_once (Cfg::get('Web', 'dir_tools') . '/FirePHPCore/fb.php');
 
-            // link basic framework css styles
-            // they can be overridden by a web.css file within the themes css folder.
-            // the easiest way is to copy this basic css file into the themfolder and
-            // then alter it to your needs.
-            $this->addWebBasicCss();
+            ## Handling on and without ajax request
+            if ($this->request->isAjax())
+            {
+                ## Initialize called app
+                App::create($this->request->getApp());
+            }
+            else
+            {
+                ## Link basic framework css styles
 
-            // create the js scripts
-            $this->createJsScripts();
+                // Add bootstrap main css file
+                Css::useBootstrap(Cfg::get('Web', 'bootstrap_version'), Cfg::get('Web', 'url_css'));
 
-            // initialize the apps routes
-            $this->preloadApps();
+                // Add existing user/theme related bootstrap theme cdd file
+                Css::useLink(Settings::get('theme_url') . '/css/bootstrap-theme.css');
 
-            // process the request
-            $this->processRequest();
+                // Add font-awesome font icon css
+                Css::useFontAwesome(Cfg::get('Web', 'fontawesome_version'), Cfg::get('Web', 'url_css'));
 
-            // run the processor
+                // Add general WebExt css file
+                Css::useLink(Cfg::get('Web', 'url_css') . '/web.css');
+
+                ## Create the js scripts
+
+                // Add Bootstrap Javascript
+                Javascript::useBootstrap(Cfg::get('Web', 'bootstrap_version'));
+
+                // Add plugins file
+                Javascript::useFile(Cfg::get('Web', 'url_js') . '/plugins.js');
+
+                // Add support only when activated in config
+                if (Cfg::get('Web', 'js_modernizr') == 1)
+                	Javascript::useModernizr(Cfg::get('Web', 'url_js'));
+
+                // Add support only when activated in config
+                if (Cfg::get('Web', 'js_html5shim') == 1)
+                	Javascript::useHtml5Shim();
+
+                // Add the lang short notation
+                Javascript::useVar('smf_lang_dictionary', Txt::get('lang_dictionary', 'SMF'), true);
+
+                // Add global fadeout time var set in config
+                Javascript::useVar('web_fadeout_time', Cfg::get('Web', 'js_fadeout_time'));
+
+                // Add framework js
+                Javascript::useFile(Cfg::get('Web', 'url_js') . '/framework.js');
+
+                // Each theme can have it's own WebExt scripts. if present in themes script folder -> use it!
+                if (FileIO::exists(Settings::get('theme_dir') . '/scripts/web.js'))
+                	Javascript::useFile(Settings::get('theme_url') . '/scripts/web.js');
+
+                ## Initialize the apps
+
+                // Prepare apps dirs
+                $dirs = array(
+                    Cfg::get('Web', 'dir_appssec'),
+                    Cfg::get('Web', 'dir_apps')
+                );
+
+                foreach ( $dirs as $dir )
+                {
+                	if (is_dir($dir))
+                	{
+                		if (($dh = opendir($dir)) !== false)
+                		{
+                			while ( ($file = readdir($dh)) !== false )
+                			{
+                				if ($file == '..' || $file == '.')
+                					continue;
+
+                				App::create($file);
+                			}
+                			closedir($dh);
+                		}
+                	}
+                }
+            }
+
+            ## Process the request
+            $this->request->processRequest();
+
+            ## Run processor
             if (SMF != 'SSI')
             {
             	Content::init();
@@ -78,6 +192,7 @@ final class Web extends SingletonAbstract
         }
         catch (Error $e)
         {
+            // Write error to log?
             if ($e->logError())
                 log_error($e->getLogMessage(), 'WebExt', $e->getFile(), $e->getLine());
 
@@ -90,14 +205,13 @@ final class Web extends SingletonAbstract
                 // Echo processed ajax
                 echo $this->ajax->process();
 
-                // and finally stop execution
+                // And finally stop execution
                 exit;
             }
 
             // Is error set to be fatal?
         	if ($e->isFatal())
         	    setup_fatal_error_context($e->getMessage());
-
 
         	// If error has a redirection, the error message will be sent as
         	// a message before redirecting to the redirect url
@@ -110,178 +224,6 @@ final class Web extends SingletonAbstract
         	// Falling through here means we have a really big error.
         	Error::endHere($e);
         }
-    }
-
-    /**
-     * Starts the app initialization
-     */
-    private function preloadApps()
-    {
-        // On ajax requests only the requested app will be loaded.
-        if ($this->request->isAjax())
-        {
-            App::create($this->request->getApp());
-            return;
-        }
-
-        // Prepare apps dirs
-        $dirs = array(
-            Cfg::get('Web', 'dir_appssec'),
-            Cfg::get('Web', 'dir_apps')
-        );
-
-        foreach ( $dirs as $dir )
-        {
-            if (is_dir($dir))
-            {
-                if (($dh = opendir($dir)) !== false)
-                {
-                    while ( ($file = readdir($dh)) !== false )
-                    {
-                        if ($file == '..' || $file == '.')
-                            continue;
-
-                        App::create($file);
-                    }
-                    closedir($dh);
-                }
-            }
-        }
-    }
-
-    /**
-     * Initiates the basic paths and urls of framework
-     */
-    private function initConfig()
-    {
-        // Load the config
-        Cfg::load();
-
-        $config = App::getInstance('Web', false)->getConfigDefinition();
-
-        // Add defaul values for not set config
-        foreach ( $config as $key => $cfg )
-        {
-            if (!Cfg::exists('Web', $key) && isset($cfg['default']) && $cfg['default'] !== '')
-                Cfg::set('Web', $key, $cfg['default']);
-        }
-
-        // Add dirs to config
-        $dirs = array(
-            // Framework directory
-            'fw' => '/Web/Framework',
-
-            // Framwork subdirectories
-            'css' => '/Web/Framework/Css',
-            'js' => '/Web/Framework/Js',
-            'lib' => '/Web/Framework/Lib',
-            'html' => '/Web/Framework/Html',
-            'tools' => '/Web/Framework/Tools',
-            'cache' => '/Web/Cache',
-
-            // Application dir
-            'apps' => '/Web/Apps',
-
-            // Secure Application dir
-            'appssec' => '/Web/Framework/AppsSec'
-        );
-
-        // Write dirs to config storage
-        foreach ( $dirs as $key => $val )
-            Cfg::set('Web', 'dir_' . $key, BOARDDIR . $val);
-
-            // Add urls to config
-        $urls = array(
-            'apps' => '/Web/Apps',
-            'css' => '/Web/Framework/Css',
-            'js' => '/Web/Framework/Js',
-            'tools' => '/Web/Framework/Tools',
-            'cache' => '/Web/Cache',
-            'appssec' => '/Web/Framework/AppsSec'
-        );
-
-        // Write urls to config storage
-        foreach ( $urls as $key => $val )
-            Cfg::set('Web', 'url_' . $key, BOARDURL . $val);
-    }
-
-    /**
-     * Init the frameworks hooks
-     */
-    private function initHooks()
-    {
-        foreach ( $this->hooks as $hook => $function )
-            add_integration_function($hook, $function, false);
-    }
-
-    /**
-     * Processes the complete request (url and possible sent data)
-     */
-    private function processRequest()
-    {
-        // process the request
-        $this->request->processRequest();
-
-        // now process possible posted data
-        $this->request->processPostData();
-    }
-
-    /**
-     * The framework has some own css styles.
-     */
-    function addWebBasicCss()
-    {
-        // Should not be done on ajax request
-        if ($this->request->isAjax())
-            return;
-
-        // Add bootstrap main css file
-        Css::useBootstrap(Cfg::get('Web', 'bootstrap_version'), Cfg::get('Web', 'url_css'));
-
-        // Add existing user/theme related bootstrap theme cdd file
-        Css::useLink(Settings::get('theme_url') . '/css/bootstrap-theme.css');
-
-        // Add font-awesome font icon css
-        Css::useFontAwesome(Cfg::get('Web', 'fontawesome_version'), Cfg::get('Web', 'url_css'));
-
-        Css::useLink(Cfg::get('Web', 'url_css') . '/web.css');
-    }
-
-    /**
-     * This method adds the frameworks javascript stuff
-     */
-    function createJsScripts()
-    {
-        // Should not be done on ajax request
-        if ($this->request->isAjax())
-            return;
-
-        // Add Bootstrap Javascript
-        Javascript::useBootstrap(Cfg::get('Web', 'bootstrap_version'));
-
-        // Add plugins file
-        Javascript::useFile(Cfg::get('Web', 'url_js') . '/plugins.js');
-
-        // Add support only when activated in config
-        if (Cfg::get('Web', 'js_modernizr') == 1)
-            Javascript::useModernizr(Cfg::get('Web', 'url_js'));
-
-        // Add support only when activated in config
-        if (Cfg::get('Web', 'js_html5shim') == 1)
-            Javascript::useHtml5Shim();
-
-        // Add the lang short notation
-        Javascript::useVar('smf_lang_dictionary', Txt::get('lang_dictionary', 'SMF'), true);
-
-        // Add global fadeout time var set in config
-        Javascript::useVar('web_fadeout_time', Cfg::get('Web', 'js_fadeout_time'));
-
-        // Add framework js
-        Javascript::useFile(Cfg::get('Web', 'url_js') . '/framework.js');
-
-        // each theme can have it's own webscripts. if present in themes script folder -> use it!
-        if (FileIO::exists(Settings::get('theme_dir') . '/scripts/web.js'))
-            Javascript::useFile(Settings::get('theme_url') . '/scripts/web.js');
     }
 
     /**
@@ -453,16 +395,6 @@ final class Web extends SingletonAbstract
     }
 
     /**
-     * Returns in framework config set default action
-     * @return string
-     */
-    public static function getDefaultAction()
-    {
-        // WebExt -- frontpage control is taken by framework
-        return Cfg::get('Web', 'default_action');
-    }
-
-    /**
      * Hook method to add forum button to menu
      * @param array $menu_buttons List of menu buttons
      */
@@ -490,7 +422,6 @@ final class Web extends SingletonAbstract
     {
         $other_error_types[] = 'WebExt';
     }
-
 
     /**
      * Method to handle WebExt related hook calls
