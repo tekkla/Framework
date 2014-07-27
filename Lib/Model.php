@@ -133,7 +133,7 @@ class Model extends MvcAbstract
      * Stores the definitions of tables fields
      * @var \stdClass
      */
-    private $columns;
+    public $columns;
 
     /**
      * List of fields which are serializable
