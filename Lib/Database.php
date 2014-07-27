@@ -1,8 +1,6 @@
 <?php
-
 namespace Web\Framework\Lib;
 
-// Used classes
 use Web\Framework\Lib\Abstracts\SingletonAbstract;
 
 /**
@@ -89,7 +87,7 @@ class Database extends SingletonAbstract
     {
         global $smcFunc;
         db_extend('packages');
-        return Lib::toObject($smcFunc['db_table_structure']('{db_prefix}' . $tbl));
+        return new Data($smcFunc['db_table_structure']('{db_prefix}' . $tbl));
     }
 
     /**
