@@ -190,43 +190,23 @@ class Model extends MvcAbstract
     protected function __construct($name)
     {
         // Set basic data
-        $this->setName($name);
-        $this->setPK();
+        $this->name = $name;
 
         // Inject db object
         $this->db = Database::getInstance();
 
-        // Load table definition
-        $this->getColumns();
-    }
+        ## Load table definition
 
-    /**
-     * Access to the apps config.
-     * Without any paramter set this method returns the complete config.
-     * With only key set, it returns the value associated with it.
-     * Set key and value, and the config will be updated.
-     * @param string $key
-     * @param string $val
-     */
-    public final function cfg($key = null, $val = null)
-    {
-        return $this->app->cfg($key, $val);
-    }
-
-    /**
-     * Loads the table columns and stores them in the $columns property
-     */
-    public final function getColumns()
-    {
         // No related table set and no data definition set?
         if (empty($this->tbl) && !isset($this->definition))
-            return false;
+            return;
 
-            // When no related table is set, the definition for the uses datafields
-            // has to be set in the model. Otherwise you can not use the validator.
+        // When no related table is set, the definition for the uses datafields
+        // has to be set in the model. Otherwise you can not use the validator.
         if (empty($this->tbl) && isset($this->definition))
         {
-            $this->columns = Lib::toObject($this->definition);
+            #$this->columns = Lib::toObject($this->definition);
+            $this->columns = new Data($this->definition);
             unset($this->definition);
             return;
         }
@@ -240,7 +220,20 @@ class Model extends MvcAbstract
         // Get primary key column
         $this->pk = $structure->indexes->PRIMARY->columns->{0};
 
-        return true;
+        $this->setPK();
+    }
+
+    /**
+     * Access to the apps config.
+     * Without any paramter set this method returns the complete config.
+     * With only key set, it returns the value associated with it.
+     * Set key and value, and the config will be updated.
+     * @param string $key
+     * @param string $val
+     */
+    public final function cfg($key = null, $val = null)
+    {
+        return $this->app->cfg($key, $val);
     }
 
     /**
@@ -270,20 +263,20 @@ class Model extends MvcAbstract
      * @param array $fields
      * @return array
      */
-    public final function find($key, $fields = null, $callbacks = array())
+    public final function find($key, $fields=array(), $callbacks=array())
     {
         $this->reset(true);
-        $this->setFilter($this->alias . '.' . $this->pk . '= {int:' . $this->pk . '}');
-        $this->setParameter($this->pk, $key);
+        $this->filter = $this->alias . '.' . $this->pk . '= {int:' . $this->pk . '}';
+        $this->params = array($this->pk => $key);
 
-        if (isset($fields))
+        if (!empty($fields))
         {
             if (!is_array($fields))
                 $fields = array(
                     $fields
                 );
 
-            $this->setField($fields);
+            $this->fields = $fields;
         }
 
         return $this->read('row', $callbacks);
@@ -297,10 +290,11 @@ class Model extends MvcAbstract
      * @param array $callbacks
      * @return bool Data
      */
-    public final function search($filter, $params = array(), $read_mode = '*', $callbacks = array())
+    public final function search($filter, $params=array(), $read_mode='all', $callbacks=array())
     {
         $this->reset(true);
-        $this->setFilter($filter, $params);
+        $this->filter = $filter;
+        $this->params = $params;
         return $this->read($read_mode, $callbacks);
     }
 
@@ -311,8 +305,8 @@ class Model extends MvcAbstract
      */
     public final function exists($key)
     {
-        $this->setFilter($this->alias . '.' . $this->pk . '= {int:val}');
-        $this->addParameter('val', $key);
+        $this->filter = $this->alias . '.' . $this->pk . '= {int:' . $this->pk . '}';
+        $this->params = array($this->pk, $key);
         return count((array) $this->read()) == 0 ? false : true;
     }
 
@@ -360,12 +354,12 @@ class Model extends MvcAbstract
      * @deprecated
      *
      * @param string $query_type
-     */
     public final function setQuerytypeX($query_type)
     {
         $this->query_type = $query_type;
         return $this;
     }
+     */
 
     /**
      * Sets the primary key of the table
@@ -677,7 +671,7 @@ class Model extends MvcAbstract
      * Builds the sql string for select queries.
      * @return string smf coded sql
      */
-    private function buildSqlString()
+    public function buildSqlString()
     {
         $params = array();
 
@@ -756,21 +750,12 @@ class Model extends MvcAbstract
     }
 
     /**
-     * Get the sql string which will be send to db
-     * @return \Web\Framework\Lib\mysql_result
-     */
-    public final function getSqlString()
-    {
-        return $this->buildSqlString();
-    }
-
-    /**
      * Returns debug informations about a query
      * @return string
      */
     public final function getQueryDebug()
     {
-        $sql = $this->getSqlString();
+        $sql = $this->buildSqlString();
 
         $out = '
 		<div class="debug">
@@ -904,11 +889,11 @@ class Model extends MvcAbstract
 
         // On count we count only the pk column
         if ($this->query_type == 'num')
-            $this->setField('Count(' . $this->pk . ')');
+            $this->fields = array('Count(' . $this->pk . ')');
 
         // On pklist we only want the pk column
         if ($this->query_type == 'key' && !$this->fields)
-            $this->setField($this->pk);
+            $this->fields = array($this->pk);
 
         // Build the sql string
         $this->buildSqlString();
@@ -953,7 +938,6 @@ class Model extends MvcAbstract
                         // Add this key/value if it is not already present. Checks value to be unserialized.
                         if (!isset($this->data->{$col}))
                             $val = in_array($col, $this->serialized) ? unserialize($val) : $val;
-
                     }
 
                     $this->data = $this->runCallbacks($callbacks, $this->data);
