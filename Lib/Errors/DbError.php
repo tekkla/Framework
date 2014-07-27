@@ -20,6 +20,7 @@ final class DbError extends ErrorAbstract
     protected $codes = array(
     	3000 => 'General',
         3001 => 'WrongQueryType',
+        3002 => 'ParameterError'
     );
 
     protected $fatal = true;
