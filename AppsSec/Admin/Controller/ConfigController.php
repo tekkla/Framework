@@ -138,7 +138,7 @@ class ConfigController extends Controller
 					{
 						// Type: model
 						case 'model':
-							list($model_app, $model_name, $model_action) = explode('::',$cfg_def->data->{1});
+							list($model_app, $model_name, $model_action) = explode('::', $cfg_def->data->{1});
 							$datasource = App::create($model_app)->getModel($model_name)->{$model_action}();
 							break;
 
