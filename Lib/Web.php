@@ -73,10 +73,10 @@ final class Web extends SingletonAbstract
                 'tools' => '/Web/Framework/Tools',
                 'cache' => '/Web/Cache',
 
-                // Application dir
+                // Public application dir
                 'apps' => '/Web/Apps',
 
-                // Secure Application dir
+                // Secure application dir
                 'appssec' => '/Web/Framework/AppsSec'
             );
 
@@ -105,7 +105,7 @@ final class Web extends SingletonAbstract
             ## Handling on and without ajax request
             if ($this->request->isAjax())
             {
-                ## Initialize called app
+                ## Init called app
                 App::create($this->request->getApp());
             }
             else
@@ -115,11 +115,17 @@ final class Web extends SingletonAbstract
                 // Add bootstrap main css file from cdn
                 Css::useLink('https://maxcdn.bootstrapcdn.com/bootstrap/' . Cfg::get('Web', 'bootstrap_version') . '/css/bootstrap.min.css');
 
-                // Add existing user/theme related bootstrap theme cdd file
-                Css::useLink(Settings::get('theme_url') . '/css/bootstrap-theme.css');
+                // Add existing local user/theme related bootstrap file or load it from cdn
+                if (FileIO::exists(Settings::get('theme_dir') . '/css/bootstrap-theme.css'))
+                    Css::useLink(Settings::get('theme_url') . '/css/bootstrap-theme.css');
+                else
+                    Css::useLink('https://maxcdn.bootstrapcdn.com/bootstrap/' . Cfg::get('Web', 'bootstrap_version') . '/css/bootstrap-theme.min.css');
 
-                // Add font-awesome font icon css
-                Css::useLink(Cfg::get('Web', 'url_css') . '/font-awesome-' . Cfg::get('Web', 'fontawesome_version') . '.min.css');
+                // Add existing font-awesome font icon css file or load it from cdn
+                if (FileIO::exists(Cfg::get('Web', 'dir_css') . '/font-awesome-' . Cfg::get('Web', 'fontawesome_version') . '.min.css'))
+                    Css::useLink(Cfg::get('Web', 'url_css') . '/font-awesome-' . Cfg::get('Web', 'fontawesome_version') . '.min.css');
+                else
+                    Css::useLink('https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css');
 
                 // Add general WebExt css file
                 Css::useLink(Cfg::get('Web', 'url_css') . '/web.css');
