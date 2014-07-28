@@ -68,8 +68,8 @@ final class OptionGroup extends FormElementAbstract
             if ($option->isSelected())
                 $control->isChecked(1);
 
-            // Create label
-            $html .= Label::factory($control->getId(), $option->getInner() . ' ' . $control->build())->build();
+            // Build control
+            $html .=  '<label>' . $control->build() . $option->getInner() . '</label>';
 
             $html .= '</div>';
         }
