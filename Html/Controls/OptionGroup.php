@@ -2,7 +2,6 @@
 namespace Web\Framework\Html\Controls;
 
 use Web\Framework\Lib\Abstracts\FormElementAbstract;
-use Web\Framework\Html\Form\Label;
 use Web\Framework\Html\Form\Option;
 use Web\Framework\Html\Form\Checkbox;
 use Web\Framework\Lib\Error;
