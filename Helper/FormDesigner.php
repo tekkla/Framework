@@ -271,7 +271,7 @@ final class FormDesigner extends Form
 
             case 'text' :
 				/* @var Input $element */
-				$element = Input::factory($name)->addCss('web-form-text');
+				$element = Input::factory($name)->setType('text')->addCss('web-form-text');
                 break;
 
             case 'number' :
@@ -636,11 +636,11 @@ final class FormDesigner extends Form
                 switch ($type)
                 {
                     case 'radio' :
-                        $container = '<div class="radio{state}"><label class="control-label" for="{id}">{control}{description}</label></div>';
+                        $container = '<div class="radio{state}">{control}{description} (' . $type . ')</div>';
                         break;
 
                     case 'checkbox' :
-                        $container = '<div class="checkbox{state}"><label class="control-label" for="{id}">{control}{description}</label></div>';
+                        $container = '<div class="checkbox{state}">{control}{description} (' . $type . ')</div>';
                         break;
 
                     case 'button' :
