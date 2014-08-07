@@ -288,10 +288,13 @@ class Controller extends MvcAbstract
 
     /**
      * Does an urlredirect but cares about what kind (ajax?) of request was send.
-     * @param string $url
+     * @param Url|string $url
      */
     function doRefresh($url)
     {
+        if  ($url instanceof Url)
+            $url = $url->getUrl();
+
         if ($this->request->isAjax() === true)
             $this->ajax->refresh($url);
         else
