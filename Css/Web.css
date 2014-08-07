@@ -18,14 +18,13 @@
 }
 
 .web-actionbar .dropdown-menu > li > a {
-	padding: 6px 8px;
-	color: #fff;
+	padding: 5px 7px;
 	margin-top: 0;
 }
 
 /*
 |--------------------------------------------------------------------------
-| Fontsize for button fa icons
+| Panels need to be relative for positioning absolute actionbars
 |--------------------------------------------------------------------------
 */
 .panel {
@@ -62,9 +61,10 @@
 */
 
 /**
- * SCEditor buttons do not like box-sizing: border-box
+ * Some parts of SMF do not like global box-sizing: border-box of BS
  */
-.sceditor-button {
+.sceditor-button,
+.admin-menu-icon:before {
     box-sizing: content-box;
 }
 
