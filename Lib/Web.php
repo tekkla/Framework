@@ -5,7 +5,7 @@ use Web\Framework\Lib\Abstracts\SingletonAbstract;
 
 // Check for direct file access
 if (!defined('WEB'))
-	die('Cannot run without WebExt framework...');
+    die('Cannot run without WebExt framework...');
 
 /**
  * WebExt mainclass
@@ -140,11 +140,11 @@ final class Web extends SingletonAbstract
 
                 // Add support only when activated in config
                 if (Cfg::get('Web', 'js_modernizr') == 1)
-                	Javascript::useModernizr(Cfg::get('Web', 'url_js'));
+                    Javascript::useModernizr(Cfg::get('Web', 'url_js'));
 
                 // Add support only when activated in config
                 if (Cfg::get('Web', 'js_html5shim') == 1)
-                	Javascript::useHtml5Shim();
+                    Javascript::useHtml5Shim();
 
                 // Add the lang short notation
                 Javascript::useVar('smf_lang_dictionary', Txt::get('lang_dictionary', 'SMF'), true);
@@ -157,7 +157,7 @@ final class Web extends SingletonAbstract
 
                 // Each theme can have it's own WebExt scripts. if present in themes script folder -> use it!
                 if (FileIO::exists(Settings::get('theme_dir') . '/scripts/web.js'))
-                	Javascript::useFile(Settings::get('theme_url') . '/scripts/web.js');
+                    Javascript::useFile(Settings::get('theme_url') . '/scripts/web.js');
 
                 ## Initialize the apps
 
@@ -169,125 +169,111 @@ final class Web extends SingletonAbstract
 
                 foreach ( $dirs as $dir )
                 {
-                	if (is_dir($dir))
-                	{
-                		if (($dh = opendir($dir)) !== false)
-                		{
-                			while ( ($file = readdir($dh)) !== false )
-                			{
-                				if ($file == '..' || $file == '.')
-                					continue;
+                    if (is_dir($dir))
+                    {
+                        if (($dh = opendir($dir)) !== false)
+                        {
+                            while ( ($file = readdir($dh)) !== false )
+                            {
+                                if ($file == '..' || $file == '.')
+                                    continue;
 
-                				App::create($file);
-                			}
-                			closedir($dh);
-                		}
-                	}
+                                App::create($file);
+
+                            }
+                            closedir($dh);
+                        }
+                    }
                 }
             }
 
             ## Process the request
             $this->request->processRequest();
-
-            ## Run processor
-            if (SMF != 'SSI')
-            {
-            	Content::init();
-
-            	// Do the magic only on web calls
-            	if (!$this->request->isWeb())
-            		return;
-
-            	// Is there an requested app?
-            	if (!$this->request->checkApp())
-            	{
-            		// No. Try to find a default app set in config
-            		if (Cfg::exists('Web', 'default_app'))
-            			$app = Cfg::get('Web', 'default_app');
-            		// No default app means that there is nothing to do for us. Let us do SMF and the forum all the work!
-            		else
-            			redirectexit('action=forum');
-            	}
-            	else
-            	{
-            		// Get the requested apps name
-            		$app_name = $this->request->getApp();
-            	}
-
-            	// Start with factoring this requested app
-            	$app = App::create($app_name);
-
-            	// Run methods are for apps which have to do work before the
-            	// the controller and action is called. So call them - if exists.
-            	if (method_exists($app, 'run'))
-            		$app->run();
-
-            	// All app wide access check passed. Now create controller object.
-            	$controller = $app->getController($this->request->getCtrl());
-
-            	// Ajax call or full call?
-            	if ($this->request->isAjax() === true)
-            	{
-            		// Run controller as ajax call
-            		$this->content = $controller->ajax();
-            	}
-            	else
-            	{
-            		// Normal controller run
-            		$this->content = $controller->run();
-
-            		// No content to show? Has app an onEmpty() method which give us content?
-            		if (empty($this->content) && method_exists($app, 'onEmpty'))
-            			$this->content = $app->onEmpty();
-
-            		// If app function for content onBefore() exist, prepend it to content
-            		$this->content = (method_exists($app, 'onBefore') ? $app->onBefore() : '') . $this->content;
-
-            		// if app function for content onAfter() exist, append it to content
-            		$this->content .= method_exists($app, 'onAfter') ? $app->onAfter() : '';
-            	}
-
-            	// All work done, load the web template
-            	loadTemplate('Web');
-            }
         }
 
         ## Error handling
         catch (Error $e)
         {
-            // Write error to log?
-            if ($e->logError())
-                log_error($e->getLogMessage(), 'WebExt', $e->getFile(), $e->getLine());
-
-            // Ajax request errors will end with an alert(error_message)
-            if ($this->request->isAjax())
-            {
-                // Create error alert
-                $this->message->danger($e->getMessage());
-
-                // Echo processed ajax
-                echo $this->ajax->process();
-
-                // And finally stop execution
-                exit;
-            }
-
-            // Is error set to be fatal?
-        	if ($e->isFatal())
-        	    setup_fatal_error_context($e->getMessage());
-
-        	// If error has a redirection, the error message will be sent as
-        	// a message before redirecting to the redirect url
-        	if ($e->isRedirect())
-        	{
-        	    $this->message->danger($e);
-        		redirectexit($e->getRedirect());
-        	}
-
-        	// Falling through here means we have a really big error.
-        	Error::endHere($e);
+            $e->handle();
         }
     }
+
+    /**
+     * Runs WebExt
+     */
+    public function run()
+    {
+        try
+        {
+            // # Run processor
+            if (SMF != 'SSI')
+            {
+                Content::init();
+
+                // Do the magic only on web calls
+                if (!$this->request->isWeb())
+                    return;
+
+                    // Is there an requested app?
+                if (!$this->request->checkApp())
+                {
+                    // No. Try to find a default app set in config
+                    if (Cfg::exists('Web', 'default_app'))
+                        $app = Cfg::get('Web', 'default_app');
+                        // No default app means that there is nothing to do for us. Let us do SMF and the forum all the work!
+                    else
+                        redirectexit('action=forum');
+                } else
+                {
+                    // Get the requested apps name
+                    $app_name = $this->request->getApp();
+                }
+
+                // Start with factoring this requested app
+                $app = App::create($app_name);
+
+                // Run methods are for apps which have to do work before the
+                // the controller and action is called. So call them - if exists.
+                if (method_exists($app, 'run'))
+                    $app->run();
+
+                    // All app wide access check passed. Now create controller object.
+                $controller = $app->getController($this->request->getCtrl());
+
+                // Ajax call or full call?
+                if ($this->request->isAjax() === true)
+                {
+                    // Run controller as ajax call
+                    $this->content = $controller->ajax();
+                } else
+                {
+                    // Normal controller run
+                    $this->content = $controller->run();
+
+                    // No content to show? Has app an onEmpty() method which give us content?
+                    if (empty($this->content) && method_exists($app, 'onEmpty'))
+                        $this->content = $app->onEmpty();
+
+                        // If app function for content onBefore() exist, prepend it to content
+                    $this->content = (method_exists($app, 'onBefore') ? $app->onBefore() : '') . $this->content;
+
+                    // if app function for content onAfter() exist, append it to content
+                    $this->content .= method_exists($app, 'onAfter') ? $app->onAfter() : '';
+                }
+
+                // All work done, load the web template
+                loadTemplate('Web');
+            }
+        }
+        
+        ## Error handling
+        catch ( Error $e )
+        {
+            $e->handle();
+        }
+    }
+
+
 
     /**
      * Returns the created content.
@@ -358,24 +344,29 @@ final class Web extends SingletonAbstract
         // Is it valid?
         switch ($web_hook[1])
         {
-        	Case 'App':
-        		// Getting app obj
-        		$web_object = App::create($web_hook[2]);
-        		$web_method = $web_hook[3];
-        		break;
+            Case 'App':
+                // Getting app obj
+                $web_object = App::create($web_hook[2]);
+                $web_method = $web_hook[3];
+                break;
 
-        	Case 'Ctrl':
-        		$web_object = App::create($web_hook[2])->Controller($web_hook[3]);
-        		$web_method = 'run';
-        		break;
+            Case 'Ctrl':
+                $web_object = App::create($web_hook[2])->Controller($web_hook[3]);
+                $web_method = 'run';
+                break;
 
-        	case 'Class':
-        		$web_object = $web_hook[2];
-        		$web_method = $web_hook[3];
-        		break;
+            case 'Class':
+                $web_object = $web_hook[2];
+                $web_method = $web_hook[3];
+                break;
         }
 
         return array($web_object, $web_method);
+    }
+
+    public static function getState()
+    {
+        return self::$state;
     }
 }
 
