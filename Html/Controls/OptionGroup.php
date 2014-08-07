@@ -2,7 +2,6 @@
 namespace Web\Framework\Html\Controls;
 
 use Web\Framework\Lib\Abstracts\FormElementAbstract;
-use Web\Framework\Html\Form\Label;
 use Web\Framework\Html\Form\Option;
 use Web\Framework\Html\Form\Checkbox;
 use Web\Framework\Lib\Error;
@@ -46,7 +45,7 @@ final class OptionGroup extends FormElementAbstract
      * @see \Web\Framework\Lib\Html::build()
      * @return string
      */
-    public function build($wrapper = null)
+    public function build()
     {
         if (empty($this->options))
             Throw new Error('OptionGroup Control: No Options set.');
@@ -68,8 +67,8 @@ final class OptionGroup extends FormElementAbstract
             if ($option->isSelected())
                 $control->isChecked(1);
 
-            // Create label
-            $html .= Label::factory($control->getId(), $option->getInner() . ' ' . $control->build())->build();
+            // Build control
+            $html .=  '<label>' . $control->build() . $option->getInner() . '</label>';
 
             $html .= '</div>';
         }

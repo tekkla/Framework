@@ -1,8 +1,6 @@
 <?php
-
 namespace Web\Framework\Lib;
 
-// Check for direct file access
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
 
@@ -31,14 +29,15 @@ final class Cfg
      */
     public static function get($app, $key = null)
     {
-        // request only with app name indicates, that the complete app config is requested
+        // Calls only with app name indicates, that the complete app config is requested
         if (!isset($key) && isset(self::$config->{$app}))
             return self::$config->{$app};
 
-            //
+        // Calls with app and key are normal cfg requests
         if (isset($key) && isset(self::$config->{$app}) && isset(self::$config->{$app}->{$key}))
             return self::$config->{$app}->{$key};
 
+        // All other will result in an error exception
         Throw new Error('Config not found', 4000, array($app, $key));
     }
 
@@ -103,6 +102,8 @@ final class Cfg
 
             self::$config->{$row[1]}->{$row[2]} = $val;
         }
+
+        self::$loaded = true;
     }
 
     /**

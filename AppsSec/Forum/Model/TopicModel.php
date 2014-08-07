@@ -4,62 +4,64 @@ namespace Web\Framework\AppsSec\Forum\Model;
 use Web\Framework\Lib\Model;
 use Web\Framework\Lib\Smf;
 
-class TopicModel extends Model
+if (!defined('WEB'))
+    die('Cannot run without WebExt framework...');
+
+/**
+ * Setup model
+ * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
+ * @package WebExt
+ * @subpackage AppSec Forum
+ * @license BSD
+ * @copyright 2014 by author
+ */
+final class TopicModel extends Model
 {
-	public $tbl = 'topics';
-	public $alias = 'topic';
-	public $pk = 'id_topic';
+    protected $tbl = 'topics';
+    protected $alias = 'topic';
+    protected $pk = 'id_topic';
 
+    public function saveTopic(&$msgOptions, &$topicOptions, &$posterOptions)
+    {
+        // Include the needed smf-lib
+        Smf::useSource(array(
+            'Subs-Post',
+            'Subs'
+        ));
 
-	public function createTopic(&$msgOptions,&$topicOptions,&$posterOptions)
-	{
-		global $sourcedir;
+        // an existing id_message indicates an axisitng topic
+        if (!empty($msgOptions['id']))
+        {
+            // modify exisiting post
+            modifyPost($msgOptions, $topicOptions, $posterOptions);
+        }
+        else
+        {
+            // create the application post
+            createPost($msgOptions, $topicOptions, $posterOptions);
 
-		// include the needed smf-lib
-		Smf::useSource(array(
-			'Subs-Post',
-			'Subs'
-		));
+            // get topic id
+            return $this->getModel('Messages')->read(array(
+                'field' => array(
+                    'msg.id_msg AS id_message',
+                    'msg.id_topic',
+                    'msg.id_board',
+                    'msg.subject'
+                ),
+                'filter' => 'msg.subject={string:subject} AND msg.id_member={int:id_member}',
+                'param' => array(
+                    'subject' => $msgOptions['subject'],
+                    'id_member' => $posterOptions['id']
+                )
+            ));
+        }
+    }
 
-		// an existing id_message indicates an axisitng topic
-		if (isset($msgOptions['id']))
-		{
-			// modify exisiting post
-			modifyPost($msgOptions, $topicOptions, $posterOptions);
-		}
-		else
-		{
-			// create the application post
-			createPost($msgOptions,$topicOptions,$posterOptions);
-
-			// get topic id
-			$model = $this->app->getModel('Messages')
-						->setField(array(
-							'message.id_msg AS id_message',
-							'message.id_topic',
-							'message.id_board',
-							'message.subject'
-						))
-						->setFilter(
-							'message.subject={string:subject} AND message.id_member={int:id_member}',
-							array(
-								'subject' => $msgOptions['subject'],
-								'id_member'=> $posterOptions['id'],
-							)
-						);
-
-			return $model->read();
-		}
-	}
-
-	public function deleteTopic($id_topic)
-	{
-		global $sourcedir;
-
-		// include the needed smf-lib
-		Smf::useSource('RemoveTopic');
-		removeTopics($id_topic);
-	}
+    public function deleteTopic($topics, $decreasePostCount=true, $ignoreRecycling=false)
+    {
+        // include the needed smf-lib
+        Smf::useSource('RemoveTopic');
+        removeTopics($topics);
+    }
 }
-
 ?>

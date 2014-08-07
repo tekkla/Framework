@@ -3,6 +3,7 @@ namespace Web\Framework\Html\Form;
 
 use Web\Framework\Lib\Abstracts\FormElementAbstract;
 use Web\Framework\Lib\Error;
+use Web\Framework\Lib\Url;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -233,24 +234,112 @@ class Button extends FormElementAbstract
         );
 
         if (!in_array($type, $types))
-        	Throw new Error('Wrong button type set.', 1000, array($type, $types));
+            Throw new Error('Wrong button type set.', 1000, array($type, $types));
 
         $this->type = $type;
         return $this;
     }
 
     /**
+     * Set the id of the form this button belongs to
+     * @param string $form_is
+     * @return \Web\Framework\Html\Form\Button
+     */
+    public function setFormId($form_id)
+    {
+        $this->attribute['form'] = $form_id;
+        return $this;
+    }
+
+    /**
+     * Sets the url where to send form data on submit (only on buttontype "submit")
+     * @param string|Url $url Url string or object used as form action
+     * @return \Web\Framework\Html\Form\Button
+     */
+    public function setFormAction($url)
+    {
+        if ($url instanceof Url)
+            $url = $url->getUrl();
+
+        $this->attribute['formaction'] = $url;
+        return $this;
+    }
+
+    /**
+     * Set the method of form the button belongs to.
+     * Use 'post' or 'get'.
+     * Form elements are using post by default.
+     * @param string $method Value for the method attribute of from
+     * @throws NoValidParameterError
+     * @return \Web\Framework\Html\Elements\Form
+     */
+    public function setFormMethod($method)
+    {
+    	$methods = array(
+    			'post',
+    			'get'
+    	);
+
+    	// Safety first. Only allow 'post' or 'get' here.
+    	if (!in_array($method, $methods))
+    		Throw new Error('Wrong method set.', 1000, array($method, $methods));
+
+    	$this->attribute['formmethod'] = $method;
+    	return $this;
+    }
+
+    /**
+     * Set the form method attribute.
+     * Use 'post' or 'get'.
+     * Form elements are using post by default.
+     * @param string $method Value for the method attribute of from
+     * @throws NoValidParameterError
+     * @return \Web\Framework\Html\Elements\Form
+     */
+    public function setFormEnctype($enctype)
+    {
+    	$enctypes = array(
+    	    'application/x-www-form-urlencoded',
+    	    'multipart/form-data',
+    	    'text/plain'
+    	);
+
+    	// Safety first. Only allow 'post' or 'get' here.
+    	if (!in_array($enctype, $enctypes))
+    		Throw new Error('Wrong method set.', 1000, array($enctype, $enctypes));
+
+    	$this->attribute['formenctype'] = $enctype;
+    	return $this;
+    }
+
+
+    /**
+     * Set target of form the button belongs to
+     * @param string $target
+     * @return \Web\Framework\Html\Elements\Form
+     */
+    public function setFormTarget($target)
+    {
+    	$this->attribute['formtarget'] = $target;
+    	return $this;
+    }
+
+    /**
+     * Deactivates form validation of form the button belongs to by setting "novalidate" attribute
+     * @return \Web\Framework\Html\Elements\Form
+     */
+    public function setFormNoValidate()
+    {
+    	$this->attribute['formnovalidate'] = false;
+    	return $this;
+    }
+    /**
      * (non-PHPdoc)
      * @see \Web\Framework\Lib\Abstracts\HtmlAbstract::build()
      */
-    public function build($wrapper = null)
+    public function build()
     {
-        // Switch element to be an input when type is anything else then 'button'
-        if ($this->type != 'button')
-        {
-            $this->element = 'input';
-            $this->attribute['type'] = $this->type;
-        }
+        $this->attribute['type'] = $this->type;
 
         // Has this button an icon top add?
         if (isset($this->button_icon))
@@ -263,7 +352,7 @@ class Button extends FormElementAbstract
         if (isset($this->button_size))
             $this->css[] = 'btn-' . $this->button_size;
 
-        return parent::build($wrapper);
+        return parent::build();
     }
 }
 ?>

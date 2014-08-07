@@ -1,20 +1,22 @@
 <?php
 namespace Web\Framework\Html\Elements;
 
+use Web\Framework\Lib\Abstracts\HtmlAbstract;
+
 // Check for direct file access
 if (!defined('WEB'))
     die('Cannot run without WebExt framework...');
 
 /**
- * Link Html Element
- * This is a dummy for A html element
+ * Adress Html Object
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
  * @subpackage Lib
  * @license BSD
  * @copyright 2014 by author
  */
-class Link extends A
+class Abbr extends HtmlAbstract
 {
+    protected $element = 'adress';
 }
 ?>

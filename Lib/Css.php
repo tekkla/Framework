@@ -210,46 +210,5 @@ final class Css
     {
         return self::factory()->setType('inline')->setCss($styles);
     }
-
-    /**
-     * Add bootstrab css object to the output queue
-     * @param string $version
-     * @param string $path
-     */
-    public static function useBootstrap($version, $path)
-    {
-        self::add(self::getBootstrap($version, $path));
-    }
-
-    /**
-     * Creates and returns a bootstrap css object
-     * @param string $version
-     * @param string $path
-     */
-    public static function getBootstrap($version, $path)
-    {
-        return self::factory()->setType('file')->setCss($path . '/bootstrap-' . $version . '.min.css');
-    }
-
-    /**
-     * Adds a fonteawesome css object to the output queue
-     * @param string $version
-     * @param string $path
-     */
-    public static function useFontAwesome($version, $path)
-    {
-        self::add(self::getFontAwesome($version, $path));
-    }
-
-    /**
-     * Creates and returns a fontawesome css object
-     * @param string $version
-     * @param string $path
-     * @return Css
-     */
-    public static function getFontAwesome($version, $path)
-    {
-        return self::factory()->setType('file')->setCss($path . '/font-awesome-' . $version . '.min.css');
-    }
 }
 ?>

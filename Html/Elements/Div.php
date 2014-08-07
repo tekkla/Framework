@@ -8,10 +8,10 @@ if (!defined('WEB'))
     die('Cannot run without WebExt framework...');
 
 /**
- * Creates a div html object
+ * Div Html Element
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
- * @subpackage Lib
+ * @subpackage Html\Elements
  * @license BSD
  * @copyright 2014 by author
  */

@@ -76,7 +76,7 @@ final class DataSelect extends Select
      * Builds and returna html code
      * @see \Web\Framework\Html\Form\Select::build()
      */
-    public function build($wrapper = null)
+    public function build()
     {
         foreach ( $this->datasource as $val => $inner )
         {
@@ -107,7 +107,7 @@ final class DataSelect extends Select
             }
         }
 
-        return parent::build($wrapper);
+        return parent::build();
     }
 }
 ?>

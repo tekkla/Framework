@@ -1,8 +1,8 @@
-/*********************************************************\
-						ACTIONBAR
-\*********************************************************/
-
-
+/*
+|--------------------------------------------------------------------------
+| Actionbar
+|--------------------------------------------------------------------------
+*/
 .web-actionbar	{
 	position: absolute;
 	top: 5px;
@@ -18,21 +18,33 @@
 }
 
 .web-actionbar .dropdown-menu > li > a {
-	padding: 6px 8px;
-	color: #fff;
+	padding: 5px 7px;
 	margin-top: 0;
 }
 
-.dropdown-login {
-	min-width: 250px;
+/*
+|--------------------------------------------------------------------------
+| Panels need to be relative for positioning absolute actionbars
+|--------------------------------------------------------------------------
+*/
+.panel {
+	position: relative;
 }
 
-
+/*
+|--------------------------------------------------------------------------
+| Fontsize for button fa icons
+|--------------------------------------------------------------------------
+*/
 .btn i.fa {
 	font-size: 14px;
 }
 
-
+/*
+|--------------------------------------------------------------------------
+| To remove top or all vertical margins from elements
+|--------------------------------------------------------------------------
+*/
 .no-top-margin {
 	margin-top: 0;
 }
@@ -40,6 +52,62 @@
 .no-v-margin {
 	margin-top: 0;
 	margin-bottom: 0;
+}
+
+/*
+|--------------------------------------------------------------------------
+| SMF compatibility
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * Some parts of SMF do not like global box-sizing: border-box of BS
+ */
+.sceditor-button,
+.admin-menu-icon:before {
+    box-sizing: content-box;
+}
+
+/**
+ * SMF uses headings as column titles. So we have to reset margins overridden by BS.
+ */
+h3.catbg, h4.catbg, h3.titlebg, h4.titlebg {
+    margin: 0;
+}
+
+/**
+ * Fixes display error where topic header info col is to high
+ */
+#topic_header .icon, #topic_header .info, #topic_header .stats, #topic_header .lastpost, #topic_header .moderation {
+    margin-bottom: 0;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Loader image (used on ajax request)
+|--------------------------------------------------------------------------
+*/
+#web-status {
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background-color: rgba(15,15,15,0.4);
+}
+#web-status i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 72px;
+    color: #00ff00;
+}
+
+/* Anytime the body has the loading class, our modal element will be visible */
+body.loading #web-status {
+    display: block;
 }
 
 /*
@@ -69,49 +137,11 @@
 	outline: none;
 }
 
-
-span.web_validator_error {
-	display: block;
-}
-
-
-
-/* LOADER */
-
-/* Start by setting display:none to make this hidden.
-   Then we position it in relation to the viewport window
-   with position:fixed. Width, height, top and left speak
-   speak for themselves. Background we set to 80% white with
-   our animation centered, and no-repeating */
-#web-status {
-    display:    none;
-    position:   fixed;
-    z-index:    1000;
-    top:        0;
-    left:       0;
-    height:     100%;
-    width:      100%;
-	background-color: rgba(15,15,15,0.4);
-}
-#web-status i {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	font-size: 72px;
-	color: #00ff00;
-}
-
-
-/* Anytime the body has the loading class, our
-   modal element will be visible */
-body.loading #web-status {
-    display: block;
-}
-
-/*********************************************\
-		     XDEBUG beautifying
-\*********************************************/
-
+/*
+|--------------------------------------------------------------------------
+| XDEBUG beautifying
+|--------------------------------------------------------------------------
+*/
 .xdebug-error {
 	font-size: 12px;
 	width: 95%;
@@ -152,10 +182,12 @@ body.loading #web-status {
 	color: #ddd;
 }
 
-/*!
- * Datetimepicker for Bootstrap v3
- * https://github.com/Eonasdan/bootstrap-datetimepicker/
- */
+/*
+|--------------------------------------------------------------------------
+| Datetimepicker for Bootstrap v3
+| https://github.com/Eonasdan/bootstrap-datetimepicker/
+|--------------------------------------------------------------------------
+*/
 .bootstrap-datetimepicker-widget {
   top: 0;
   left: 0;

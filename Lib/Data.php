@@ -142,7 +142,7 @@ class Data implements \IteratorAggregate
      */
     public function __toString()
     {
-        return 'Missing property: ' . self::$cur;
+        return false;
     }
 
     /**

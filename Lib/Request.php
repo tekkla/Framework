@@ -306,6 +306,9 @@ class Request extends SingletonAbstract
      */
     public function processRequest($request_url=null, $request_method=null)
     {
+        if (empty($_REQUEST['action']) && Cfg::exists('Web', 'default_action'))
+        	$_REQUEST['action'] = Cfg::get('Web', 'default_action');
+
         // Is this a web request?
         $this->is_web = isset($_REQUEST['action']) && $_REQUEST['action'] == 'web';
 
@@ -446,6 +449,10 @@ class Request extends SingletonAbstract
                 	$this->action = String::camelize($params['action']);
 
                 $this->params = $params;
+
+                // Finally try to process possible posted data
+                if (isset($_POST) && isset($_POST['web']))
+                    $this->post = new Data($_POST['web']);
 
                 return $this;
             }
@@ -728,19 +735,6 @@ class Request extends SingletonAbstract
     public function isPost()
     {
         return isset($_POST) && isset($_POST['web']);
-    }
-
-    /**
-     * Processes possible $_POST[web] data
-     *
-     * The framework only processes POST data from it's own apps. all other data will be ignored
-     */
-    public function processPostData()
-    {
-        if ($this->isPost())
-            $this->post = new Data($_POST['web']);
-
-        return $this;
     }
 
     /**

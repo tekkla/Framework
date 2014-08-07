@@ -115,12 +115,12 @@ class OnOffSwitch extends Select
      * (non-PHPdoc)
      * @see \Web\Framework\Html\Form\Select::build()
      */
-    public function build($wrapper = null)
+    public function build()
     {
         foreach ( $this->switch as $option )
             $this->addOption($option);
 
-        return parent::build($wrapper);
+        return parent::build();
     }
 }
 ?>
