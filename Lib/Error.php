@@ -159,13 +159,14 @@ final class Error extends \Exception
         	log_error($this->getLogMessage(), 'WebExt', $this->getFile(), $this->getLine());
 
         // Ajax request errors will end with an alert(error_message)
-        if ($this->request->isAjax())
+        if (Request::getInstance()->isAjax())
         {
-        	// Create error alert
-        	$this->message->danger($this->getMessage());
+            // Create error alert
+            $message = new Message();
+        	$message->danger($this->getMessage());
 
         	// Echo processed ajax
-        	echo $this->ajax->process();
+        	echo Ajax::process();
 
         	// And finally stop execution
         	exit();
@@ -179,7 +180,8 @@ final class Error extends \Exception
         // a message before redirecting to the redirect url
         if ($this->isRedirect())
         {
-        	$this->message->danger($this);
+            $message = new Message();
+        	$message->danger($this);
         	redirectexit($this->getRedirect());
         }
 
