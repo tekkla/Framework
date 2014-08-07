@@ -1,6 +1,7 @@
 <?php
 namespace Web\Framework\Lib;
 
+use Web\Framework\Lib\Abstracts\ClassAbstract;
 // Check for direct file access
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
@@ -15,7 +16,7 @@ if (!defined('WEB'))
  * @package WebExt
  * @subpackage Lib
  */
-class Menu
+class Menu extends ClassAbstract
 {
 
     /**
@@ -66,6 +67,20 @@ class Menu
     public static function getMenuButtons()
     {
         return Context::getByKey('menu_buttons');
+    }
+
+    /**
+     * Ajax refresh of menu
+     */
+    public static function refreshMenu()
+    {
+        setupMenuContext();
+
+        ob_start();
+
+        template_menu();
+
+        Ajax::replaceHtml('#main_menu', ob_get_clean());
     }
 }
 ?>
