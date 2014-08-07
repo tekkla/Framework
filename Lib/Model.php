@@ -72,7 +72,7 @@ class Model extends MvcAbstract
      * Queryparameters
      * @var array
      */
-    private $params = array();
+    private $param = array();
 
     /**
      * Query types
@@ -267,7 +267,7 @@ class Model extends MvcAbstract
     {
         $this->reset(true);
         $this->filter = $this->alias . '.' . $this->pk . '= {int:' . $this->pk . '}';
-        $this->params = array($this->pk => $key);
+        $this->param = array($this->pk => $key);
 
         if (!empty($fields))
         {
@@ -285,16 +285,16 @@ class Model extends MvcAbstract
     /**
      * Shorthand method to search for data.
      * @param string $filter
-     * @param arrray $params
+     * @param arrray $param
      * @param string $read_mode
      * @param array $callbacks
      * @return bool Data
      */
-    public final function search($filter, $params=array(), $read_mode='all', $callbacks=array())
+    public final function search($filter, $param=array(), $read_mode='all', $callbacks=array())
     {
         $this->reset(true);
         $this->filter = $filter;
-        $this->params = $params;
+        $this->param = $param;
         return $this->read($read_mode, $callbacks);
     }
 
@@ -306,7 +306,7 @@ class Model extends MvcAbstract
     public final function exists($key)
     {
         $this->filter = $this->alias . '.' . $this->pk . '= {int:' . $this->pk . '}';
-        $this->params = array($this->pk, $key);
+        $this->param = array($this->pk, $key);
         return count((array) $this->read()) == 0 ? false : true;
     }
 
@@ -421,7 +421,7 @@ class Model extends MvcAbstract
     public final function resetFilter()
     {
         $this->filter = '';
-        $this->params = array();
+        $this->param = array();
         return $this;
     }
 
@@ -429,12 +429,12 @@ class Model extends MvcAbstract
      * Set a complete sql filterstatement
      * @param string $val Sql statement
      */
-    public final function setFilter($filter, $params = null)
+    public final function setFilter($filter, $param = null)
     {
         $this->filter = $filter;
 
-        if (isset($params) && is_array($params));
-            $this->params = $params;
+        if (isset($param) && is_array($param));
+            $this->param = $param;
 
         return $this;
     }
@@ -483,16 +483,16 @@ class Model extends MvcAbstract
     function setParameter($arg1, $arg2=null, $reset=true)
     {
     	if ($reset===true)
-    		$this->params = array();
+    		$this->param = array();
 
     	if ($arg2 === null && (is_array($arg1) || is_object($arg1)))
     	{
     		foreach ( $arg1 as $key => $val )
-    			$this->params[$key] = Lib::fromObjectToArray($val);
+    			$this->param[$key] = Lib::fromObjectToArray($val);
     	}
 
     	if (isset($arg2))
-    		$this->params[$arg1] = Lib::fromObjectToArray($arg2);
+    		$this->param[$arg1] = Lib::fromObjectToArray($arg2);
 
     	return $this;
     }
@@ -512,7 +512,7 @@ class Model extends MvcAbstract
      */
     public final function resetParameter()
     {
-        $this->params = array();
+        $this->param = array();
         return $this;
     }
 
@@ -673,7 +673,7 @@ class Model extends MvcAbstract
      */
     public function buildSqlString()
     {
-        $params = array();
+        $param = array();
 
         $join = '';
         $filter = '';
@@ -700,11 +700,14 @@ class Model extends MvcAbstract
             // Add `` to some field names as reaction to those stupid developers who chose systemnames as fieldnames
             foreach ( $this->fields as $key_field => $field )
             {
-                if (in_array($field, array(
-                    'date',
-                    'time'
-                )))
-                    $this->fields[$key_field] = '`' . $field . '`';
+                if (in_array($field, array('date', 'time')))
+                   $field = '`' . $field . '`';
+
+                // Extend fieldname either by table alias or name when no dot as alias/table indicator is found.
+                #if (strpos($field, '.') === false)
+                #    $field .= (!empty($this->alias) ? $this->alias : $this->tbl) . '.' . $field;
+
+                $this->fields[$key_field] = $field;
             }
 
             $fieldlist = implode(', ', $this->fields);
@@ -762,9 +765,9 @@ class Model extends MvcAbstract
 			<h3>SQL</h3>
 			<p>' . $sql . '</p>
 			<h3>Params</h3>
-			' . $this->debug($this->params) . '
+			' . $this->debug($this->param) . '
 			<h3>Full query</h3>
-			' . $this->db->quote($sql, $this->params) . '
+			' . $this->db->quote($sql, $this->param) . '
 		</div>';
 
         return $out;
@@ -830,10 +833,10 @@ class Model extends MvcAbstract
                 if (Arrays::isAssoc($join))
                 {
                     $this->join[] = array(
-                    	'tbl' => $join['tbl'],
-                    	'as' => $join['as'],
-                    	'by' => $join['by'],
-                    	'cond' => $join['condition']
+                        'tbl' => $join['tbl'],
+                        'as' => $join['as'],
+                        'by' => $join['by'],
+                        'cond' => $join['condition']
                     );
                 }
                 else
@@ -911,7 +914,7 @@ class Model extends MvcAbstract
             $this->data = new Data();
 
         // Do the query!
-        $res = $this->db->query($this->sql, $this->params);
+        $res = $this->db->query($this->sql, $this->param);
 
         // Reset data on all queries not of type 'ext'
         if ($this->query_type !== 'ext')
@@ -1078,7 +1081,7 @@ class Model extends MvcAbstract
                         'caller' => get_called_class(),
                         'query_type' => $this->query_type,
                         'table' => $this->tbl,
-                        'params' => $this->params
+                        'params' => $this->param
                     )
                 );
                 break;
@@ -1092,11 +1095,11 @@ class Model extends MvcAbstract
     /**
      * For direct sql calls avoiding the model system.
      * @param string $sql (need to be smf conform)
-     * @param array $params (optional paramter array)
+     * @param array $param (optional paramter array)
      */
-    public final function sqlQuery($sql, $params = array())
+    public final function sqlQuery($sql, $param = array())
     {
-        $this->db->query($sql, $params);
+        $this->db->query($sql, $param);
     }
 
     /**
@@ -1179,7 +1182,7 @@ class Model extends MvcAbstract
     // Update method used by save()
     private function internalUpdate()
     {
-        $params = array();
+        $param = array();
 
         // Run before update methods and stop here if the return bool false
         if ($this->runBefore('update') === false)
@@ -1199,14 +1202,14 @@ class Model extends MvcAbstract
             $type = $val == 'NULL' ? 'raw' : $this->getFieldtype($fld);
 
             $fieldlist[] = $this->alias . '.' . $fld . '={' . $type . ':' . $fld . '}';
-            $params[$fld] = $val;
+            $param[$fld] = $val;
         }
 
         // Create filter
         $filter = ' WHERE ' . $this->alias . '.' . $this->pk . '={' . $this->getFieldtype($this->pk) . ':' . $this->pk . '}';
 
         // Even if the pk value is present in data, we set this param manually to prevent errors
-        $params[$this->pk] = $this->data->{$this->pk};
+        $param[$this->pk] = $this->data->{$this->pk};
 
         // Build fieldlist
         $fieldlist = implode(', ', $fieldlist);
@@ -1215,7 +1218,7 @@ class Model extends MvcAbstract
         $sql = "UPDATE {db_prefix}{$this->tbl} AS {$this->alias} SET {$fieldlist}{$filter}";
 
         // Run query
-        $this->db->query($sql, $params);
+        $this->db->query($sql, $param);
 
         // Run after update event methods
         if ($this->runAfter('update') === false)
@@ -1242,13 +1245,13 @@ class Model extends MvcAbstract
                 if (!$this->getFieldtype($fld))
                     Throw new Error('The field you set to be updated does not exist in this table.<br />Table: ' . $this->tbl . '<br>Field: ' . $fld);
 
-                if (!array_key_exists($fld, $this->params))
+                if (!array_key_exists($fld, $this->param))
                     Throw new Error('The field "' . $fld . '" you set to be updated has no matching parameter.');
 
                 $fieldlist[] = $this->alias . '.' . $fld . '={' . $this->getFieldtype($fld) . ':' . $fld . '}';
 
                 // sanitize input?
-                $this->params[$fld] = $this->checkFieldvalue($fld, $this->params[$fld]);
+                $this->param[$fld] = $this->checkFieldvalue($fld, $this->param[$fld]);
             }
         }
 
@@ -1261,7 +1264,7 @@ class Model extends MvcAbstract
                     Throw new Error('The field you set to be updated does not exist in this table.<br>Table: ' . $this->tbl . '<br>Field: ' . $fld);
 
                 $fieldlist[] = $this->alias . '.' . $fld . '={' . $this->getFieldtype($fld) . ':' . $fld . '}';
-                $this->params[$fld] = $this->checkFieldAndValue($fld, $val);
+                $this->param[$fld] = $this->checkFieldAndValue($fld, $val);
             }
         }
 
@@ -1274,7 +1277,7 @@ class Model extends MvcAbstract
         // create complete sql string
         $sql = "UPDATE {db_prefix}{$this->tbl} AS {$this->alias} SET {$fieldlist}{$filter}";
 
-        $this->db->query($sql, $this->params);
+        $this->db->query($sql, $this->param);
     }
 
     /**
@@ -1375,18 +1378,21 @@ class Model extends MvcAbstract
             // Or is it a primary key value?
             else
             {
-                $this->params = array('pk' => $pk);
                 $this->filter = $this->pk . '={int:pk}';
+                $this->param = array('pk' => $pk);
             }
         }
 
         // Do we have to prepare a filter statement
-        $filter = isset($this->filter) ? ' WHERE ' . $this->filter : '';
+        $filter = $this->filter ? ' WHERE ' . $this->filter : '';
 
+        // Build sql string
         $sql = "DELETE FROM {db_prefix}{$this->tbl}{$filter}";
 
-        $this->db->query($sql, $this->params);
+        // Running delete
+        $this->db->query($sql, $this->param);
 
+        // Reset filter and parameter
         $this->resetFilter();
         $this->resetParameter();
     }
@@ -1608,16 +1614,16 @@ class Model extends MvcAbstract
      * You do not need to set any field because this method overrides already set fields with "Count(pk_name)".
      * All other settings like filters, parameters or joins will be used.
      * @var string $filter Optional filter string
-     * @var array $params Optional array of parameters used in filter
+     * @var array $param Optional array of parameters used in filter
      * @return int
      */
-    public final function count($filter='', $params=array())
+    public final function count($filter='', $param=array())
     {
         if ($filter)
             $this->filter = $filter;
 
-        if ($params)
-            $this->params = $params;
+        if ($param)
+            $this->param = $param;
 
         return $this->read('num');
     }
