@@ -18,7 +18,6 @@ function webReadyAndAjax() {
 
     // Fade out elements
     $('.web-fadeout').delay(web_fadeout_time).slideUp(800, function() {
-
         $(this).remove();
     });
 }
