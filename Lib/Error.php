@@ -147,11 +147,45 @@ final class Error extends \Exception
     	return $this->error_handler->getLogMessage();
     }
 
-    public static function endHere(Error $e)
+    public function endHere()
     {
-        // Usually we will never come this far but reaching this point
-        // causes stopping all further actions.
-        header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+
+    }
+
+    public function handle()
+    {
+        // Write error to log?
+        if ($this->logError())
+        	log_error($this->getLogMessage(), 'WebExt', $this->getFile(), $this->getLine());
+
+        // Ajax request errors will end with an alert(error_message)
+        if ($this->request->isAjax())
+        {
+        	// Create error alert
+        	$this->message->danger($this->getMessage());
+
+        	// Echo processed ajax
+        	echo $this->ajax->process();
+
+        	// And finally stop execution
+        	exit();
+        }
+
+        // Is error set to be fatal?
+        if ($this->isFatal())
+        	setup_fatal_error_context($this->getMessage());
+
+        // If error has a redirection, the error message will be sent as
+        // a message before redirecting to the redirect url
+        if ($this->isRedirect())
+        {
+        	$this->message->danger($this);
+        	redirectexit($this->getRedirect());
+        }
+
+        // Falling through here means we have a really big error. Usually we will never come this far
+        // but reaching this point causes stopping all further actions.
+        send_http_status(500);
 
         $html = '
         <html>
@@ -168,7 +202,7 @@ final class Error extends \Exception
             </style>
         </head>
 
-        <body>' . $e .  '</body>
+        <body>' . $this->getMessage() .  '</body>
 
         </html>';
 
