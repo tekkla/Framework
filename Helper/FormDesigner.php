@@ -755,7 +755,7 @@ final class FormDesigner extends Form
                 if ($control->hasCompare())
                 {
                     $compare_name = str_replace($field_name, $field_name . '_compare', $control->getName());
-                    $compare_control = Input::factory($compare_name)->setType('hidden')->setValue($control->getValue())->setId($control->getId() . '_compare');
+                    $compare_control = Input::factory($compare_name)->setType('hidden')->setValue($control->getCompare())->setId($control->getId() . '_compare');
                     $container = str_replace('{control}', '{control}' . $compare_control->build(), $container);
                 }
 
