@@ -4,7 +4,7 @@ namespace Web\Framework\Lib;
 
 // Check for direct file access
 if (!defined('WEB'))
-	die('Cannot run without WebExt framework...');
+    die('Cannot run without WebExt framework...');
 
 /**
  * Content delivery class
@@ -14,7 +14,7 @@ if (!defined('WEB'))
  * @package WebExt
  * @subpackage Lib
  */
-class Content
+final class Content
 {
     /**
      * Storage for above content
@@ -78,7 +78,8 @@ class Content
     public static function build()
     {
         try
-        { // Try to run set content handler on non ajax request
+        {
+            // Try to run set content handler on non ajax request
             if (self::hasContentHandler() && !Request::getInstance()->isAjax())
             {
                 // We need the name of the ContentCover app
@@ -91,7 +92,7 @@ class Content
                 if (!method_exists($App, 'runContentHandler'))
                     Throw new Error('You set the app "' . $app_name . '" as content handler but it lacks of method "runContentHandler()". Correct either the config or add the needed method to this app.');
 
-                    // Everything is all right. Run content handler by giving the current content to it.
+                // Everything is all right. Run content handler by giving the current content to it.
                 self::$content = $App->runContentHandler(self::$content);
             }
         }
@@ -106,12 +107,15 @@ class Content
 
         // Experimental SEO url converter...
         if (Cfg::get('Web', 'url_seo'))
-            $content = preg_replace_callback('@(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))@', function ($match)
-            {
+        {
+            $match_it = function ($match) {
                 return Url::convertSEF($match);
-            }, $content);
+            };
 
-            // All is done... echo it to the world!
+            $content = preg_replace_callback('@(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))@', $match_it($match) , $content);
+        }
+
+        // All is done... echo it to the world!
         echo $content;
     }
 
@@ -140,29 +144,25 @@ class Content
      */
     public static function cacheAbove()
     {
-        $html = ob_get_contents();
+        self::$above = ob_get_clean();
 
         // Create the
-        $html .= '
-		<div id="web-status">
-			<i class="fa fa-spinner fa-spin"></i>
-		</div>
-		<div id="web-message">';
+        self::$above .= '
+        <div id="web-status">
+            <i class="fa fa-spinner fa-spin"></i>
+        </div>
+        <div id="web-message">';
 
         $messages = Message::getMessages();
 
         if ($messages)
         {
             foreach ( $messages as $msg )
-                $html .= PHP_EOL . $msg->build();
+                self::$above .= PHP_EOL . $msg->build();
         }
 
-        $html .= '
-		</div>';
-
-        self::$above = $html;
-
-        ob_clean();
+        self::$above .= '
+        </div>';
     }
 
     /**
@@ -171,18 +171,14 @@ class Content
      */
     public static function cacheContent()
     {
-        $html = ob_get_contents();
+        self::$content = ob_get_clean();
 
         // These divs are used for info displays and page control
-        $html .= '
-    	<div id="web-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>
-    	<div id="web-debug"></div>
-    	<div id="web-tooltip"></div>
-    	<div id="web-scrolltotop"></div>';
-
-        self::$content = $html;
-
-        ob_clean();
+        self::$content .= '
+        <div id="web-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>
+        <div id="web-debug"></div>
+        <div id="web-tooltip"></div>
+        <div id="web-scrolltotop"></div>';
     }
 
     /**
