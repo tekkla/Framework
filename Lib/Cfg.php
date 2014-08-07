@@ -102,8 +102,6 @@ final class Cfg
 
             self::$config->{$row[1]}->{$row[2]} = $val;
         }
-
-        self::$loaded = true;
     }
 
     /**
