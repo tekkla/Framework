@@ -91,7 +91,7 @@ class Controller extends MvcAbstract
      * Hidden constructor.
      * Runs the onLoad eventmethod and inits the internal view and model.
      */
-    protected function __construct($name, App $app)
+    final protected function __construct($name, App $app)
     {
         // Store name
         $this->name = $name;
@@ -105,10 +105,10 @@ class Controller extends MvcAbstract
         // Some controllers do not need a view to render
         // they are recognized by public has_no_view property
         if (!property_exists($this, 'has_no_view'))
-            $this->loadView($name);
+            $this->view = View::factory($app, $name);
 
         // Model to bind?
-        $this->model = property_exists($this, 'has_no_model') ? false : $this->getModel($name);
+        $this->model = property_exists($this, 'has_no_model') ? false : $this->app->getModel($name);
     }
 
     /**
