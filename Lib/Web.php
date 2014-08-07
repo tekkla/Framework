@@ -223,7 +223,8 @@ final class Web extends SingletonAbstract
                         // No default app means that there is nothing to do for us. Let us do SMF and the forum all the work!
                     else
                         redirectexit('action=forum');
-                } else
+                }
+                else
                 {
                     // Get the requested apps name
                     $app_name = $this->request->getApp();
@@ -237,35 +238,17 @@ final class Web extends SingletonAbstract
                 if (method_exists($app, 'run'))
                     $app->run();
 
-                    // All app wide access check passed. Now create controller object.
+                // All app wide access check passed. Now create controller object.
                 $controller = $app->getController($this->request->getCtrl());
 
-                // Ajax call or full call?
-                if ($this->request->isAjax() === true)
-                {
-                    // Run controller as ajax call
-                    $this->content = $controller->ajax();
-                } else
-                {
-                    // Normal controller run
-                    $this->content = $controller->run();
-
-                    // No content to show? Has app an onEmpty() method which give us content?
-                    if (empty($this->content) && method_exists($app, 'onEmpty'))
-                        $this->content = $app->onEmpty();
-
-                        // If app function for content onBefore() exist, prepend it to content
-                    $this->content = (method_exists($app, 'onBefore') ? $app->onBefore() : '') . $this->content;
-
-                    // if app function for content onAfter() exist, append it to content
-                    $this->content .= method_exists($app, 'onAfter') ? $app->onAfter() : '';
-                }
+                // Run controller and store result as content
+                $this->content = $controller->process();
 
                 // All work done, load the web template
                 loadTemplate('Web');
             }
         }
-        
+
         ## Error handling
         catch ( Error $e )
         {
