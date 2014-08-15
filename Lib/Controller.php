@@ -187,7 +187,7 @@ class Controller extends MvcAbstract
         $this->runEvent('before');
 
         // a little bit of reflection magic to pass request param into controller func
-        $return = Invoker::run($this, $this->render_action, $this->param);
+        $return = Lib::invokeMethod($this, $this->render_action, $this->param);
 
         // run possible after event handler
         $this->runEvent('after');
@@ -215,18 +215,6 @@ class Controller extends MvcAbstract
             else
                 return $content;
         }
-    }
-
-    /**
-     * The "Run-Method" for ajax request.
-     * Works simliar to the normal Run() method
-     * @param string $action
-     * @param string $param
-     * @return string
-     */
-    final protected function ajax($action = null, $param = array())
-    {
-
     }
 
     /**
@@ -260,7 +248,7 @@ class Controller extends MvcAbstract
                 );
 
             foreach ( $this->events[$this->render_action][$event] as $event_func )
-                Invoker::run($this, $event_func, $this->request->getAllParams());
+               Lib::invokeMethod($this, $event_func, $this->request->getAllParams());
         }
     }
 

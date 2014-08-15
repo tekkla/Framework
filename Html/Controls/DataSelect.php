@@ -2,10 +2,9 @@
 namespace Web\Framework\Html\Controls;
 
 use Web\Framework\Lib\App;
-use Web\Framework\Lib\Invoker;
+use Web\Framework\Lib\Lib;
 use Web\Framework\Html\Form\Select;
 
-// Check for direct file access
 if (!defined('WEB'))
     die('Cannot run without WebExt framework...');
 
@@ -47,13 +46,13 @@ final class DataSelect extends Select
      * @param string $datatype How to use the modeldata in the select options (value and inner value)
      * @return \Web\Framework\Html\Controls\DataSelect
      */
-    public function setDataSource($app_name, $model, $func, $params = null, $datatype = 'assoc')
+    public function setDataSource($app_name, $model, $func, $param = array(), $datatype = 'assoc')
     {
         // Create model object
         $model = App::create($app_name)->getModel($model);
 
         // Get data from model and use is as datasource
-        $this->datasource = Invoker::Run($model, $func, $params);
+        $this->datasource = Lib::invokeMethod($model, $func, $param);
 
         // Set the dataype
         $this->datatype = $datatype;

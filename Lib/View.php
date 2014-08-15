@@ -55,12 +55,12 @@ class View extends MvcAbstract
      * @param string $func Name of render method
      * @param array $params Optional: Parameterlist to pass to render function
      */
-    public function render($func, $params=array())
+    public function render($action, $param=array())
     {
-        if (!method_exists($this, $func))
+        if (!method_exists($this, $action))
             return false;
 
-        return Invoker::run($this, $func, $params);
+        return Lib::invokeMethod($this, $action, $param);
     }
 
     /**
