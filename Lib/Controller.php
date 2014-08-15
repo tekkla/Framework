@@ -1,12 +1,9 @@
 <?php
-
 namespace Web\Framework\Lib;
 
 use Web\Framework\Helper\FormDesigner;
 use Web\Framework\Lib\Abstracts\MvcAbstract;
-use Web\Framework\Lib\jQuery\jQuery;
 
-// Check for direct file access
 if (!defined('WEB'))
     die('Cannot run without WebExt framework...');
 
@@ -233,9 +230,6 @@ class Controller extends MvcAbstract
 
         // Run redirect method
         $this->run($action, $param);
-
-        $this->fire->log(__METHOD__);
-        $this->fire->log(func_get_args());
     }
 
     private function runEvent($event)
