@@ -69,6 +69,13 @@ class Controller extends MvcAbstract
      */
     public $model;
 
+
+    /**
+     * Sotrage for controller specific ajax command
+     * @var Ajax
+     */
+    protected $ajax;
+
     /**
      * Creates new controller object
      * @param string $app Appname of this controller
@@ -150,16 +157,6 @@ class Controller extends MvcAbstract
     }
 
     /**
-     * Runs the controller by taking care of full or ajax requests.
-     * Returns the result of controller process.
-     * @return mixed
-     */
-    final public function process()
-    {
-        return ($this->request->isAjax()) ? $this->ajax() : $this->run();
-    }
-
-    /**
      * Runs the requested controller action.
      *
      * @param string $action
@@ -183,6 +180,9 @@ class Controller extends MvcAbstract
         // Copy request param to controller param.
         $this->param = $param ? $param : $this->request->getAllParams();
 
+        // Create ajax command object before any action runs
+       	$this->ajax = new Ajax();
+
         // run possible before event handler
         $this->runEvent('before');
 
@@ -204,19 +204,16 @@ class Controller extends MvcAbstract
             $this->view->render($this->render_action, $this->param);
             $content = ob_get_clean();
 
-            // No content to show? Has app an onEmpty() method which give us content?
-            if (empty($content) && method_exists($this->app, 'onEmpty'))
-                $content = $this->app->onEmpty();
+            // Ajax requests needs some different content handling
+            if ($this->request->isAjax())
+            {
+                $this->ajax->setContent(preg_replace('~[\r\n\t]~', '', $content));
 
-            // If app function for content onBefore() exist, prepend it to content
-            if (!$this->request->isAjax() && method_exists($this->app, 'onBefore'))
-                $content = $this->app->onBefore() . $content;
-
-            // If app function for content onAfter() exist, append it to content
-            if (!$this->request->isAjax() && method_exists($this->app, 'onAfter'))
-                $content .= $this->app->onAfter();
-
-            return $content;
+                // Return result of ajax processor
+                return $this->ajax->process();
+            }
+            else
+                return $content;
         }
     }
 
@@ -229,15 +226,7 @@ class Controller extends MvcAbstract
      */
     final protected function ajax($action = null, $param = array())
     {
-        // get processed controller result
-        $content = $this->run($action, $param);
 
-        // Set created content to ajax response and add it to the ajax output queue
-        if ($content)
-            $this->ajax->setContent(preg_replace('~[\r\n\t]~', '', $content))->add();
-
-        // Return result of ajax processor
-        return $this->ajax->process();
     }
 
     /**

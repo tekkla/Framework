@@ -238,11 +238,20 @@ final class Web extends SingletonAbstract
                 if (method_exists($app, 'run'))
                     $app->run();
 
-                // All app wide access check passed. Now create controller object.
-                $controller = $app->getController($this->request->getCtrl());
+                // All app wide access check passed. Now create and run controller object to get our content.
+                $this->content = $app->getController($this->request->getCtrl())->run();
 
-                // Run controller and store result as content
-                $this->content = $controller->process();
+                // No content created? Check app for onEmpty() event which maybe gives us content.
+                if (empty($this->content) && method_exists($app, 'onEmpty'))
+                	$this->content = $this->app->onEmpty();
+
+                // Append content provided by apps onBefore() event method
+                if (!$this->request->isAjax() && method_exists($app, 'onBefore'))
+                	$this->content = $app->onBefore() . $this->content;
+
+                // Prepend content provided by apps onAfter() event method
+                if (!$this->request->isAjax() && method_exists($app, 'onAfter'))
+                	$this->content .= $app->onAfter();
 
                 // All work done, load the web template
                 loadTemplate('Web');
@@ -255,8 +264,6 @@ final class Web extends SingletonAbstract
             $e->handle();
         }
     }
-
-
 
     /**
      * Returns the created content.
