@@ -4,6 +4,7 @@ namespace Web\Framework\Lib;
 
 use Web\Framework\Helper\FormDesigner;
 use Web\Framework\Lib\Abstracts\MvcAbstract;
+use Web\Framework\Lib\jQuery\jQuery;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -155,28 +156,7 @@ class Controller extends MvcAbstract
      */
     final public function process()
     {
-        // Ajax call or full call?
-        if ($this->request->isAjax() === true)
-        {
-            // Run controller as ajax call
-            $return = $this->ajax();
-        } else
-        {
-            // Normal controller run
-            $return = $this->run();
-
-            // No content to show? Has app an onEmpty() method which give us content?
-            if (empty($return) && method_exists($this->app, 'onEmpty'))
-                $return = $this->app->onEmpty();
-
-                // If app function for content onBefore() exist, prepend it to content
-            $return = (method_exists($this->app, 'onBefore') ? $this->app->onBefore() : '') . $return;
-
-            // if app function for content onAfter() exist, append it to content
-            $return .= method_exists($this->app, 'onAfter') ? $this->app->onAfter() : '';
-        }
-
-        return $return;
+        return ($this->request->isAjax()) ? $this->ajax() : $this->run();
     }
 
     /**
@@ -186,7 +166,7 @@ class Controller extends MvcAbstract
      * @param string $param
      * @return boolean unknown void
      */
-    final public function run($action = null, $param = array())
+    final public function run($action=null, $param=array())
     {
         // Argument checks and name conversions.
         // If no func is set as arg, use the request action.
@@ -196,9 +176,9 @@ class Controller extends MvcAbstract
         if ($this->checkControllerAccess() == false)
             return false;
 
-            // We can set the controllers parameter by hand and will have automatic all
-            // parameters set by the request handler. If param are set manually, possible dublicates
-            // will overwrite controller param copied from request handler.
+        // We can set the controllers parameter by hand and will have automatic all
+        // parameters set by the request handler. If param are set manually, possible dublicates
+        // will overwrite controller param copied from request handler.
 
         // Copy request param to controller param.
         $this->param = $param ? $param : $this->request->getAllParams();
@@ -216,12 +196,27 @@ class Controller extends MvcAbstract
         if (isset($return) && $return == false)
             return false;
 
-            // Render the view and return the result
+        // Render the view and return the result
         if ($this->render === true)
         {
+            // Render into own outputbuffer
             ob_start();
-            $out = $this->view->render($this->render_action, $this->param);
-            return $out ? $out : ob_get_clean();
+            $this->view->render($this->render_action, $this->param);
+            $content = ob_get_clean();
+
+            // No content to show? Has app an onEmpty() method which give us content?
+            if (empty($content) && method_exists($this->app, 'onEmpty'))
+                $content = $this->app->onEmpty();
+
+            // If app function for content onBefore() exist, prepend it to content
+            if (method_exists($this->app, 'onBefore'))
+                $content = $this->app->onBefore() . $content;
+
+            // If app function for content onAfter() exist, append it to content
+            if (method_exists($this->app, 'onAfter'))
+                $content .= $this->app->onAfter();
+
+            return $content;
         }
     }
 
@@ -232,26 +227,14 @@ class Controller extends MvcAbstract
      * @param string $param
      * @return string
      */
-    final public function ajax($action = null, $param = array())
+    final protected function ajax($action = null, $param = array())
     {
         // get processed controller result
         $content = $this->run($action, $param);
 
-        // Add result to repsonse
+        // Set created content to ajax response and add it to the ajax output queue
         if ($content)
-        {
-            // Cleanup content
-            $content = str_replace(array(
-                "\n",
-                "\r",
-                "\t"
-            ), "", $content);
-
-            $content = preg_replace('~[\r\n\t]~', '', $content);
-
-            // Set created content to ajax response and add it to the ajax output queue
-            $this->ajax->setContent($content)->add();
-        }
+            $this->ajax->setContent(preg_replace('~[\r\n\t]~', '', $content))->add();
 
         // Return result of ajax processor
         return $this->ajax->process();
@@ -273,6 +256,9 @@ class Controller extends MvcAbstract
 
         // Run redirect method
         $this->run($action, $param);
+
+        $this->fire->log(__METHOD__);
+        $this->fire->log(func_get_args());
     }
 
     private function runEvent($event)
