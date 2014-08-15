@@ -209,11 +209,11 @@ class Controller extends MvcAbstract
                 $content = $this->app->onEmpty();
 
             // If app function for content onBefore() exist, prepend it to content
-            if (method_exists($this->app, 'onBefore'))
+            if (!$this->request->isAjax() && method_exists($this->app, 'onBefore'))
                 $content = $this->app->onBefore() . $content;
 
             // If app function for content onAfter() exist, append it to content
-            if (method_exists($this->app, 'onAfter'))
+            if (!$this->request->isAjax() && method_exists($this->app, 'onAfter'))
                 $content .= $this->app->onAfter();
 
             return $content;
