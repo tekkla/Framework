@@ -207,7 +207,7 @@ class Controller extends MvcAbstract
             // Ajax requests needs some different content handling
             if ($this->request->isAjax())
             {
-                $this->ajax->setContent(preg_replace('~[\r\n\t]~', '', $content));
+                $this->ajax->setContent(preg_replace('~[\r\n\t]~', '', $content))->add();
 
                 // Return result of ajax processor
                 return $this->ajax->process();
