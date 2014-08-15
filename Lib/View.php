@@ -3,7 +3,6 @@ namespace Web\Framework\Lib;
 
 use Web\Framework\Lib\Abstracts\MvcAbstract;
 
-// Check for direct file access
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
 
