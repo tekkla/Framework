@@ -938,9 +938,12 @@ class Model extends MvcAbstract
 
                     foreach ( $row as $col => $val )
                     {
-                        // Add this key/value if it is not already present. Checks value to be unserialized.
+                        /**
+                         * Add this key/value if it is not already present. Checks value to be unserialized.
+                         * @todo Is override prevention really necessary?
+                         */
                         if (!isset($this->data->{$col}))
-                            $val = in_array($col, $this->serialized) ? unserialize($val) : $val;
+                            $this->data->{$col} = in_array($col, $this->serialized) ? unserialize($val) : $val;
                     }
 
                     $this->data = $this->runCallbacks($callbacks, $this->data);
