@@ -152,7 +152,7 @@ class Debug extends ClassAbstract
      */
     public static function printVar(&$var, $target='')
     {
-        $obj = self::factory()->setData($trace);
+        $obj = self::factory()->setData($var);
 
         if ($target)
         	$obj->setTarget($target);
