@@ -37,12 +37,6 @@ class Controller extends MvcAbstract
     private $action = 'Index';
 
     /**
-     * Actiontype to define what we can expect from this action
-     * @var string
-     */
-    private $action_type = 'content';
-
-    /**
      * Storage for access rights
      * @var array
      */
@@ -58,7 +52,7 @@ class Controller extends MvcAbstract
      * The View object
      * @var View
      */
-    public $view;
+    public $view = false;
 
     /**
      * Storage for parameter
@@ -67,7 +61,7 @@ class Controller extends MvcAbstract
     private $param = array();
 
     /**
-     * Stores the controller bound Model object
+     * Stores the controller bound Model object. Is false when controller has no model.
      * @var Model
      */
     public $model;
