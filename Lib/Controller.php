@@ -34,7 +34,13 @@ class Controller extends MvcAbstract
      * Action to render
      * @var String
      */
-    private $render_action = 'Index';
+    private $action = 'Index';
+
+    /**
+     * Actiontype to define what we can expect from this action
+     * @var string
+     */
+    private $action_type = 'content';
 
     /**
      * Storage for access rights
@@ -66,12 +72,11 @@ class Controller extends MvcAbstract
      */
     public $model;
 
-
     /**
-     * Sotrage for controller specific ajax command
-     * @var Ajax
+     * Falg to signal that this controller is in ajax mode
+     * @var bool
      */
-    protected $ajax;
+    private $is_ajax = false;
 
     /**
      * Creates new controller object
@@ -160,11 +165,11 @@ class Controller extends MvcAbstract
      * @param string $param
      * @return boolean unknown void
      */
-    final public function run($action=null, $param=array())
+    final public function run($action='', $param=array())
     {
         // Argument checks and name conversions.
         // If no func is set as arg, use the request action.
-        $this->render_action = isset($action) ? $action : $this->request->getAction();
+        $this->action = $action ? $action : $this->request->getAction();
 
         // If accesscheck failed => stop here and return false!
         if ($this->checkControllerAccess() == false)
@@ -177,14 +182,15 @@ class Controller extends MvcAbstract
         // Copy request param to controller param.
         $this->param = $param ? $param : $this->request->getAllParams();
 
-        // Create ajax command object before any action runs
-       	$this->ajax = new Ajax();
+        // Init return var with boolean false as default value. This default prevents from running the views render()
+        // method when the controller action is stopped manually by using return.
+        $return = false;
 
         // run possible before event handler
         $this->runEvent('before');
 
         // a little bit of reflection magic to pass request param into controller func
-        $return = Lib::invokeMethod($this, $this->render_action, $this->param);
+        $return = Lib::invokeMethod($this, $this->action, $this->param);
 
         // run possible after event handler
         $this->runEvent('after');
@@ -198,28 +204,46 @@ class Controller extends MvcAbstract
         {
             // Render into own outputbuffer
             ob_start();
-            $this->view->render($this->render_action, $this->param);
+            $this->view->render($this->action, $this->param);
             $content = ob_get_clean();
 
-            // Ajax requests needs some different content handling
-            if ($this->request->isAjax())
-            {
-                $this->ajax->setContent(preg_replace('~[\r\n\t]~', '', $content))->add();
+            if (empty($content) && method_exists($this->app, 'onEmpty'))
+                $content = $this->app->onEmpty();
 
-                // Return result of ajax processor
-                return $this->ajax->process();
-            }
-            else
-                return $content;
+            return $content;
         }
+    }
+
+    /**
+     * Ajax method to send the result of an action a ajax html command.
+     * @param string $action Name of the action to call
+     * @param array $param Array of parameter to be used in action call
+     * @param string $selector Optional jQuery selector to html() the result. Can be overridden by setAjaxTarget() method
+     */
+    final public function ajax($action='', $param=array(), $selector='')
+    {
+        $this->is_ajax = true;
+
+        if ($selector)
+            $this->ajax->setTarget($selector);
+
+        $content = $this->run($action, $param);
+
+        if ($content)
+        {
+            $this->ajax->setContent($content);
+            $this->ajax->add();
+        }
+
+        return $this;
     }
 
     /**
      * Redirects from one action to another while resetting data of attached model and clearing all post data from the request handler.
      * @param string $action
-     * @param array|stdClass $param
+     * @param array $param
      */
-    final protected function redirect($action, $param = null)
+    final protected function redirect($action, $param = array())
     {
         // Reset model data
         if (isset($this->model))
@@ -229,21 +253,28 @@ class Controller extends MvcAbstract
         $this->request->clearPost();
 
         // Run redirect method
-        $this->run($action, $param);
+        return $this->run($action, $param);
     }
 
+    /**
+     * Event handler
+     * @param string $event
+     * @return \Web\Framework\Lib\Controller
+     */
     private function runEvent($event)
     {
-        if (isset($this->events[$this->render_action]) && isset($this->events[$this->render_action][$event]))
+        if (!empty($this->events[$this->action][$event]))
         {
-            if (!is_array($this->events[$this->render_action][$event]))
-                $this->events[$this->render_action][$event] = array(
-                    $this->events[$this->render_action][$event]
+            if (!is_array($this->events[$this->action][$event]))
+                $this->events[$this->action][$event] = array(
+                    $this->events[$this->action][$event]
                 );
 
-            foreach ( $this->events[$this->render_action][$event] as $event_func )
+            foreach ( $this->events[$this->action][$event] as $event_func )
                Lib::invokeMethod($this, $event_func, $this->request->getAllParams());
         }
+
+        return $this;
     }
 
     /**
@@ -317,12 +348,12 @@ class Controller extends MvcAbstract
             }
 
             // Actions access set?
-            if (isset($this->access[$this->render_action]))
+            if (isset($this->access[$this->action]))
             {
-                if (!is_array($this->access[$this->render_action]))
-                    $perm[] = $this->access[$this->render_action];
+                if (!is_array($this->access[$this->action]))
+                    $perm[] = $this->access[$this->action];
                 else
-                    $perm += $this->access[$this->render_action];
+                    $perm += $this->access[$this->action];
             }
 
             // No perms until here means we can finish here and allow access by returning true
@@ -341,7 +372,8 @@ class Controller extends MvcAbstract
      */
     final protected function setRenderAction($action)
     {
-        $this->render_action = $action;
+        $this->action = $action;
+        return $this;
     }
 
     /**
@@ -391,6 +423,8 @@ class Controller extends MvcAbstract
         }
         else
             Throw new Error('The vars to set are not correct.', 1001, func_get_args());
+
+        return $this;
     }
 
     /**
@@ -438,6 +472,8 @@ class Controller extends MvcAbstract
             $url = $url->getUrl();
 
         Context::addLinktree($label, $url);
+
+        return $this;
     }
 
     /**
@@ -482,6 +518,20 @@ class Controller extends MvcAbstract
     final protected function addParam($param, $value)
     {
         $this->param[$param] = $value;
+        return $this;
+    }
+
+    /**
+     * Sets the selector name to where the result is ajaxed.
+     * @param string $target
+     * @return \Web\Framework\Lib\Controller
+     */
+    final protected function setAjaxTarget($target)
+    {
+        if ($this->is_ajax)
+            $this->ajax->setTarget($target);
+
+        return $this;
     }
 }
 ?>
