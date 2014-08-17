@@ -238,20 +238,30 @@ final class Web extends SingletonAbstract
                 if (method_exists($app, 'run'))
                     $app->run();
 
-                // All app wide access check passed. Now create and run controller object to get our content.
-                $this->content = $app->getController($this->request->getCtrl())->run();
+                // All app wide access check passed. Run controller and process result.
+                if ($this->request->isAjax())
+                {
+                    // Result will be processed as ajax command list
+                    $app->getController($this->request->getCtrl())->ajax();
+                    $this->content = Ajax::process();
+                }
+                else
+                {
+                    // Result will be processed as html
+                    $this->content = $app->getController($this->request->getCtrl())->run();
 
-                // No content created? Check app for onEmpty() event which maybe gives us content.
-                if (empty($this->content) && method_exists($app, 'onEmpty'))
-                	$this->content = $this->app->onEmpty();
+                    // No content created? Check app for onEmpty() event which maybe gives us content.
+                    if (empty($this->content) && method_exists($app, 'onEmpty'))
+                        $this->content = $this->app->onEmpty();
 
-                // Append content provided by apps onBefore() event method
-                if (!$this->request->isAjax() && method_exists($app, 'onBefore'))
-                	$this->content = $app->onBefore() . $this->content;
+                    // Append content provided by apps onBefore() event method
+                    if (method_exists($app, 'onBefore'))
+                        $this->content = $app->onBefore() . $this->content;
 
-                // Prepend content provided by apps onAfter() event method
-                if (!$this->request->isAjax() && method_exists($app, 'onAfter'))
-                	$this->content .= $app->onAfter();
+                    // Prepend content provided by apps onAfter() event method
+                    if (method_exists($app, 'onAfter'))
+                        $this->content .= $app->onAfter();
+                }
 
                 // All work done, load the web template
                 loadTemplate('Web');
@@ -276,7 +286,7 @@ final class Web extends SingletonAbstract
     }
 
     /**
-     * Adds actions gto SMF action array
+     * Adds actions to SMF action array
      * @param array $actionArray
      */
     public static function addActions(&$actionArray)
