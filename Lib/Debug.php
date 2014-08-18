@@ -108,12 +108,21 @@ class Debug extends ClassAbstract
     }
 
     /**
+     * Sends data to FirePHP console
+     */
+    public static function toConsole($data)
+    {
+        self::factory()->run(array(
+            'data' => $data,
+        ));
+    }
+
+    /**
      * Var dumps the given var to the given target
-     * @return string
      */
     public static function dumpVar($var, $target = '')
     {
-        self::factory()->run(array(
+        return self::factory()->run(array(
             'data' => $var,
             'target' => $target,
             'mode' => 'dump'
@@ -144,7 +153,7 @@ class Debug extends ClassAbstract
             $trace .= '#' . ($k - $ignore) . ' ' . $v['file'] . '(' . $v['line'] . '): ' . (isset($v['class']) ? $v['class'] . '->' : '') . $v['function'] . "\n";
         }
 
-        self::factory()->run(array(
+        return self::factory()->run(array(
             'data' => $trace,
             'target' => $target
         ));
@@ -156,7 +165,7 @@ class Debug extends ClassAbstract
      */
     public static function printVar($var, $target = '')
     {
-        self::factory()->run(array(
+        return self::factory()->run(array(
             'data' => $var,
             'target' => $target,
             'mode' => 'print'
@@ -188,7 +197,7 @@ class Debug extends ClassAbstract
         if (!isset($this->data))
             Throw new Error('Data to debug not set.', 1001);
 
-            // Which display mode is requested?
+        // Which display mode is requested?
         switch ($this->mode)
         {
             case 'print' :
@@ -214,12 +223,16 @@ class Debug extends ClassAbstract
             // Create the ajax console.log ajax
             $this->fire->log($output);
             return;
-        }        // Echoing debug content and end this
+        }
+
+        // Echoing debug content and end this
         elseif ($this->target == 'echo')
         {
             echo '<h2>Debug</h2>' . $output;
             return;
-        }         // Falling through here means to return the output
+        }
+
+        // Falling through here means to return the output
         else
         {
             return $output;
