@@ -4,7 +4,7 @@ namespace Web\Framework\Lib;
 use Web\Framework\Lib\Abstracts\ClassAbstract;
 
 if (!defined('WEB'))
-	die('Cannot run without WebExt framework...');
+    die('Cannot run without WebExt framework...');
 
 /**
  * Class with debugging functions
@@ -39,7 +39,7 @@ class Debug extends ClassAbstract
      * @param mixed $var
      * @return \Web\Framework\Lib\Debug
      */
-    public function setData(&$data)
+    public function setData($data)
     {
         $this->data = $data;
         return $this;
@@ -52,7 +52,7 @@ class Debug extends ClassAbstract
      * @throws NoValidParameterError
      * @return \Web\Framework\Lib\Debug
      */
-    public function setMode($mode='plain')
+    public function setMode($mode = 'plain')
     {
         $modes = array(
             'print',
@@ -61,7 +61,10 @@ class Debug extends ClassAbstract
         );
 
         if (!in_array($mode, $modes))
-            Throw new Error('Wrong mode set.', 1000, array($mode, $modes));
+            Throw new Error('Wrong mode set.', 1000, array(
+                $mode,
+                $modes
+            ));
 
         $this->mode = $mode;
         return $this;
@@ -76,7 +79,7 @@ class Debug extends ClassAbstract
      * @throws NoValidParameterError
      * @return \Web\Framework\Lib\Debug
      */
-    public function setTarget($target='console')
+    public function setTarget($target = 'console')
     {
         $targets = array(
             'return',
@@ -85,7 +88,10 @@ class Debug extends ClassAbstract
         );
 
         if (!in_array($target, $targets))
-            Throw new Error('Wrong target set.', 1000, array($target, $targets));
+            Throw new Error('Wrong target set.', 1000, array(
+                $target,
+                $targets
+            ));
 
         $this->target = $target;
 
@@ -105,74 +111,84 @@ class Debug extends ClassAbstract
      * Var dumps the given var to the given target
      * @return string
      */
-    public static function dumpVar(&$var, $target='')
+    public static function dumpVar($var, $target = '')
     {
-        $obj = self::factory()->setData($var)->setMode('dump');
-
-        if ($target)
-            $obj->setTarget($target);
-
-        return $obj->run();
+        self::factory()->run(array(
+            'data' => $var,
+            'target' => $target,
+            'mode' => 'dump'
+        ));
     }
 
     /**
-     * Light version of  debug_backtrace() which only creates and returns a trace of function and method calls.
+     * Light version of debug_backtrace() which only creates and returns a trace of function and method calls.
      * @param number $ignore Numeber of levels to ignore
      * @return string
      */
-    public static function traceCalls($ignore=2, $target='')
+    public static function traceCalls($ignore = 2, $target = '')
     {
         $trace = '';
 
         $dt = debug_backtrace();
 
-        foreach ($dt as $k => $v)
+        foreach ( $dt as $k => $v )
         {
             if ($k < $ignore)
-        		continue;
+                continue;
 
-        	array_walk($v['args'], function (&$item, $key) {
-        		$item = var_export($item, true);
-        	});
+            array_walk($v['args'], function (&$item, $key)
+            {
+                $item = var_export($item, true);
+            });
 
-        	$trace .= '#' . ($k - $ignore) . ' ' . $v['file'] . '(' . $v['line'] . '): ' . (isset($v['class']) ? $v['class'] . '->' : '') . $v['function'] . "\n";
+            $trace .= '#' . ($k - $ignore) . ' ' . $v['file'] . '(' . $v['line'] . '): ' . (isset($v['class']) ? $v['class'] . '->' : '') . $v['function'] . "\n";
         }
 
-        $obj = self::factory()->setData($trace);
-
-        if ($target)
-            $obj->setTarget($target);
-
-        return $obj->run();
+        self::factory()->run(array(
+            'data' => $trace,
+            'target' => $target
+        ));
     }
 
     /**
      * Var dumps the given var to the given target
      * @return string
      */
-    public static function printVar(&$var, $target='')
+    public static function printVar($var, $target = '')
     {
-        $obj = self::factory()->setData($var);
-
-        if ($target)
-        	$obj->setTarget($target);
-
-        return $obj->run();
-
-        return self::factory()->setVar($var)->setMode('print')->setTarget($target)->run();
+        self::factory()->run(array(
+            'data' => $var,
+            'target' => $target,
+            'mode' => 'print'
+        ));
     }
 
     /**
-     * Debugs a variable or an object with various output
+     * Debugs given data with various output
      * @return void string
      */
-    public function run($definition=array())
+    public function run($data = array())
     {
+        // Small debug definition parser
+        if ($data)
+        {
+            $properties = array(
+                'data',
+                'mode',
+                'target'
+            );
+
+            foreach ( $data as $prop => $val )
+                if ($val && property_exists($this, $prop))
+                    $this->{$prop} = $val;
+        }
+
         // If var is not set explicit, the calling object will
         // be used for debug output.
         if (!isset($this->data))
-            Throw new Error('Var to debug not set.', 1001);
+            Throw new Error('Data to debug not set.', 1001);
 
+            // Which display mode is requested?
         switch ($this->mode)
         {
             case 'print' :
@@ -186,7 +202,7 @@ class Debug extends ClassAbstract
                 $output = ob_get_clean();
                 break;
 
-            default:
+            default :
                 $output = $this->data;
                 break;
         }
@@ -198,14 +214,12 @@ class Debug extends ClassAbstract
             // Create the ajax console.log ajax
             $this->fire->log($output);
             return;
-        }
-        // Echoing debug content and end this
+        }        // Echoing debug content and end this
         elseif ($this->target == 'echo')
         {
             echo '<h2>Debug</h2>' . $output;
             return;
-        }
-        // Falling through here means to return the output
+        }         // Falling through here means to return the output
         else
         {
             return $output;
