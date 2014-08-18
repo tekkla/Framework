@@ -1742,5 +1742,10 @@ class Model extends MvcAbstract
 
         return $data;
     }
+
+    public function getValidationRules()
+    {
+        return $this->validate;
+    }
 }
 ?>
