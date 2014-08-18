@@ -112,9 +112,9 @@ abstract class ClassAbstract
      * Returns an function/method trace
      * @return string
      */
-    protected function trace($ignore=3)
+    protected function trace($ignore=3, $target = 'return')
     {
-        return Debug::traceCalls($ignore);
+        return Debug::traceCalls($ignore, $target);
     }
 }
 ?>

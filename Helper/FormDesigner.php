@@ -481,20 +481,30 @@ final class FormDesigner extends Form
         $this->app_name = String::uncamelize($this->app_name);
         $this->model_name = String::uncamelize($this->model_name);
 
-        // create formname
-        $form_name = $form_id = $base_form_name . '_' . $this->app_name . '_' . $this->model_name . (isset($this->name_ext) ? '_' . $this->name_ext : '');
+        // Create formname
+        if (!$this->name)
+        {
+            // Create control id prefix based on the model name
+            $control_id_prefix = 'web_' . $this->app_name . '_' . $this->model_name;
 
-        // create control name prefix
+            // Create form name based on model name and possible extensions
+            $this->name = $base_form_name . '_' . $this->app_name . '_' . $this->model_name . (isset($this->name_ext) ? '_' . $this->name_ext : '');
+        }
+        else
+        {
+            // Create control id prefix based on the provided form name
+            $control_id_prefix = 'web_' . $this->app_name . '_' . $this->name;
+
+            // Create form name based on th provided form name
+            $this->name = $base_form_name . $this->app_name . '_' . $this->name . (isset($this->name_ext) ? '_' . $this->name_ext : '');
+        }
+
+        // Use formname as id when not set
+        if (!$this->id)
+        	$this->id = str_replace('_', '-', $this->name);
+
+        // Create control name prefix
         $control_name_prefix = 'web[' . $this->app_name . '][' . $this->model_name . ']';
-
-        // create control id prefix
-        $control_id_prefix = 'web_' . $this->app_name . '_' . $this->model_name;
-
-        // set name only when no name was set
-        $this->name = $form_name;
-
-        // set id only when no id was set
-        $this->id = $form_name;
 
         // Create display mode
         switch ($this->display_mode)
@@ -524,7 +534,7 @@ final class FormDesigner extends Form
         foreach ( $this->buttons as $btn => $text )
         {
             $btn_name = 'web_btn_' . $btn;
-            $btn_id = 'web-btn-' . $btn;
+            $btn_id = 'web-btn-' . str_replace('_', '-', $btn);
 
             /* @var $button \Web\Framework\Html\Form\Button */
             $button = $this->createElement('button', $btn_name)->setId($btn_id)->setInner(Txt::get($text));
@@ -630,7 +640,7 @@ final class FormDesigner extends Form
                 }
 
                 // create control id {app}_{model}_{existing id}
-                $control->setId($control_id_prefix . '_' . $field_name);
+                $control->setId(str_replace('_', '-', $control_id_prefix . '-' . $field_name));
 
                 // Set BS group class
                 switch ($type)

@@ -3,7 +3,6 @@ namespace Web\Framework\Lib;
 
 use Web\Framework\Lib\Abstracts\SingletonAbstract;
 
-// Check for direct file access
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
 
@@ -103,6 +102,13 @@ class Request extends SingletonAbstract
      * @var Data
      */
     private $post = false;
+
+
+    /**
+     * Storage for unprocessed POST values
+     * @var Data
+     */
+    private $post_raw = false;
 
     /**
      * Route storage
@@ -452,7 +458,10 @@ class Request extends SingletonAbstract
 
                 // Finally try to process possible posted data
                 if (isset($_POST) && isset($_POST['web']))
+                {
                     $this->post = new Data($_POST['web']);
+                    $this->post_raw = $_POST['web'];
+                }
 
                 return $this;
             }
@@ -741,39 +750,37 @@ class Request extends SingletonAbstract
      * Returns the value of $_POST[web][appname][controllername][key]
      * @param string $key
      */
-    public function getPost($app_name = null, $model_name = null)
+    public function getPost($app_name='', $model_name='')
     {
-        if (!isset($app_name) || !isset($model_name))
+    	// Use values provided by request for missing app and model name
+        if (!$app_name || !$model_name)
         {
             $app_name = $this->getApp();
             $model_name = $this->getCtrl();
         }
 
-        if ($this->checkPost($app_name, $model_name))
+        $app_name = String::uncamelize($app_name);
+        $model_name = String::uncamelize($model_name);
+
+        if (isset($this->post->{$app_name}->{$model_name}))
             return $this->post->{$app_name}->{$model_name};
         else
             return false;
     }
 
     /**
-     * Returns the complete post object or
-     * @param string $key
-     * @deprecated
-     *
-     *
+     * Returns the complete raw post array
+     * @return array
      */
-    public function getRawPost($key = null)
+    public function getRawPost()
     {
-        if (!isset($key))
-            return $this->post;
-
-        $app_name = $this->getApp();
-        $ctrl_name = $this->getCtrl();
-
-        if (isset($this->post[$app_name][$ctrl_name][$key]))
-            return $this->post[$app_name][$ctrl_name][$key];
+    	return $this->post_raw;
     }
 
+    /**
+     * Returns the complete processed post object
+     * @return \Web\Framework\Lib\Data
+     */
     public function getCompletePost()
     {
         return $this->post;

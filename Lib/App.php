@@ -110,6 +110,12 @@ class App extends ClassAbstract
     protected $hooks = array();
 
     /**
+     * Default routes stack
+     * @var array
+     */
+    protected $routes = array();
+
+    /**
      * Get an unique app object
      * @param string $name
      * @return App
@@ -583,9 +589,21 @@ class App extends ClassAbstract
      */
     protected function initRoutes()
     {
-        // No routes set or routes already initiated? Do nothing if so.
-        if (!isset($this->routes) || self::$init_stages[$this->name]['routes'] == true)
+        // routes already initiated? Do nothing if so.
+        if (self::$init_stages[$this->name]['routes'] == true)
             return;
+
+        // No routes set? Set at least index as default route
+        if (!$this->routes)
+        {
+            $this->routes[] = array(
+            	'name' => $this->name . '_index',
+            	'route' => '/',
+            	'ctrl' => 'Web',
+            	'action' => 'Index'
+            );
+            return;
+        }
 
         // Get uncamelized app name
         $app_name = String::uncamelize($this->name);

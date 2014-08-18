@@ -3,7 +3,6 @@ namespace Web\Framework\Lib;
 
 use Web\Framework\Html\Controls\ModalWindow;
 
-// Check for direct file access
 if (!defined('WEB'))
     die('Cannot run without WebExt framework...');
 
@@ -114,22 +113,18 @@ final class Ajax
      * @param $action
      * @param $target
      */
-    public static function call($app_name, $controller, $action, $target = null, $params = null)
+    public static function call($app_name, $controller, $action, $target='', $param = array())
     {
-        // Get the content from matching controller
-        $content = App::create($app_name)->getController($controller)->run($action, $params);
-
         // Create a new Ajax object
         $ajax = self::factory();
 
         // Publish content to our Ajax
-        $ajax->setContent($content);
+        $ajax->setContent( App::create($app_name)->getController($controller)->run($action, $param) );
 
         // Any output target set?
-        if (isset($target))
-            $ajax->setTarget($target);
+        $ajax->setTarget($target);
 
-            // Add this Ajax to the repsonse storage4
+        // Add this Ajax to the repsonse storage4
         $ajax->add();
     }
 
@@ -139,7 +134,7 @@ final class Ajax
      * @param $content Content be used
      * @param $mode Optional mode how to change the selected element. Can be: replace(default) | append | prepend | remove | after | before
      */
-    public static function html($target, $content, $mode = 'replace')
+    public static function html($target, $content)
     {
         self::factory()->setType('html')->setTarget($target)->setContent($content)->add();
     }
@@ -272,7 +267,7 @@ final class Ajax
      * Create console log output
      * @param string $msg
      */
-    public static function log($msg)
+    public static function console($msg)
     {
         self::factory()->setType('console')->setContent($msg)->add();
     }
@@ -471,5 +466,15 @@ final class Ajax
         // Output is json encoded
         return json_encode(self::$ajax);
     }
+
+    /**
+     * Returns the complete ajax command stack as it is
+     * @return array
+     */
+    public static function getCommandStack()
+    {
+        return self::$ajax;
+    }
 }
+
 ?>

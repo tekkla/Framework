@@ -1,12 +1,10 @@
 <?php
-
 namespace Web\Framework\Lib;
 
 use Web\Framework\Lib\Abstracts\ClassAbstract;
 
-// Check for direct file access
 if (!defined('WEB'))
-	die('Cannot run without WebExt framework...');
+    die('Cannot run without WebExt framework...');
 
 /**
  * Class with debugging functions
@@ -19,31 +17,31 @@ if (!defined('WEB'))
 class Debug extends ClassAbstract
 {
     /**
-     * The var to inspect
+     * The content to inspect
      * @var mixed
      */
-    private $var;
+    private $data;
 
     /**
      * How to inspect the var
      * @var string
      */
-    private $mode = 'print';
+    private $mode = 'plain';
 
     /**
      * How to return the inspection information
      * @var unknown
      */
-    private $target = 'return';
+    private $target = 'console';
 
     /**
      * Sets the var by reference
      * @param mixed $var
      * @return \Web\Framework\Lib\Debug
      */
-    public function setVar(&$var)
+    public function setData($data)
     {
-        $this->var = $var;
+        $this->data = $data;
         return $this;
     }
 
@@ -54,15 +52,19 @@ class Debug extends ClassAbstract
      * @throws NoValidParameterError
      * @return \Web\Framework\Lib\Debug
      */
-    public function setMode($mode = 'print')
+    public function setMode($mode = 'plain')
     {
         $modes = array(
             'print',
-            'dump'
+            'dump',
+            'plain'
         );
 
         if (!in_array($mode, $modes))
-            Throw new Error('Wrong mode set.', 1000, array($mode, $modes));
+            Throw new Error('Wrong mode set.', 1000, array(
+                $mode,
+                $modes
+            ));
 
         $this->mode = $mode;
         return $this;
@@ -77,7 +79,7 @@ class Debug extends ClassAbstract
      * @throws NoValidParameterError
      * @return \Web\Framework\Lib\Debug
      */
-    public function setTarget($target = 'return')
+    public function setTarget($target = 'console')
     {
         $targets = array(
             'return',
@@ -86,10 +88,10 @@ class Debug extends ClassAbstract
         );
 
         if (!in_array($target, $targets))
-            Throw new Error('Wrong target set.', 1000, array($target, $targets));
-
-        if ($target=='console' && !$this->request->isAjax())
-            $target = 'return';
+            Throw new Error('Wrong target set.', 1000, array(
+                $target,
+                $targets
+            ));
 
         $this->target = $target;
 
@@ -106,86 +108,130 @@ class Debug extends ClassAbstract
     }
 
     /**
-     * Var dumps the given var to the given target
-     * @return string
+     * Sends data to FirePHP console
      */
-    public static function dumpVar(&$var, $target='return')
+    public static function toConsole($data)
     {
-        return self::factory()->setVar($var)->setMode('dump')->setTarget($target)->run();
+        self::factory()->run(array(
+            'data' => $data,
+        ));
     }
 
     /**
-     * Light version of  debug_backtrace() which only creates and returns a trace of function and method calls.
+     * Var dumps the given var to the given target
+     */
+    public static function dumpVar($var, $target = '')
+    {
+        return self::factory()->run(array(
+            'data' => $var,
+            'target' => $target,
+            'mode' => 'dump'
+        ));
+    }
+
+    /**
+     * Light version of debug_backtrace() which only creates and returns a trace of function and method calls.
      * @param number $ignore Numeber of levels to ignore
      * @return string
      */
-    public static function traceCalls($ignore=2)
+    public static function traceCalls($ignore = 2, $target = '')
     {
         $trace = '';
 
-        foreach (debug_backtrace() as $k => $v)
+        $dt = debug_backtrace();
+
+        foreach ( $dt as $k => $v )
         {
             if ($k < $ignore)
-        		continue;
+                continue;
 
-        	array_walk($v['args'], function (&$item, $key) {
-        		$item = var_export($item, true);
-        	});
+            array_walk($v['args'], function (&$item, $key)
+            {
+                $item = var_export($item, true);
+            });
 
-        	$trace .= '#' . ($k - $ignore) . ' ' . $v['file'] . '(' . $v['line'] . '): ' . (isset($v['class']) ? $v['class'] . '->' : '') . $v['function'] . "\n";
+            $trace .= '#' . ($k - $ignore) . ' ' . $v['file'] . '(' . $v['line'] . '): ' . (isset($v['class']) ? $v['class'] . '->' : '') . $v['function'] . "\n";
         }
 
-        return $trace;
+        return self::factory()->run(array(
+            'data' => $trace,
+            'target' => $target
+        ));
     }
 
     /**
      * Var dumps the given var to the given target
      * @return string
      */
-    public static function printVar(&$var, $target='return')
+    public static function printVar($var, $target = '')
     {
-        return self::factory()->setVar($var)->setMode('print')->setTarget($target)->run();
+        return self::factory()->run(array(
+            'data' => $var,
+            'target' => $target,
+            'mode' => 'print'
+        ));
     }
 
     /**
-     * Debugs a variable or an object with various output
+     * Debugs given data with various output
      * @return void string
      */
-    public function run()
+    public function run($data = array())
     {
+        // Small debug definition parser
+        if ($data)
+        {
+            $properties = array(
+                'data',
+                'mode',
+                'target'
+            );
+
+            foreach ( $data as $prop => $val )
+                if ($val && property_exists($this, $prop))
+                    $this->{$prop} = $val;
+        }
+
         // If var is not set explicit, the calling object will
         // be used for debug output.
-        if (!isset($this->var))
-            Throw new Error('Var to debug not set.', 1001);
+        if (!isset($this->data))
+            Throw new Error('Data to debug not set.', 1001);
 
+        // Which display mode is requested?
         switch ($this->mode)
         {
             case 'print' :
                 $dt = debug_backtrace();
-                $output = $this->target == 'echo' ? '<div class="panel panel-info panel-body"><p>Called by: ' . $dt[0]['file'] . ' (' . $dt[0]['line'] . ')</p><pre>' . htmlspecialchars(print_r($this->var, true), ENT_QUOTES) . '</pre></div>' : $this->var;
+                $output = $this->target == 'echo' ? '<div class="panel panel-info panel-body"><p>Called by: ' . $dt[0]['file'] . ' (' . $dt[0]['line'] . ')</p><pre>' . htmlspecialchars(print_r($this->data, true), ENT_QUOTES) . '</pre></div>' : $this->data;
                 break;
 
             case 'dump' :
                 ob_start();
-                var_dump($this->var);
+                var_dump($this->data);
                 $output = ob_get_clean();
+                break;
+
+            default :
+                $output = $this->data;
                 break;
         }
 
         // Target 'console' is used for ajax requests and
         // returns the debug content to the browser console
-        if ($this->target == 'console' && $this->request->isAjax())
+        if ($this->target == 'console')
         {
             // Create the ajax console.log ajax
-            Ajax::factory()->log($output);
+            $this->fire->log($output);
             return;
         }
+
         // Echoing debug content and end this
         elseif ($this->target == 'echo')
         {
             echo '<h2>Debug</h2>' . $output;
             return;
         }
+
         // Falling through here means to return the output
         else
         {

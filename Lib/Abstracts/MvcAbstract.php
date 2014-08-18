@@ -34,12 +34,6 @@ abstract class MvcAbstract extends ClassAbstract
     public $app;
 
     /**
-     * Constructor needed with name
-     * @param string $name
-     */
-    abstract protected function __construct($name);
-
-    /**
      * MVC objects need an app instance.
      * @param App $app
      * @return \Web\Framework\Lib\Abstracts\MvcAbstract

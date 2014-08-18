@@ -121,7 +121,7 @@ class Model extends MvcAbstract
      * Set in Childmodels. Here only for error prevention
      * @var array
      */
-    public $validate = array();
+    protected $validate = array();
 
     /**
      * Errorstorage filled by validator
@@ -938,9 +938,12 @@ class Model extends MvcAbstract
 
                     foreach ( $row as $col => $val )
                     {
-                        // Add this key/value if it is not already present. Checks value to be unserialized.
+                        /**
+                         * Add this key/value if it is not already present. Checks value to be unserialized.
+                         * @todo Is override prevention really necessary?
+                         */
                         if (!isset($this->data->{$col}))
-                            $val = in_array($col, $this->serialized) ? unserialize($val) : $val;
+                            $this->data->{$col} = in_array($col, $this->serialized) ? unserialize($val) : $val;
                     }
 
                     $this->data = $this->runCallbacks($callbacks, $this->data);
@@ -1738,6 +1741,20 @@ class Model extends MvcAbstract
         }
 
         return $data;
+    }
+
+    /**
+     * Returns the model validation rule stack
+     * @return array
+     */
+    public function getValidationStack()
+    {
+        return $this->validate;
+    }
+
+    public function getTableName()
+    {
+        return $this->tbl;
     }
 }
 ?>

@@ -223,7 +223,8 @@ final class Web extends SingletonAbstract
                         // No default app means that there is nothing to do for us. Let us do SMF and the forum all the work!
                     else
                         redirectexit('action=forum');
-                } else
+                }
+                else
                 {
                     // Get the requested apps name
                     $app_name = $this->request->getApp();
@@ -237,43 +238,42 @@ final class Web extends SingletonAbstract
                 if (method_exists($app, 'run'))
                     $app->run();
 
-                    // All app wide access check passed. Now create controller object.
-                $controller = $app->getController($this->request->getCtrl());
-
-                // Ajax call or full call?
-                if ($this->request->isAjax() === true)
+                // All app wide access check passed. Run controller and process result.
+                if ($this->request->isAjax())
                 {
-                    // Run controller as ajax call
-                    $this->content = $controller->ajax();
-                } else
+                    // Result will be processed as ajax command list
+                    $app->getController($this->request->getCtrl())->ajax();
+                    $this->content = Ajax::process();
+                }
+                else
                 {
-                    // Normal controller run
-                    $this->content = $controller->run();
+                    // Result will be processed as html
+                    $this->content = $app->getController($this->request->getCtrl())->run();
 
-                    // No content to show? Has app an onEmpty() method which give us content?
+                    // No content created? Check app for onEmpty() event which maybe gives us content.
                     if (empty($this->content) && method_exists($app, 'onEmpty'))
-                        $this->content = $app->onEmpty();
+                        $this->content = $this->app->onEmpty();
 
-                        // If app function for content onBefore() exist, prepend it to content
-                    $this->content = (method_exists($app, 'onBefore') ? $app->onBefore() : '') . $this->content;
+                    // Append content provided by apps onBefore() event method
+                    if (method_exists($app, 'onBefore'))
+                        $this->content = $app->onBefore() . $this->content;
 
-                    // if app function for content onAfter() exist, append it to content
-                    $this->content .= method_exists($app, 'onAfter') ? $app->onAfter() : '';
+                    // Prepend content provided by apps onAfter() event method
+                    if (method_exists($app, 'onAfter'))
+                        $this->content .= $app->onAfter();
                 }
 
                 // All work done, load the web template
                 loadTemplate('Web');
             }
         }
-        
+
         ## Error handling
         catch ( Error $e )
         {
             $e->handle();
         }
     }
-
-
 
     /**
      * Returns the created content.
@@ -286,7 +286,7 @@ final class Web extends SingletonAbstract
     }
 
     /**
-     * Adds actions gto SMF action array
+     * Adds actions to SMF action array
      * @param array $actionArray
      */
     public static function addActions(&$actionArray)
