@@ -121,7 +121,7 @@ class Model extends MvcAbstract
      * Set in Childmodels. Here only for error prevention
      * @var array
      */
-    public $validate = array();
+    protected $validate = array();
 
     /**
      * Errorstorage filled by validator
@@ -1743,9 +1743,18 @@ class Model extends MvcAbstract
         return $data;
     }
 
-    public function getValidationRules()
+    /**
+     * Returns the model validation rule stack
+     * @return array
+     */
+    public function getValidationStack()
     {
         return $this->validate;
+    }
+
+    public function getTableName()
+    {
+        return $this->tbl;
     }
 }
 ?>
