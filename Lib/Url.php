@@ -30,7 +30,7 @@ final class Url extends ClassAbstract
      * Params for route compiling
      * @var array
      */
-    private $params = array();
+    private $param = array();
 
     /**
      * App name
@@ -97,10 +97,10 @@ final class Url extends ClassAbstract
     /**
      * Factory method which returns an URL object
      * @param string $named_route Optional name of route to compile
-     * @param array $params Optional parameters to use on route
+     * @param array $param Optional parameters to use on route
      * @return Url
      */
-    public static function factory($named_route='', $params=array())
+    public static function factory($named_route='', $param=array())
     {
         $url = new Url();
 
@@ -108,8 +108,8 @@ final class Url extends ClassAbstract
         {
             $url->setNamedRoute($named_route);
 
-            if ($params)
-                $url->setParameter($params);
+            if ($param)
+                $url->setParameter($param);
         }
 
         return $url;
@@ -118,15 +118,12 @@ final class Url extends ClassAbstract
     /**
      * Factory method which returns an url string based on a compiled named route
      * @param string $named_route Optional name of route to compile
-     * @param array $params Optional parameters to use on route
+     * @param array $param Optional parameters to use on route
      * @return string
      */
-    public static function getNamedRouteUrl($named_route, $params=array())
+    public static function getNamedRouteUrl($named_route, $param=array())
     {
-    	$url = new Url();
-  		$url->setNamedRoute($named_route);
-		$url->setParameter($params);
-    	return $url->getUrl();
+        return self::factory($named_route, $param)->getUrl();
     }
 
     /**
@@ -149,7 +146,7 @@ final class Url extends ClassAbstract
     public function setAjax($bool=true)
     {
         $this->ajax = $bool;
-        $this->setParameter('is_ajax', 1);
+        $this->param['is_ajax'] = 1;
         return $this;
     }
 
@@ -295,16 +292,16 @@ final class Url extends ClassAbstract
     function setParameter($arg1, $arg2=null, $reset=false)
     {
         if ($reset===true)
-            $this->params = array();
+            $this->param = array();
 
         if ($arg2 === null && is_array($arg1) && !empty($arg1))
         {
             foreach ( $arg1 as $key => $val )
-                $this->params[$key] = $val;
+                $this->param[$key] = $val;
         }
 
         if (isset($arg2))
-            $this->params[$arg1] = $arg2;
+            $this->param[$arg1] = $arg2;
 
         return $this;
     }
@@ -335,14 +332,21 @@ final class Url extends ClassAbstract
      * Processes all parameters and returns a fully compiled url as string.
      * @return string
      */
-    function getUrl()
+    function getUrl($definition=array())
     {
+        if ($definition)
+        {
+            foreach ($definition as $property => $value)
+                if (property_exists($this, $property))
+                    $this->{$property} = $value;
+        }
+
         // if action isset, we have a smf url to build
         if (isset($this->action) || isset($this->board) || isset($this->topic))
             return $this->getSmfURL();
 
         if (isset($this->named_route))
-            return $this->request->getRouteUrl($this->named_route, $this->params);
+            return $this->request->getRouteUrl($this->named_route, $this->param);
 
         return false;
     }
@@ -354,19 +358,19 @@ final class Url extends ClassAbstract
     private function getSmfUrl()
     {
         // build parameterlist
-        $params = array();
+        $param = array();
 
-        foreach ( $this->params as $key => $val )
+        foreach ( $this->param as $key => $val )
         {
             if ($key == 'area' || $key == 'sa')
                 continue;
 
-            $params[] = empty($val) ? $key : $key . '=' . $val;
+            $param[] = empty($val) ? $key : $key . '=' . $val;
         }
 
         $anchor = isset($this->anchor) ? '#' . $this->anchor : '';
 
-        $params = count($params) > 0 ? '?' . implode(';', $params) : '';
+        $param = count($param) > 0 ? '?' . implode(';', $param) : '';
 
         if (isset($this->topic))
             $url_base = '/topic/' . $this->topic . '.html';
@@ -378,15 +382,15 @@ final class Url extends ClassAbstract
                 $this->action
             );
 
-            if (isset($this->params['area']))
-                $url_parts[] = 'area_' . $this->params['area'];
+            if (isset($this->param['area']))
+                $url_parts[] = 'area_' . $this->param['area'];
 
-            if (isset($this->params['sa']))
-                $url_parts[] = 'sa_' . $this->params['sa'];
+            if (isset($this->param['sa']))
+                $url_parts[] = 'sa_' . $this->param['sa'];
 
             $url_base = '/' . implode('/', $url_parts) . '/';
         }
-        return BOARDURL . $url_base . $params . $anchor;
+        return BOARDURL . $url_base . $param . $anchor;
     }
 
     /**
