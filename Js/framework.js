@@ -2,8 +2,6 @@
 // Function with commands to use on "ready" and in/after ajax requests
 // ----------------------------------------------------------------------------
 function webReadyAndAjax() {
-
-    
     
     // Bind datepicker
     $('.web-form-datepicker').webDatepicker();
@@ -91,7 +89,7 @@ $(document).on('click', '#web-scrolltotop', function(event) {
 
     if (navigator.userAgent.match(/(iPod|iPhone|iPad|Android)/)) {           
         window.scrollTo(0,0) // first value for left offset, second value for top offset
-    }else{
+    } else {
         $('html,body').animate({
             scrollTop: 0,
             scrollLeft: 0
@@ -107,10 +105,12 @@ $(document).on('click', '#web-scrolltotop', function(event) {
 // ClickHandler for back button
 // ----------------------------------------------------------------------------
 $(document).on('click', '.web-btn-back', function(event) {
-
     document.history.go(-1);
 });
 
+//----------------------------------------------------------------------------
+//ClickHandler for confirms
+//----------------------------------------------------------------------------
 $(document).on('click', '*[data-web-confirm]', function(event) {
 
     if ($(this).data('web-ajax') !== undefined)
