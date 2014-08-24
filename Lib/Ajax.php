@@ -20,74 +20,31 @@ final class Ajax
      * Storage for ajax commands
      * @var \stdClass
      */
-    private static $ajax;
+    private static $ajax = array();
 
     /**
-     * Name of the app this ajax is related to
+     * Kind of command
      * @var string
      */
-    private $app;
-
-    /**
-     * Controllername which should be uses
-     * @var string
-     */
-    private $ctrl;
-
-    /**
-     * Actiuonfunction to be called in controller
-     * @var string
-     */
-    private $action;
-
-    /**
-     * Parameters to pass into the controlleraction
-     * @var array
-     */
-    private $params;
-
-    /**
-     * The type of the current ajax.
-     * @var string
-     */
-    private $type = 'html';
+    private $type = 'dom';
 
     /**
      * The documents DOM ID the ajax content should go in
      * @var string
      */
-    private $target = '*';
+    private $selector = '';
 
     /**
-     * The Content to return
-     * @var string
-     */
-    private $content = '';
-
-    /**
-     * Validatein string
-     * @var string
-     */
-    private $validate;
-
-    /**
-     * The mode how the content is to be injected into the DOM
-     * @var string Select
-     * @example from replace, prepend, append
-     */
-    private $mode = 'replace';
-
-    /**
-     * Attributename to fill in content
-     * @var string
-     */
-    private $attribute;
-
-    /**
-     * Command variables to send with ajax
+     * Parameters to pass into the controlleraction
      * @var array
      */
-    private $cmd_vars = array();
+    private $args = array();
+
+    /**
+     * The type of the current ajax.
+     * @var string
+     */
+    private $fn = 'html';
 
     /**
      * Factory method
@@ -98,242 +55,31 @@ final class Ajax
         return new self();
     }
 
-    /**
-     * Create msgbox in browser
-     * @param $msg
-     */
-    public static function alert($msg)
+    public static function command($definition=array())
     {
-        self::factory()->setType('alert')->setContent($msg)->add();
+        if (!$definition)
+            Throw new Error('No defintion for ajax command found.', 1000);
+
+        self::factory()->add($definition);
     }
 
-    /**
-     * Start a controller run
-     * @param $ctrl
-     * @param $action
-     * @param $target
-     */
-    public static function call($app_name, $controller, $action, $target='', $param = array())
+    public function setArgs($args = array())
     {
-        // Create a new Ajax object
-        $ajax = self::factory();
-
-        // Publish content to our Ajax
-        $ajax->setContent( App::create($app_name)->getController($controller)->run($action, $param) );
-
-        // Any output target set?
-        $ajax->setTarget($target);
-
-        // Add this Ajax to the repsonse storage4
-        $ajax->add();
+        $this->args = $args;
+        return $this;
     }
 
-    /**
-     * Create a HTML ajax which changes the html of target selector
-     * @param $target Selector to be changed
-     * @param $content Content be used
-     * @param $mode Optional mode how to change the selected element. Can be: replace(default) | append | prepend | remove | after | before
-     */
-    public static function html($target, $content)
+    public function addArg($val)
     {
-        self::factory()->setType('html')->setTarget($target)->setContent($content)->add();
-    }
-
-    /**
-     * Send an error to the web_error div
-     * @param unknown_type $error
-     */
-    public static function error($error)
-    {
-        self::appendHtml('#web-message', $error);
-    }
-
-    /**
-     * Change a DOM attribute
-     * @param $target => DOM id
-     * @param $attribute => attribute name
-     * @param $content
-     * @param $mode optional => the edit mode replace(default)|append|prepend|remove
-     */
-    public static function attrib($target, $attribute, $content, $mode = 'replace')
-    {
-        self::factory()->setType('attrib')->setTarget($target)->setAttribute($attribute)->setMode($mode)->setContent($content)->add();
-    }
-
-    /**
-     * Change class attribute of dom element
-     * @param $target => DOM id
-     * @param $content
-     * @param $mode optional => the edit mode replace(default)|append|prepend|remove
-     */
-    public static function css($target, $content, $mode = 'replace')
-    {
-        self::factory()->setType('css')->setTarget($target)->setMode($mode)->setContent($content)->add();
-    }
-
-    /**
-     * Calls a page refresh by loading the provided url.
-     * Calls location.href="url" in page.
-     * @param string|Url $url Can be an url as string or an Url object on which the getUrl() method is called
-     */
-    public static function refresh($url)
-    {
-        if ($url instanceof Url)
-            $url = $url->getUrl();
-
-        self::factory()->setType('refresh')->setContent($url)->add();
-    }
-
-    /**
-     * Change style attribute of dom element
-     * @param $target => DOM id
-     * @param $content
-     * @param $mode optional => the edit mode replace(default)|append|prepend|remove
-     */
-    public static function style($target, $content, $mode = 'replace')
-    {
-        self::factory()->setType('style')->setTarget($target)->setMode($mode)->setContent($content)->add();
-    }
-
-    /**
-     * Replaces content of a target.
-     * @param string $target jQuery selector replace content of
-     * @param string $content The data to be insert
-     */
-    public static function replaceHtml($target, $content)
-    {
-        self::factory()->setType('html')->setMode('replace')->setTarget($target)->setContent($content)->add();
-    }
-
-    /**
-     * Inserts content after a target.
-     * @param string $target jQuery selector to insert content after
-     * @param string $content The data to be insert
-     */
-    public static function afterHtml($target, $content)
-    {
-        self::factory()->setType('html')->setMode('after')->setTarget($target)->setContent($content)->add();
-    }
-
-    /**
-     * Inserts content before a target.
-     * @param string $target jQuery selector to insert content before
-     * @param string $content The data to be insert
-     */
-    public static function beforeHtml($target, $content)
-    {
-        self::factory()->setType('html')->setMode('before')->setTarget($target)->setContent($content)->add();
-    }
-
-    /**
-     * Appends content to a target.
-     * @param string $target jQuery selector to append content to
-     * @param string $content The data to be appended
-     */
-    public static function appendHtml($target, $content)
-    {
-        self::factory()->setType('html')->setMode('append')->setTarget($target)->setContent($content)->add();
-    }
-
-    /**
-     * Prepends content to a target.
-     * @param string $target jQuery selector to prepend content to
-     * @param string $content The data to be prepended
-     */
-    public static function prependHtml($target, $content)
-    {
-        self::factory()->setType('html')->setMode('prepend')->setTarget($target)->setContent($content)->add();
-    }
-
-    /**
-     * Removes the html specified by $target parameter
-     * @param string $target jQuery selector to be removed from DOM
-     */
-    public static function removeHtml($target)
-    {
-        self::factory()->setType('html')->setMode('remove')->setTarget($target)->add();
-    }
-
-    /**
-     * Creates ajax response to load a js file.
-     * @param string $file Complete url of file to load
-     */
-    public static function loadScript($file)
-    {
-        self::factory()->setType('load_script')->setContent($file)->add();
-    }
-
-    /**
-     * Create console log output
-     * @param string $msg
-     */
-    public static function console($msg)
-    {
-        self::factory()->setType('console')->setContent($msg)->add();
-    }
-
-    /**
-     * Creates a print_r console output of provided $var
-     * @param mixed $var
-     */
-    public static function dump($var)
-    {
-        self::factory()->setType('console')->setContent(print_r($var, true))->add();
-    }
-
-    /**
-     * Adds additional vars to a command
-     * @param string $name
-     * @param string $value
-     * @return \Web\Framework\Lib\Ajax
-     */
-    public function addCmdVars($name, $value)
-    {
-        $this->cmd_vars[$name] = $value;
+        $this->args[] = $val;
         return $this;
     }
 
     /**
-     * Set app name
-     * @param $app
-     */
-    public function setApp($app)
-    {
-        $this->app = $app;
-        return $this;
-    }
-
-    /**
-     * Set controller Name
-     * @param $ctrl
-     */
-    public function setCtrl($ctrl)
-    {
-        $this->ctrl = $ctrl;
-        return $this;
-    }
-
-    /**
-     * Set function name
-     * @param $action
-     */
-    public function setAction($action)
-    {
-        $this->action = $action;
-        return $this;
-    }
-
-    public function setParams($params)
-    {
-        $this->params = $params;
-        return $this;
-    }
-
-    /**
-     * Set ajax type
+     * Set ajax command group type
      * @param $type
      */
-    public function setType($type)
+    public function setType($type = 'dom')
     {
         $this->type = $type;
         return $this;
@@ -343,9 +89,9 @@ final class Ajax
      * Set DOM id of target
      * @param $target
      */
-    public function setTarget($target)
+    public function setSelector($selector)
     {
-        $this->target = $target;
+        $this->selector = $selector;
         return $this;
     }
 
@@ -359,65 +105,41 @@ final class Ajax
         return $this;
     }
 
-    public function setMode($mode)
+    public function setFunction($fn = 'html')
     {
-        $this->mode = $mode;
-        return $this;
-    }
-
-    /**
-     * Set name of attribute to alter
-     * @param $attribute
-     */
-    public function setAttribute($attribute)
-    {
-        $this->attribute = $attribute;
+        $this->fn = $fn;
         return $this;
     }
 
     /**
      * Builds ajax definition and adds it to the ajaxlist
      */
-    public function add()
+    public function add($definition=array())
     {
         // Command vars counter
         static $counter = 0;
 
-        // Some ajaxtype need a target to fill in the returned content.
-        // This array defines those types to check set target property.
-        $types_need_target = array(
-            'html',
-            'attrib',
-            'style',
-            'css'
-        );
+        if ($definition)
+        {
+            foreach ($definition as $property => $value)
+                if (property_exists($this, $property))
+                {
+                    if ($property == 'args' && !is_array($value))
+                        $value = array($value);
 
-        // Build up definition of our ajax
-        $definition = new \stdClass();
+                    $this->{$property} = $value;
+                }
+        }
 
         // Create alert on missing target when type is in need-target list
-        if (in_array($this->type, $types_need_target) && !isset($this->target))
+        if ($this->type == 'dom' && !$this->selector)
         {
-            self::alert('Your ajax response needs a target but no target is set. Aborting.');
-            return;
-        }
-
-        // Create alert on content withou target
-        if (isset($this->content) && !isset($this->target) && in_array($this->type, $types_need_target))
-        {
-            self::alert('Your ajax has content but no target to put it in. Aborting');
-            return;
-        }
-
-        // Create alert on target without content
-        if (!isset($definition->content) && isset($definition->target))
-        {
-            self::alert('Your set a target but there is no content for it. Aborting');
+            self::console('Your DOM ajax response needs a selector but none is set. Aborting.');
             return;
         }
 
         // Create modal content on type of modal
-        if ($this->type == 'modal')
+        if ($this->fn == 'modal')
         {
             $modal = ModalWindow::factory();
             $modal->setContent($this->content);
@@ -425,25 +147,23 @@ final class Ajax
             if (isset($this->cmd_vars['title']))
                 $modal->setTitle($this->cmd_vars['title']);
 
-            $this->content = $modal->build();
+            $this->args = $modal->build();
         }
 
-        // Use all set public ajax properties as ajax cmd definition
-        foreach ( $this as $property => $value )
-        {
-            if (isset($value))
-            {
-                $definition->{$property} = $value;
-                unset($this->{$property});
-            }
-        }
+        $cmd = new \stdClass();
 
-        // Ajax commands object not created? Create one.
-        if (!isset(self::$ajax))
-            self::$ajax = new \stdClass();
+        $cmd->f = $this->fn;
+        $cmd->a = is_array($this->args) ? $this->args : array($this->args);
 
         // Publish ajax definition to ajaxlist
-        self::$ajax->{'cmd_' . $counter} = $definition;
+        if ($this->type == 'dom')
+        {
+            $cmd->s = $this->selector;
+
+            self::$ajax['dom'][$this->selector][] = $cmd;
+        }
+        else
+            self::$ajax['act'][] = $cmd;
 
         // Raise ajax counter
         $counter++;
@@ -460,7 +180,12 @@ final class Ajax
         if ($messages)
         {
             foreach ( $messages as $message )
-                self::factory()->setType('html')->setMode('append')->setTarget('#web-message')->setContent($message->build())->add();
+                self::command(array(
+                    'type' => 'dom',
+                    'args' => $message->build(),
+                    'selector' => '#web-message',
+                    'fn' => 'append'
+                ));
         }
 
         // Output is json encoded
@@ -475,6 +200,174 @@ final class Ajax
     {
         return self::$ajax;
     }
-}
 
+    // # PREDEFINED METHODS ##############################################################################################
+
+    /**
+     * Create an msgbox in browser
+     * @param $msg
+     */
+    public static function alert($msg)
+    {
+        self::command(array(
+            'type' => 'act',
+            'fn' => 'alert',
+            'args' => $msg
+        ));
+    }
+
+    /**
+     * Start a controller run
+     * @param $ctrl
+     * @param $action
+     * @param $target
+     */
+    public static function call($app_name, $controller, $action, $target = '', $param = array())
+    {
+        self::command(array(
+            'selector' => $target,
+            'args' => App::create($app_name)->getController($controller)->run($action, $param)
+        ));
+    }
+
+    /**
+     * Create a HTML ajax which changes the html of target selector
+     * @param $target Selector to be changed
+     * @param $content Content be used
+     * @param $mode Optional mode how to change the selected element. Can be: replace(default) | append | prepend | remove | after | before
+     */
+    public static function html($selector, $content)
+    {
+        self::command(array(
+            'selector' => $selector,
+            'args' => $content
+        ));
+    }
+
+    /**
+     * Send an error to the web_error div
+     * @param unknown_type $error
+     */
+    public static function error($error)
+    {
+        self::command(array(
+            'selector' => '#web-message',
+            'fn' => 'append',
+            'args' => 'error',
+        ));
+    }
+
+    /**
+     * Change a DOM attribute
+     * @param $target => DOM id
+     * @param $attribute => attribute name
+     * @param $content
+     * @param $mode optional => the edit mode replace(default)|append|prepend|remove
+     * @todo
+     *
+     */
+    public static function attrib($selector, $attribute, $value)
+    {
+        self::command(array(
+            'type' => 'dom',
+            'selector' => $selector,
+            'fn' => 'attr',
+            'args' => array(
+                $attribute,
+                $value
+            )
+        ));
+    }
+
+    /**
+     * Change css property of dom element
+     * @param $target => DOM id
+     * @param $content
+     * @param $mode optional => the edit mode replace(default)|append|prepend|remove
+     */
+    public static function css($selector, $property, $value)
+    {
+        self::command(array(
+            'type' => 'dom',
+            'selector' => $selector,
+            'fn' => 'css',
+            'args' => array(
+                $property,
+                $value
+            )
+        ));
+    }
+
+    /**
+     * Change css property of dom element
+     * @param $target => DOM id
+     * @param $content
+     * @param $mode optional => the edit mode replace(default)|append|prepend|remove
+     */
+    public static function addClass($selector, $class)
+    {
+        self::command(array(
+            'type' => 'dom',
+            'selector' => $selector,
+            'fn' => 'addClass',
+            'args' => $class
+        ));
+    }
+
+    /**
+     * Calls a page refresh by loading the provided url.
+     * Calls location.href="url" in page.
+     * @param string|Url $url Can be an url as string or an Url object on which the getUrl() method is called
+     */
+    public static function refresh($url)
+    {
+        if ($url instanceof Url)
+            $url = $url->getUrl();
+
+        self::command(array(
+            'type' => 'act',
+            'fn' => 'refresh',
+            'args' => $url
+        ));
+    }
+
+    /**
+     * Creates ajax response to load a js file.
+     * @param string $file Complete url of file to load
+     */
+    public static function loadScript($file)
+    {
+        self::command(array(
+            'type' => 'act',
+            'fn' => 'load_script',
+            'args' => $file
+        ));
+    }
+
+    /**
+     * Create console log output
+     * @param string $msg
+     */
+    public static function console($msg)
+    {
+        self::command(array(
+            'type' => 'act',
+            'fn' => 'console',
+            'args' => $msg
+        ));
+    }
+
+    /**
+     * Creates a print_r console output of provided $var
+     * @param mixed $var
+     */
+    public static function dump($var)
+    {
+        self::command(array(
+            'type' => 'act',
+            'fn' => 'dump',
+            'args' => print_r($var, true)
+        ));
+    }
+}
 ?>
