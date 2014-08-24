@@ -218,8 +218,11 @@ final class FormDesigner extends Form
      * @param unknown $group_name
      * @return Group
      */
-    public function &openGroup($group_name)
+    public function &openGroup($group_name='')
     {
+        if (!$group_name)
+            $group_name = uniqid();
+
         // close current open group
         if (isset($this->group_name))
             $this->closeGroup();
@@ -580,6 +583,7 @@ final class FormDesigner extends Form
 
             if ($control instanceof Group)
             {
+                $control->setId($this->id . '-group-' . $control->getId());
                 $this->group = $control;
                 $this->group_open = true;
                 continue;
