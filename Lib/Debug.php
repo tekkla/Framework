@@ -179,17 +179,11 @@ class Debug extends ClassAbstract
     public function run($data = array())
     {
         // Small debug definition parser
-        if ($data)
+        if ($data && is_array($data))
         {
-            $properties = array(
-                'data',
-                'mode',
-                'target'
-            );
-
-            foreach ( $data as $prop => $val )
-                if ($val && property_exists($this, $prop))
-                    $this->{$prop} = $val;
+            foreach ( $data as $property => $value )
+                if ($value && property_exists($this, $property))
+                    $this->{$property} = $value;
         }
 
         // If var is not set explicit, the calling object will
