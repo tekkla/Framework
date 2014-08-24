@@ -1,11 +1,10 @@
 <?php
 namespace Web\Framework\Html\Controls;
 
-use Web\Framework\Lib\Error;
-use Web\Framework\Html\Elements\FormElement;
-use Web\Framework\Html\Form\Label;
+use Web\Framework\Lib\Abstracts\FormElementAbstract;
 use Web\Framework\Html\Form\Option;
 use Web\Framework\Html\Form\Checkbox;
+use Web\Framework\Lib\Error;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -16,29 +15,17 @@ if (!defined('WEB'))
  * It is a set of checkboxes grouped together.
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
- * @subpackage Html\Form
+ * @subpackage Html\Controls
  * @license BSD
  * @copyright 2014 by author
  */
-class OptionGroup extends FormElement
+final class OptionGroup extends FormElementAbstract
 {
     /**
      * Options storage
      * @var array
      */
     private $options = array();
-
-    /**
-     * Returns an OptionGroup Object
-     * @param string $model
-     * @return \web\framework\Html\controls\OptionGroup
-     */
-    public static function factory($name)
-    {
-        $obj = new OptionGroup();
-        $obj->setName($name);
-        return $obj;
-    }
 
     /**
      * Add an option to the optionslist and returns a reference to it.
@@ -58,7 +45,7 @@ class OptionGroup extends FormElement
      * @see \Web\Framework\Lib\Html::build()
      * @return string
      */
-    public function build($wrapper = null)
+    public function build()
     {
         if (empty($this->options))
             Throw new Error('OptionGroup Control: No Options set.');
@@ -80,8 +67,8 @@ class OptionGroup extends FormElement
             if ($option->isSelected())
                 $control->isChecked(1);
 
-            // Create label
-            $html .= Label::factory($control->getId(), $option->getInner() . ' ' . $control->build())->build();
+            // Build control
+            $html .=  '<label>' . $control->build() . $option->getInner() . '</label>';
 
             $html .= '</div>';
         }

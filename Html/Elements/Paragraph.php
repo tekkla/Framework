@@ -17,21 +17,6 @@ if (!defined('WEB'))
  */
 class Paragraph extends HtmlAbstract
 {
-    /**
-     * Factory pattern
-     * @return \Web\Framework\Html\Elements\Paragraph
-     */
-    public static function factory()
-    {
-        return new Paragraph();
-    }
-
-    /**
-     * Constructor
-     */
-    function __construct()
-    {
-        $this->setElement('p');
-    }
+    protected $element = 'p';
 }
 ?>

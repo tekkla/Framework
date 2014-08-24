@@ -42,6 +42,7 @@ class App extends ClassAbstract
      */
     private static $secure_apps = array(
         'Admin',
+        'Doc',
         'Forum',
         'Web'
     );
@@ -52,6 +53,7 @@ class App extends ClassAbstract
      */
     private static $allow_secure_instance = array(
         'Admin',
+        'Doc',
         'Forum',
         'Web'
     );
@@ -102,27 +104,38 @@ class App extends ClassAbstract
     protected $lang = false;
 
     /**
+     * Hooks storage
+     * @var array
+     */
+    protected $hooks = array();
+
+    /**
+     * Default routes stack
+     * @var array
+     */
+    protected $routes = array();
+
+    /**
      * Get an unique app object
      * @param string $name
-     * @return App object
+     * @return App
      */
     public static function &create($name, $do_init = true)
     {
-        // Create class name.
+        // Create app namespace and take care of secured apps.
         $class = !in_array($name, self::$secure_apps) ? '\\Web\\Apps\\' . $name . '\\' . $name : '\\Web\\Framework\\AppsSec\\' . $name . '\\' . $name;
 
         // Generate app id
         $id = uniqid($name . '_');
 
-        // app masterclasses are create objects and will be returned as referencs
-        // so we need to store the app object in the static instances array
+        // Create a new app object and store id with it's unique id in the instance storage
         self::$instances[$id] = new $class($id);
 
         // Init this app instance
         if ($do_init == true)
             self::$instances[$id]->init();
 
-            // Return app instance
+        // Return referenc to app object in instance storage
         return self::$instances[$id];
     }
 
@@ -134,24 +147,25 @@ class App extends ClassAbstract
      */
     public static function getInstance($name, $do_init = true)
     {
-        // Create class name with full namespace.
+        // Create app namespace and take care of secured apps.
         $class = !in_array($name, self::$secure_apps) ? '\\Web\\Apps\\' . $name . '\\' . $name : '\\Web\\Framework\\AppsSec\\' . $name . '\\' . $name;
 
         // Check for already existing instance of app
+        // and create new instance when none is found
         if (!array_keys(self::$instances, $name))
-            // Create new instance
             self::$instances[$name] = new $class($name);
 
-            // Init this app instance
+        // Init this app instance
         if ($do_init == true)
             self::$instances[$name]->init();
 
-            // Return app instance
+        // Return app instance
         return self::$instances[$name];
     }
 
     /**
-     * Returns all created app instance at once
+     * Returns an array with all created app instance.
+     * @deprecated
      * @return array
      */
     public static function getInstances()
@@ -186,10 +200,11 @@ class App extends ClassAbstract
                 'hooks' => false,
                 'lang' => false,
                 'css' => false,
-                'js' => false
+                'js' => false,
+                'hooks' => false,
             );
 
-            // Save app name as loaded. But only of none secured ones.
+        // Save app name as loaded. But only of none secured ones.
         if ($this->secure == false)
             self::$loaded_apps[$this->getName()] = $this->getName();
     }
@@ -208,28 +223,33 @@ class App extends ClassAbstract
      */
     protected function init()
     {
-        // config will always be initiated. no matter what else follows.
+        // Config will always be initiated. no matter what else follows.
         $this->initCfg();
 
-        // init paths
+        // Init paths
         $this->initPaths();
 
         // Apps only need once be initiated
         if (in_array($this->name, self::$init_done))
             return;
 
-        if (method_exists($this, 'Requires'))
-            $this->Requires();
-
-            // Run init methods
+        // Run init methods
         $this->initRoutes();
         $this->initLang();
         $this->initHooks();
 
-        // and finally a possible headers methods
-        if (method_exists($this, 'Headers'))
-            $this->Headers();
+        // Init css and js only on non ajax requests
+        if (!$this->request->isAjax())
+        {
+        	$this->initCss();
+        	$this->initJs();
 
+            // Finally call a possible headers methods
+            if (method_exists($this, 'addHeaders'))
+                $this->addHeaders();
+        }
+
+        // Store our apps name to be initiated
         self::$init_done[] = $this->name;
 
         return $this;
@@ -268,30 +288,16 @@ class App extends ClassAbstract
     }
 
     /**
-     * Add a functionname to add as smf integration hook
-     * @param string $hook
-     * @param string $function
-     */
-    public function addHook($hook, $type, $name, $method)
-    {
-        if (!isset($this->hooks))
-            $this->hooks = array();
-
-        $this->hooks[$hook] = 'Web::' . $type . '::' . $name . '::' . $method;
-    }
-
-    /**
      * Creates an app related model object
      * @param string $model_name The models name
      * @return Model
      */
-    public function getModel($model_name = null)
+    public function getModel($model_name = '')
     {
         if (!$model_name)
         {
             $dt = debug_backtrace();
             $parts = array_reverse(explode('\\', $dt[1]['class']));
-
             $model_name = $parts[0];
         }
 
@@ -305,13 +311,6 @@ class App extends ClassAbstract
      */
     public function getController($controller_name)
     {
-        // Init css and js only on non ajax requests
-        if (!$this->request->isAjax())
-        {
-            $this->initCss();
-            $this->initJs();
-        }
-
         return Controller::factory($this, $controller_name);
     }
 
@@ -359,13 +358,15 @@ class App extends ClassAbstract
         if (!isset($this->cfg))
             $this->cfg = new Data();
 
-        $this->cfg('app', $this->getName());
-        $this->cfg('app_id', $this->getId());
+        $this->cfg('app', $this->name);
+        $this->cfg('app_id', $this->id);
 
         // Copy existing config values to the apps config.
         if (Cfg::exists($this->name))
         {
-            foreach ( Cfg::get($this->getName()) as $key => $val )
+            $config = Cfg::get($this->getName());
+
+            foreach($config as $key => $val)
             {
                 if (isset($this->config) && isset($this->config[$key]))
                     $this->cfg($key, $val);
@@ -382,13 +383,8 @@ class App extends ClassAbstract
                 // When there is no config set but a default value defined for the app,
                 // the default value will be used then
                 if (!$this->cfg($key) && isset($cfg['default']))
-                {
-                    if (is_array($cfg['default']))
-                        ;
-
-                    $this->cfg($key, $cfg['default']);
-                }
-            }
+                     $this->cfg($key, $cfg['default']);
+             }
         }
     }
 
@@ -439,20 +435,25 @@ class App extends ClassAbstract
      */
     protected function initHooks()
     {
+        if (self::$init_stages[$this->name]['hooks'])
+        	return;
+
         // Integrate possible permissions
         if (isset($this->perms) && !empty($this->perms))
-            $this->addHook('integrate_load_permissions', 'App', $this->name, 'addPermissions');
+            $this->hooks['integrate_load_permissions'] = 'Web::App::' . $this->name . '::addPermissions';
 
         // Menu entries?
         if (method_exists($this, 'addMenuButtons'))
-            $this->addHook('integrate_menu_buttons', 'App', $this->name, 'addMenuButtons');
+            $this->hooks['integrate_menu_buttons'] = 'Web::App::' . $this->name . '::addMenuButtons';
 
-            // Hooks to be included?
-        if (isset($this->hooks))
+        // Hooks to be included?
+        if ($this->hooks)
         {
             foreach ( $this->hooks as $hook => $function )
-                add_integration_function($hook, $function, false);
+                add_integration_function($hook, $function, null, false, false);
         }
+
+        self::$init_stages[$this->name]['hooks'] = true;
     }
 
     /**
@@ -477,12 +478,11 @@ class App extends ClassAbstract
         // Create path to lang file
         $lang_file = $this->cfg('dir_language') . '/' . $this->name . '.' . $lang . '.php';
 
-        // Include lang file if exists
+        // Try to load lang file or log error when it's missing
         if (file_exists($lang_file))
             template_include($lang_file);
-        // or log error on missing file
         else
-            log_error(sprintf(self::get('theme_language_error', 'SMF'), $this->name . '.' . $lang, 'App: ' . $this->name));
+            log_error(sprintf(Txt::get('theme_language_error', 'SMF'), $this->name . '.' . $lang, 'App: ' . $this->name));
 
         // Set flag for initiated lang
         self::$init_stages[$this->name]['lang'] = true;
@@ -502,6 +502,8 @@ class App extends ClassAbstract
         if (self::$init_stages[$this->name]['css'])
             return;
 
+        $css_loaded = false;
+
         // Css flag set that indicates app has a css file?
         if ($this->css)
         {
@@ -517,10 +519,10 @@ class App extends ClassAbstract
                 {
                     Css::useLink(Settings::get('theme_url') . '/css/App' . $this->name . '.css', true);
                     $css_loaded = 'theme';
-                } else
+                }
+                else
                 {
                     log_error('Apps "' . $this->name . '" css flag is set to true but no css file was found in themes or default themes css app folders.');
-                    $css_loaded = false;
                 }
             }
         }
@@ -587,9 +589,21 @@ class App extends ClassAbstract
      */
     protected function initRoutes()
     {
-        // No routes set or routes already initiated? Do nothing if so.
-        if (!isset($this->routes) || self::$init_stages[$this->name]['routes'] == true)
+        // routes already initiated? Do nothing if so.
+        if (self::$init_stages[$this->name]['routes'] == true)
             return;
+
+        // No routes set? Set at least index as default route
+        if (!$this->routes)
+        {
+            $this->routes[] = array(
+            	'name' => $this->name . '_index',
+            	'route' => '/',
+            	'ctrl' => 'Web',
+            	'action' => 'Index'
+            );
+            return;
+        }
 
         // Get uncamelized app name
         $app_name = String::uncamelize($this->name);

@@ -29,10 +29,8 @@ final class RequestError extends ErrorAbstract
 
     protected function processMissing()
     {
-        $this->admin_message .= '<hr>' . print_r($this->params, true);
+        $this->admin_message .= '<pre>' . print_r($this->params, true) . '</pre>';
         $this->user_message = '<h3 class="no-top-margin">'. Txt::get('error', 'Web') . ' 404</h3>' . Txt::get('error_404', 'Web');
-        $this->fatal = false;
-        $this->redirect = '';
     }
 
     protected function processAlreadyDeclared()

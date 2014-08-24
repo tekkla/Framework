@@ -3,7 +3,6 @@ namespace Web\Framework\Lib;
 
 use Web\Framework\Lib\Abstracts\MvcAbstract;
 
-// Check for direct file access
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
 
@@ -56,12 +55,12 @@ class View extends MvcAbstract
      * @param string $func Name of render method
      * @param array $params Optional: Parameterlist to pass to render function
      */
-    public function render($func, $params=array())
+    public function render($action, $param=array())
     {
-        if (!method_exists($this, $func))
+        if (!method_exists($this, $action))
             return false;
 
-        return Invoker::run($this, $func, $params);
+        return Lib::invokeMethod($this, $action, $param);
     }
 
     /**
@@ -124,6 +123,17 @@ class View extends MvcAbstract
     public function __isset($key)
     {
         return isset($this->__magic_vars[$key]);
+    }
+
+    /**
+     * Returns a dumps all seth vars
+     * @return string
+     */
+    public function dump()
+    {
+        ob_start();
+        echo var_dump($this->__magic_vars);
+        return ob_end_flush();
     }
 }
 ?>

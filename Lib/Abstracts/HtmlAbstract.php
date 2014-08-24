@@ -1,9 +1,8 @@
 <?php
 namespace Web\Framework\Lib\Abstracts;
 
-use Web\Framework\Lib\Arrays;
 use Web\Framework\Lib\Error;
-use Web\Framework\Lib\Interfaces\HtmlInterface;
+use Web\Framework\Lib\Arrays;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -12,66 +11,83 @@ if (!defined('WEB'))
 /**
  * Parent class for html all elements
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
- * @copyright 2014
- * @license BSD
  * @package WebExt
- * @subpackage Lib
+ * @subpackage Lib\Abstracts
+ * @license BSD
+ * @copyright 2014 by author
  */
-abstract class HtmlAbstract extends ClassAbstract implements HtmlInterface
+abstract class HtmlAbstract extends ClassAbstract
 {
     /**
      * Element type
      * @var string
      */
-    private $element;
+    protected $element;
 
     /**
      * Attribute: name
      * @var string
      */
-    private $name;
+    protected $name;
 
     /**
      * Attribute: id
      * @var string
      */
-    private $id;
+    protected $id;
 
     /**
      * Attribute: class
      * @var array
      */
-    private $css = array();
+    protected $css = array();
 
     /**
      * Attribute: style
      * @var array
      */
-    private $style = array();
+    protected $style = array();
 
     /**
      * Events
      * @var array
      */
-    private $event = array();
+    protected $event = array();
 
     /**
      * Custom html attributes
      * @var array
      */
-    private $attribute = array();
+    protected $attribute = array();
 
     /**
      * Data attributes
      * @var array
      */
-    private $data = array();
+    protected $data = array();
 
     /**
      * Inner HTML of element
      * @var string
      */
-    private $inner;
+    protected $inner;
+
+    /**
+     * Factory method to create a html element.
+     * @param string $name Optional name for the element
+     * @return HtmlAbstract
+     */
+    public static function factory($name=null)
+    {
+        $class = get_called_class();
+
+        $obj = new $class();
+
+        if (isset($name))
+            $obj->setName($name);
+
+        return $obj;
+    }
 
     /**
      * Sets the element type like 'div', 'input', 'p' etc
@@ -191,8 +207,7 @@ abstract class HtmlAbstract extends ClassAbstract implements HtmlInterface
 
     /**
      * Add one or more css classes to the html object.
-     * Accepts single value, a string of space separated classnames
-     * or an array of classnames.
+     * Accepts single value, a string of space separated classnames or an array of classnames.
      * @param string|array $css
      * @return \Web\Framework\Lib\HtmlAbstract
      */
@@ -231,12 +246,12 @@ abstract class HtmlAbstract extends ClassAbstract implements HtmlInterface
                     $check
                 );
 
-                // Is css to check already in objects css array?
+            // Is css to check already in objects css array?
             return array_intersect($check, $this->css) ? true : false;
         }
         else
             // Without set css param we only check if css is used
-            return $this->css;
+            return $this->css ? true : false;
     }
 
     /**
@@ -285,8 +300,7 @@ abstract class HtmlAbstract extends ClassAbstract implements HtmlInterface
      */
     public function addEvent()
     {
-        $type = func_num_args() == 1 ? 'pair_array' : 'pair_one';
-        $this->addTo(func_get_args(), $type);
+        $this->addTo(func_get_args());
         return $this;
     }
 
@@ -300,26 +314,7 @@ abstract class HtmlAbstract extends ClassAbstract implements HtmlInterface
      */
     public function addAttribute()
     {
-        if (func_num_args() == 1 && !is_array(func_get_args()))
-        {
-            $type = 'pair_one';
-            $args = array(
-                func_get_arg(0),
-                false
-            );
-        }
-        elseif (func_num_args() && is_array(func_get_arg(0)) && Arrays::isAssoc($this->func_get_arg(0)))
-        {
-            $type = 'pair_array';
-            $args = func_num_args();
-        }
-        else
-        {
-            $type = 'pair_one';
-            $args = func_num_args();
-        }
-
-        $this->addTo(func_get_args(), $type);
+        $this->addTo(func_get_args());
         return $this;
     }
 
@@ -365,8 +360,7 @@ abstract class HtmlAbstract extends ClassAbstract implements HtmlInterface
      */
     public function addData()
     {
-        $type = func_num_args() == 1 ? 'pair_array' : 'pair_one';
-        $this->addTo(func_get_args(), $type);
+        $this->addTo(func_get_args());
         return $this;
     }
 
@@ -409,7 +403,7 @@ abstract class HtmlAbstract extends ClassAbstract implements HtmlInterface
      * @param unknown $argumentlist
      * @param unknown $type
      */
-    protected function addTo($argumentlist, $type)
+    private function addTo($args)
     {
         $dt = debug_backtrace();
         $func = strtolower(str_replace('add', '', $dt[1]['function']));
@@ -417,29 +411,35 @@ abstract class HtmlAbstract extends ClassAbstract implements HtmlInterface
         if (!isset($this->{$func}) || (isset($this->{$func}) && !is_array($this->$func)))
             $this->{$func} = array();
 
-        switch ($type)
+            // Do we have one argument or two?
+        if (count($args) == 1)
         {
-            case 'value_one' :
-                foreach ( $argumentlist as $val )
-                    $this->{$func}[] = $val;
-                break;
-
-            case 'value_array' :
-                foreach ( $argumentlist as $val )
-                    foreach ( $val as $val2 )
-                        $this->{$func}[] = $val2;
-                break;
-
-            case 'pair_one' :
-                $this->{$func}[$argumentlist[0]] = $argumentlist[1];
-                break;
-
-            case 'pair_array' :
-                foreach ( $argumentlist as $val )
-                    foreach ( $val as $key2 => $val2 )
-                        $this->{$func}[$key2] = $val2;
-                break;
+            // One argument and not an array means we have one single value to add
+            // This is when you set attributes without values like selected, disabled etc.
+            if (!is_array($args[0]))
+            {
+                $this->{$func}[$args[0]] = false;
+            }
+            else
+            {
+                // Check the arguments for assoc array and add arguments according to the
+                // result of check as key, val or only as val
+                if (Arrays::isAssoc($args[0]))
+                {
+                    foreach ( $args[0] as $key => $val )
+                        $this->{$func}[$key] = $val;
+                }
+                else
+                {
+                    foreach ( $args[0] as $val )
+                        $this->{$func}[] = $val;
+                }
+            }
         }
+        else
+        {
+            $this->{$func}[$args[0]] = $args[1];
+		}
     }
 
     /**
@@ -447,7 +447,7 @@ abstract class HtmlAbstract extends ClassAbstract implements HtmlInterface
      * @param string $wrapper
      * @return string
      */
-    public function build($wrapper = null)
+    public function build()
     {
         $html_attr = array();
 
@@ -458,7 +458,10 @@ abstract class HtmlAbstract extends ClassAbstract implements HtmlInterface
             $html_attr['name'] = $this->name;
 
         if ($this->css)
+        {
+            $this->css  = array_unique($this->css);
             $html_attr['class'] = implode(' ', $this->css);
+        }
 
         if ($this->style)
         {
@@ -470,19 +473,19 @@ abstract class HtmlAbstract extends ClassAbstract implements HtmlInterface
             $html_attr['style'] = implode('; ', $styles);
         }
 
-        if (isset($this->event))
+        if ($this->event)
         {
             foreach ( $this->event as $event => $val )
                 $html_attr[$event] = $val;
         }
 
-        if (isset($this->data))
+        if ($this->data)
         {
             foreach ( $this->data as $attr => $val )
                 $html_attr['data-' . $attr] = $val;
         }
 
-        if (isset($this->attribute))
+        if ($this->attribute)
         {
             foreach ( $this->attribute as $attr => $val )
                 $html_attr[$attr] = $val;
@@ -519,9 +522,6 @@ abstract class HtmlAbstract extends ClassAbstract implements HtmlInterface
                 $html = '<' . $this->element . ' ' . $html_attr . '>' . $this->inner . '</' . $this->element . '>';
                 break;
         }
-
-        if (isset($wrapper))
-            $html = '<' . $wrapper . '>' . $html . '</' . $wrapper . '>';
 
         return $html;
     }

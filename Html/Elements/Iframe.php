@@ -13,13 +13,15 @@ if (!defined('WEB'))
  * Creates an iframe html object.
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
- * @subpackage Lib
+ * @subpackage Html\Element
  * @license BSD
  * @copyright 2014 by author
  */
 class Iframe extends HtmlAbstract
 {
     private $sandbox = array();
+
+    protected $element = 'iframe';
 
     /**
      * Factory pattern.
@@ -34,14 +36,6 @@ class Iframe extends HtmlAbstract
     }
 
     /**
-     * Constructor
-     */
-    function __construct()
-    {
-        $this->setElement('iframe');
-    }
-
-    /**
      * Sets src attribute of iframe..
      * @param string|Url $src Url of iframe. Accepts url as string and an url object.
      * @return \Web\Framework\Html\Elements\Iframe
@@ -51,7 +45,7 @@ class Iframe extends HtmlAbstract
         if ($src instanceof Url)
             $src = $src->getUrl();
 
-        $this->addAttribute('src', $src);
+        $this->attribute['src'] = $src;
         return $this;
     }
 
@@ -62,7 +56,7 @@ class Iframe extends HtmlAbstract
      */
     public function setSrcDoc($srcdoc)
     {
-        $this->addAttribute('srcdoc', (string) $srcdoc);
+        $this->attribute['srcdoc'] = $srcdoc;
         return $this;
     }
 
@@ -98,7 +92,7 @@ class Iframe extends HtmlAbstract
      */
     public function setWidth($width)
     {
-        $this->addAttribute('width', (int) $width);
+        $this->attribute['width'] = (int) $width;
         return $this;
     }
 
@@ -109,7 +103,7 @@ class Iframe extends HtmlAbstract
      */
     public function setHeight($height)
     {
-        $this->addAttribute('height', (int) $height);
+        $this->attribute['height'] = (int) $height;
         return $this;
     }
 
@@ -120,7 +114,7 @@ class Iframe extends HtmlAbstract
     public function setSeamless($state = true)
     {
         if ($state === true)
-            $this->addAttribute('seamless');
+            $this->attribute['seamless'] = false;
         else
             $this->removeAttribute('seamless');
 
@@ -131,12 +125,12 @@ class Iframe extends HtmlAbstract
      * (non-PHPdoc)
      * @see \Web\Framework\Lib\Abstracts\HtmlAbstract::build()
      */
-    public function build($wrapper = null)
+    public function build()
     {
         if ($this->sandbox)
-            $this->addAttribute('sandbox', implode(' ', $this->sandbox));
+            $this->attribute['sandbox'] = implode(' ', $this->sandbox);
 
-        return parent::build($wrapper);
+        return parent::build();
     }
 }
 ?>

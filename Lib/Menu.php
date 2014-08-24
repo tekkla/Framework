@@ -1,7 +1,8 @@
 <?php
 namespace Web\Framework\Lib;
 
-// Check for direct file access
+use Web\Framework\Lib\Abstracts\ClassAbstract;
+
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
 
@@ -15,9 +16,8 @@ if (!defined('WEB'))
  * @package WebExt
  * @subpackage Lib
  */
-class Menu
+final class Menu extends ClassAbstract
 {
-
     /**
      * Checks for a set menu handler in framework config
      * @return boolean
@@ -36,16 +36,16 @@ class Menu
     public static function runHandler()
     {
         // Act only on set menu handler
-        if (self::hasHandler())
+        if (Cfg::exists('Web', 'menu_handler'))
         {
             // Get an instance of app in which the menu handler is to find
             $app = App::create(Cfg::get('Web', 'menu_handler'));
 
-            // Check for MenuHandler method. Throws an error if it is missing.
+            // Check for missing MenuHandler method. Throws an error if it is missing.
             if (!method_exists($app, 'menuHandler'))
                 Throw new Error('Method not found.', 5000, array('menuHandler', Cfg::get('Web', 'menu_handler')));
 
-                // Run MenuHandler method in app
+            // Run MenuHandler method in app
             $app->menuHandler();
         }
     }
@@ -66,6 +66,29 @@ class Menu
     public static function getMenuButtons()
     {
         return Context::getByKey('menu_buttons');
+    }
+
+    /**
+     * Ajax refresh of menu
+     */
+    public static function refreshMenu()
+    {
+        // Rebuild the menu structure
+        setupMenuContext();
+
+        // Start own outputbuffer...
+        ob_start();
+
+        // ... to get the result of templates menu function
+        template_menu();
+
+        // Create ajax command to refresh #main_menu
+        Ajax::command(array(
+            'selector' => '#main_menu',
+            'args' => ob_get_clean(),
+            'fn' => 'html',
+            'type' => 'dom'
+        ));
     }
 }
 ?>

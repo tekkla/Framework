@@ -14,13 +14,12 @@ if (!defined('WEB'))
  * possible on regular html elements.
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
- * @subpackage Lib
+ * @subpackage Html\Element
  * @license BSD
  * @copyright 2014 by author
  */
 class Icon extends HtmlAbstract
 {
-
     /**
      * Icon name
      * @var string
@@ -75,9 +74,14 @@ class Icon extends HtmlAbstract
      */
     private $spin = false;
 
+    protected $element = 'i';
+    protected $css = array(
+    	'fa'
+    );
+
     /**
      * Factory method
-     * @param string $icon plain name of icon without leading "icon-"
+     * @param string $icon Plain name of icon without leading "icon-"
      * @return \Web\Framework\Html\Elements\Icon
      */
     public static function factory($icon)
@@ -86,15 +90,6 @@ class Icon extends HtmlAbstract
         $obj->useIcon($icon);
 
         return $obj;
-    }
-
-    /**
-     * Constructor with element type assignment
-     */
-    public function __construct()
-    {
-        $this->setElement('i');
-        $this->addCss('fa');
     }
 
     /**
@@ -258,7 +253,7 @@ class Icon extends HtmlAbstract
      * Icon creation
      * @see \Web\Framework\Lib\Html::build()
      */
-    public function build($wrapper = null)
+    public function build()
     {
         // first step is to set the icon name itself
         $this->addCss('fa-' . $this->icon);
@@ -337,7 +332,7 @@ class Icon extends HtmlAbstract
                 $this->addCss('fa-spin');
         }
 
-        $icon_2 = parent::build($wrapper);
+        $icon_2 = parent::build();
 
         if (isset($stack))
         {

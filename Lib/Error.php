@@ -2,9 +2,9 @@
 namespace Web\Framework\Lib;
 
 use Web\Framework\Lib\Abstracts\ErrorAbstract;
-// Check for direct file access
+
 if (!defined('WEB'))
-	die('Cannot run without WebExt framework...');
+    die('Cannot run without WebExt framework...');
 
 /**
  * Class for WebExt errors handling
@@ -16,26 +16,23 @@ if (!defined('WEB'))
  */
 final class Error extends \Exception
 {
-	private $redirectUrl = false;
+    private $redirectUrl = false;
+    private $codes = array(
+        0 => 'General',
+        1000 => 'ParameterValue',
+        2000 => 'File',
+        3000 => 'Db',
+        4000 => 'Config',
+        5000 => 'Object',
+        6000 => 'Request'
+    );
+    private $params = array();
 
-	private $codes = array(
-
-	    0 => 'General',
-	    1000 => 'ParameterValue',
-	    2000 => 'File',
-	    3000 => 'Db',
-	    4000 => 'Config',
-	    5000 => 'Object',
-	    6000 => 'Request',
-	);
-
-	private $params = array();
-
-	/**
-	 * Error handler object
-	 * @var ErrorAbstract
-	 */
-	private $error_handler;
+    /**
+     * Error handler object
+     * @var ErrorAbstract
+     */
+    private $error_handler;
 
     /**
      * Constructor
@@ -46,12 +43,13 @@ final class Error extends \Exception
      */
     public function __construct($message = '', $code = 0, $params = array(), Error $previous = null)
     {
-        ksort($this->codes);
+        // Get error handler group code from sent $code parameter
+        $code = floor($code / 1000) * 1000;
 
-        foreach ($this->codes as $error_code => $handler_name)
+        foreach ( $this->codes as $error_code => $handler_name )
         {
-        	if ($error_code >= $code)
-        	    break;
+            if ($error_code >= $code)
+                break;
         }
 
         $handler_class = 'Web\\Framework\\Lib\\Errors\\' . $handler_name . 'Error';
@@ -59,11 +57,7 @@ final class Error extends \Exception
         $this->error_handler = new $handler_class($message, $code, $params);
         $this->error_handler->process();
 
-        parent::__construct(
-            $this->error_handler->getMessage(),
-            $this->error_handler->getCode(),
-            $previous
-        );
+        parent::__construct($this->error_handler->getMessage(), $this->error_handler->getCode(), $previous);
     }
 
     /**
@@ -106,7 +100,7 @@ final class Error extends \Exception
      */
     public function getRedirect()
     {
-    	return $this->error_handler->getRedirect();
+        return $this->error_handler->getRedirect();
     }
 
     /**
@@ -115,7 +109,7 @@ final class Error extends \Exception
      */
     public function isRedirect()
     {
-    	return $this->error_handler->isRedirect();
+        return $this->error_handler->isRedirect();
     }
 
     /**
@@ -144,14 +138,49 @@ final class Error extends \Exception
 
     public function getLogMessage()
     {
-    	return $this->error_handler->getLogMessage();
+        return $this->error_handler->getLogMessage();
     }
 
-    public static function endHere(Error $e)
+    public function endHere()
     {
-        // Usually we will never come this far but reaching this point
-        // causes stopping all further actions.
-        header($_SERVER['SERVER_PROTOCOL'] . ' 500 Internal Server Error', true, 500);
+    }
+
+    public function handle()
+    {
+        // Write error to log?
+        if ($this->logError())
+            log_error($this->getLogMessage(), 'WebExt', $this->getFile(), $this->getLine());
+
+            // Ajax request errors will end with an alert(error_message)
+        if (Request::getInstance()->isAjax())
+        {
+            // Create error alert
+            $message = new Message();
+            $message->danger($this->getMessage());
+
+            // Echo processed ajax
+            echo Ajax::process();
+
+            // And finally stop execution
+            exit();
+        }
+
+        // Is error set to be fatal?
+        if ($this->isFatal())
+            setup_fatal_error_context($this->getMessage());
+
+            // If error has a redirection, the error message will be sent as
+            // a message before redirecting to the redirect url
+        if ($this->isRedirect())
+        {
+            $message = new Message();
+            $message->danger($this);
+            redirectexit($this->getRedirect());
+        }
+
+        // Falling through here means we have a really big error. Usually we will never come this far
+        // but reaching this point causes stopping all further actions.
+        send_http_status(500);
 
         $html = '
         <html>
@@ -168,7 +197,7 @@ final class Error extends \Exception
             </style>
         </head>
 
-        <body>' . $e .  '</body>
+        <body>' . $this->getMessage() . '</body>
 
         </html>';
 

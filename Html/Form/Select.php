@@ -1,37 +1,26 @@
 <?php
-
 namespace Web\Framework\Html\Form;
 
+use Web\Framework\Lib\Abstracts\FormElementAbstract;
 use Web\Framework\Lib\Error;
 
-use Web\Framework\Lib\Interfaces\HtmlInterface;
-use Web\Framework\Html\Elements\FormElement;
-
 /**
- *
- * @author michael
- *
+ * Select Form Element
+ * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
+ * @package WebExt
+ * @subpackage Html\Form
+ * @license BSD
+ * @copyright 2014 by author
  */
-class Select extends FormElement implements HtmlInterface
+class Select extends FormElementAbstract
 {
 
 	private $options = array();
 
-	public static function factory($name)
-	{
-		$obj = new Select();
-		$obj->setName($name);
-		return $obj;
-	}
-
-	function __construct()
-	{
-		$this->setElement('select');
-		$this->addCss(array(
-			'form-control',
-		));
-		$this->addData('web-control', 'select');
-	}
+	protected $element = 'select';
+	protected $data = array(
+	    'web-control' => 'select'
+	);
 
 	/**
 	 * Creates an Option object and returns it
@@ -113,7 +102,7 @@ class Select extends FormElement implements HtmlInterface
 		return implode(',', $values);
 	}
 
-	public function build($wrapper=null)
+	public function build()
 	{
 		$inner = '';
 
@@ -125,10 +114,7 @@ class Select extends FormElement implements HtmlInterface
 		if ($this->isMultiple())
 			$this->setName($this->getName() . '[]');
 
-		return parent::build($wrapper);
+		return parent::build();
 	}
-
-
 }
-
 ?>

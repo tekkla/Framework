@@ -10,7 +10,7 @@ use Web\Framework\Lib\Error;
  * Creates a on/off switch control
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
- * @subpackage Html\Form
+ * @subpackage Html\Controls
  * @license BSD
  * @copyright 2014 by author
  */
@@ -40,8 +40,6 @@ class OnOffSwitch extends Select
      */
     public function __construct()
     {
-        parent::__construct();
-
         // Add on option
         $option = Option::factory();
         $option->setValue(1);
@@ -117,12 +115,12 @@ class OnOffSwitch extends Select
      * (non-PHPdoc)
      * @see \Web\Framework\Html\Form\Select::build()
      */
-    public function build($wrapper = null)
+    public function build()
     {
         foreach ( $this->switch as $option )
             $this->addOption($option);
 
-        return parent::build($wrapper);
+        return parent::build();
     }
 }
 ?>

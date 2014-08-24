@@ -1,10 +1,10 @@
 <?php
 namespace Web\Framework\Html\Controls;
 
+use Web\Framework\Html\Elements\Div;
 use Web\Framework\Lib\Error;
 use Web\Framework\Lib\Txt;
 use Web\Framework\Lib\Arrays;
-use Web\Framework\Lib\Abstracts\ClassAbstract;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -14,11 +14,11 @@ if (!defined('WEB'))
  * Creates an Actiobar control
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
- * @subpackage Helper
+ * @subpackage Html/Controls
  * @license BSD
  * @copyright 2014 by author
  */
-class Actionbar extends ClassAbstract
+class Actionbar extends Div
 {
     /**
      * Storage for the UiButtons
@@ -50,15 +50,6 @@ class Actionbar extends ClassAbstract
      * @var string Default 'sm' = small
      */
     private $size = 'sm';
-
-    /**
-     * Factory method
-     * @return \Web\Framework\Html\Controls\Actionbar
-     */
-    public static function factory()
-    {
-        return new Actionbar();
-    }
 
     /**
      * Add one UiButton to the actionbar
@@ -96,7 +87,6 @@ class Actionbar extends ClassAbstract
 
     /**
      * Creates a UiButton for the actionbar.
-     * You can
      * @param string $name
      * @param string $mode optional
      * @param string $type optional
@@ -132,7 +122,7 @@ class Actionbar extends ClassAbstract
         if (empty($this->buttons))
             return false;
 
-        $content = '<div class="web-actionbar">';
+        $this->css[] = 'web-actionbar';
 
         // How many buttons do we have?
         $count = count((array) $this->buttons);
@@ -140,7 +130,7 @@ class Actionbar extends ClassAbstract
         // More than two buttons will be wrapped into a dropdown
         if ($count > 2)
         {
-            $content .= '
+            $this->inner .= '
 			<div class="btn-group">
 				<button type="button" class="btn btn-default dropdown-toggle btn-' . $this->size . '" data-toggle="dropdown">
 					<i class="fa fa-angle-down"></i>
@@ -152,10 +142,10 @@ class Actionbar extends ClassAbstract
             {
                 /* @var $button UiButton */
                 $button->addCss('btn-' . $this->size);
-                $content .= '<li>' . $button->build() . '</li>';
+                $this->inner .= '<li>' . $button->build() . '</li>';
             }
 
-            $content .= '
+            $this->inner .= '
 				</ul>
 			</div>';
         }
@@ -167,13 +157,11 @@ class Actionbar extends ClassAbstract
                 /* @var $button UiButton */
                 $button->addCss('btn-' . $this->size);
 
-                $content .= $button->build();
+                $this->inner .= $button->build();
             }
         }
 
-        $content .= '</div>';
-
-        return $content;
+        return parent::build();
     }
 }
 ?>

@@ -63,8 +63,7 @@ class Lib
     }
 
     /**
-     * Converts an object and its members into an array.
-     * This method works recursive.
+     * Converts an object and it's public members recursively into an array.
      * Use this if you want to convert objects into array.
      * @param object $obj
      * @return array
@@ -188,6 +187,53 @@ class Lib
         }
 
         return true;
+    }
+
+    /**
+     * Executes object method by using Reflection
+     * @throws MethodNotExistsError
+     * @throws ParameterNotSetError
+     * @return mixed
+     */
+    public static function invokeMethod(&$obj, $method, $param = array())
+    {
+        // Look for the method in object. Throw error when missing.
+        if (!method_exists($obj, $method))
+            Throw new Error('Method not found.', 5000, array(
+                $method,
+                $obj
+            ));
+
+            // Convert possible parameter object to array
+        $param = self::fromObjectToArray($param);
+
+        // Get reflection method
+        $method = new \ReflectionMethod($obj, $method);
+
+        // Init empty arguments array
+        $args = array();
+
+        // Get list of parameters from reflection method object
+        $method_parameter = $method->getParameters();
+
+        // Let's see what arguments are needed and which are optional
+        foreach ( $method_parameter as $parameter )
+        {
+            // Get current paramobject name
+            $param_name = $parameter->getName();
+
+            // Parameter is not optional and not set => throw error
+            if (!$parameter->isOptional() && !isset($param[$param_name]))
+                Throw new Error('Missing parameter', 2001, array(
+                    $param_name
+                ));
+
+                // If parameter is optional and not set, set argument to null
+            $args[] = $parameter->isOptional() && !isset($param[$param_name]) ? null : $param[$param_name];
+        }
+
+        // Return result executed method
+        return $method->invokeArgs($obj, $args);
     }
 }
 ?>

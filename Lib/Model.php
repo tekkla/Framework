@@ -72,7 +72,7 @@ class Model extends MvcAbstract
      * Queryparameters
      * @var array
      */
-    private $params = array();
+    private $param = array();
 
     /**
      * Query types
@@ -127,13 +127,13 @@ class Model extends MvcAbstract
      * Errorstorage filled by validator
      * @var array
      */
-    private $errors = array();
+    public $errors = array();
 
     /**
      * Stores the definitions of tables fields
      * @var \stdClass
      */
-    private $columns;
+    public $columns;
 
     /**
      * List of fields which are serializable
@@ -146,12 +146,6 @@ class Model extends MvcAbstract
      * @var Data
      */
     public $data = false;
-
-    /**
-     * Storage for attached validator object
-     * @var validator
-     */
-    private $validator;
 
     /**
      * Stores sql string
@@ -196,47 +190,23 @@ class Model extends MvcAbstract
     protected function __construct($name)
     {
         // Set basic data
-        $this->setName($name);
-        $this->setPK();
+        $this->name = $name;
 
         // Inject db object
         $this->db = Database::getInstance();
 
-        // Load table definition
-        $this->getColumns();
+        ## Load table definition
 
-        // Inject validator object
-        $this->validator = new Validator();
-        $this->validator->attachModel($this);
-    }
-
-    /**
-     * Access to the apps config.
-     * Without any paramter set this method returns the complete config.
-     * With only key set, it returns the value associated with it.
-     * Set key and value, and the config will be updated.
-     * @param string $key
-     * @param string $val
-     */
-    public function cfg($key = null, $val = null)
-    {
-        return $this->app->cfg($key, $val);
-    }
-
-    /**
-     * Loads the table columns and stores them in the $columns property
-     */
-    public function getColumns()
-    {
         // No related table set and no data definition set?
         if (empty($this->tbl) && !isset($this->definition))
-            return false;
+            return;
 
-            // When no related table is set, the definition for the uses datafields
-            // has to be set in the model. Otherwise you can not use the validator.
+        // When no related table is set, the definition for the uses datafields
+        // has to be set in the model. Otherwise you can not use the validator.
         if (empty($this->tbl) && isset($this->definition))
         {
-            $this->columns = Lib::toObject($this->definition);
+            #$this->columns = Lib::toObject($this->definition);
+            $this->columns = new Data($this->definition);
             unset($this->definition);
             return;
         }
@@ -250,7 +220,20 @@ class Model extends MvcAbstract
         // Get primary key column
         $this->pk = $structure->indexes->PRIMARY->columns->{0};
 
-        return true;
+        $this->setPK();
+    }
+
+    /**
+     * Access to the apps config.
+     * Without any paramter set this method returns the complete config.
+     * With only key set, it returns the value associated with it.
+     * Set key and value, and the config will be updated.
+     * @param string $key
+     * @param string $val
+     */
+    public final function cfg($key = null, $val = null)
+    {
+        return $this->app->cfg($key, $val);
     }
 
     /**
@@ -259,7 +242,7 @@ class Model extends MvcAbstract
      * @param sting $fld
      * @return Ambigous <boolean, string>
      */
-    public function getFieldtype($fld)
+    public final function getFieldtype($fld)
     {
         return isset($this->columns->{$fld}) ? $this->db->convertType($this->columns->{$fld}->type) : false;
     }
@@ -268,7 +251,7 @@ class Model extends MvcAbstract
      * Checks the definition of the filed if it allows null values.
      * @param string $fld The name of the field to check
      */
-    public function isNullAllowed($fld)
+    public final function isNullAllowed($fld)
     {
         return $this->columns->{$fld}->null == 1 ? true : false;
     }
@@ -280,20 +263,20 @@ class Model extends MvcAbstract
      * @param array $fields
      * @return array
      */
-    public function find($key, $fields = null, $callbacks = array())
+    public final function find($key, $fields=array(), $callbacks=array())
     {
         $this->reset(true);
-        $this->setFilter($this->alias . '.' . $this->pk . '= {int:' . $this->pk . '}');
-        $this->setParameter($this->pk, $key);
+        $this->filter = $this->alias . '.' . $this->pk . '= {int:' . $this->pk . '}';
+        $this->param = array($this->pk => $key);
 
-        if (isset($fields))
+        if (!empty($fields))
         {
             if (!is_array($fields))
                 $fields = array(
                     $fields
                 );
 
-            $this->setField($fields);
+            $this->fields = $fields;
         }
 
         return $this->read('row', $callbacks);
@@ -302,15 +285,16 @@ class Model extends MvcAbstract
     /**
      * Shorthand method to search for data.
      * @param string $filter
-     * @param arrray $params
+     * @param arrray $param
      * @param string $read_mode
      * @param array $callbacks
      * @return bool Data
      */
-    public function search($filter, $params = array(), $read_mode = '*', $callbacks = array())
+    public final function search($filter, $param=array(), $read_mode='all', $callbacks=array())
     {
         $this->reset(true);
-        $this->setFilter($filter, $params);
+        $this->filter = $filter;
+        $this->param = $param;
         return $this->read($read_mode, $callbacks);
     }
 
@@ -319,10 +303,10 @@ class Model extends MvcAbstract
      * @param int $key
      * @return boolean
      */
-    public function exists($key)
+    public final function exists($key)
     {
-        $this->setFilter($this->alias . '.' . $this->pk . '= {int:val}');
-        $this->addParameter('val', $key);
+        $this->filter = $this->alias . '.' . $this->pk . '= {int:' . $this->pk . '}';
+        $this->param = array($this->pk, $key);
         return count((array) $this->read()) == 0 ? false : true;
     }
 
@@ -331,7 +315,7 @@ class Model extends MvcAbstract
      * Do not set prefixes. This will be done by the model on buildSqlString()
      * @param string $val name of table
      */
-    public function setTable($val, $force = false)
+    public final function setTable($val, $force = false)
     {
         // $tbl not set in model?
         if (!isset($this->tbl) || $force === true)
@@ -344,7 +328,7 @@ class Model extends MvcAbstract
      * Sets an alias for the table.
      * if you provie a paramater to this method it woult be taken as alias
      */
-    public function setAlias($alias)
+    public final function setAlias($alias)
     {
         if (isset($this->tbl) && isset($alias))
             $this->alias = $alias;
@@ -356,7 +340,7 @@ class Model extends MvcAbstract
      * Flags model to use DISTINCT mode in queries
      * @return \Web\Framework\Lib\Model
      */
-    public function isDistinct()
+    public final function isDistinct()
     {
         $this->distinct = true;
         return $this;
@@ -370,12 +354,12 @@ class Model extends MvcAbstract
      * @deprecated
      *
      * @param string $query_type
-     */
-    public function setQuerytypeX($query_type)
+    public final function setQuerytypeX($query_type)
     {
         $this->query_type = $query_type;
         return $this;
     }
+     */
 
     /**
      * Sets the primary key of the table
@@ -399,7 +383,7 @@ class Model extends MvcAbstract
      * Add a field to the fieldlist.
      * You can pass an array of fields or a single fieldname
      */
-    public function addField($val)
+    public final function addField($val)
     {
         // array as func param?
         if (is_array($val))
@@ -414,7 +398,7 @@ class Model extends MvcAbstract
     /**
      * Set $val as fieldlist
      */
-    public function setField($val)
+    public final function setField($val)
     {
         $this->fields = is_array($val) ? $val : array(
             $val
@@ -425,7 +409,7 @@ class Model extends MvcAbstract
     /**
      * Unsets the complete fieldlists
      */
-    public function resetFields()
+    public final function resetFields()
     {
         $this->fields = array();
         return $this;
@@ -434,10 +418,10 @@ class Model extends MvcAbstract
     /**
      * Unsets the filterstatement and the parameterlist
      */
-    public function resetFilter()
+    public final function resetFilter()
     {
         $this->filter = '';
-        $this->params = array();
+        $this->param = array();
         return $this;
     }
 
@@ -445,12 +429,12 @@ class Model extends MvcAbstract
      * Set a complete sql filterstatement
      * @param string $val Sql statement
      */
-    public function setFilter($filter, $params = null)
+    public final function setFilter($filter, $param = null)
     {
         $this->filter = $filter;
 
-        if (isset($params))
-            $this->params = $params;
+        if (isset($param) && is_array($param));
+            $this->param = $param;
 
         return $this;
     }
@@ -460,7 +444,7 @@ class Model extends MvcAbstract
      * @param string $fld Id column WITHOUT tbl prefix
      * @param int $val The id you are looking for
      */
-    public function setIdFilter($fld, $val)
+    public final function setIdFilter($fld, $val)
     {
         $this->setFilter('id_' . $fld . '={int:id_' . $fld . '}');
         $this->setParameter('id_' . $fld, $val);
@@ -471,7 +455,7 @@ class Model extends MvcAbstract
      * Set an orderstatement
      * @param string $order Your order statemen
      */
-    public function setOrder($order)
+    public final function setOrder($order)
     {
         $this->order = $order;
         return $this;
@@ -480,7 +464,7 @@ class Model extends MvcAbstract
     /**
      * Clears the order string
      */
-    public function resetOrder()
+    public final function resetOrder()
     {
         $this->order = '';
         return $this;
@@ -499,16 +483,16 @@ class Model extends MvcAbstract
     function setParameter($arg1, $arg2=null, $reset=true)
     {
     	if ($reset===true)
-    		$this->params = array();
+    		$this->param = array();
 
     	if ($arg2 === null && (is_array($arg1) || is_object($arg1)))
     	{
     		foreach ( $arg1 as $key => $val )
-    			$this->params[$key] = Lib::fromObjectToArray($val);
+    			$this->param[$key] = Lib::fromObjectToArray($val);
     	}
 
     	if (isset($arg2))
-    		$this->params[$arg1] = Lib::fromObjectToArray($arg2);
+    		$this->param[$arg1] = Lib::fromObjectToArray($arg2);
 
     	return $this;
     }
@@ -517,7 +501,7 @@ class Model extends MvcAbstract
      * Same as setParameter but without resetting existing parameters.
      * @see setParameter()
      */
-    public function addParameter($arg1, $arg2=null)
+    public final function addParameter($arg1, $arg2=null)
     {
         $this->setParameter($arg1, $arg2, false);
     }
@@ -526,9 +510,9 @@ class Model extends MvcAbstract
      * Resets the query parameter
      * @return \Web\Framework\Lib\Model
      */
-    public function resetParameter()
+    public final function resetParameter()
     {
-        $this->params = array();
+        $this->param = array();
         return $this;
     }
 
@@ -537,7 +521,7 @@ class Model extends MvcAbstract
      *
      * @param int $val
      */
-    public function setLimit($val1, $val2)
+    public final function setLimit($val1, $val2)
     {
         $this->limit['lower'] = (int) $val1;
         $this->limit['upper'] = (int) $val2;
@@ -549,7 +533,7 @@ class Model extends MvcAbstract
      *
      * @param int $val
      */
-    public function setUpperLimit($val)
+    public final function setUpperLimit($val)
     {
         $this->limit['upper'] = (int) $val;
         return $this;
@@ -559,7 +543,7 @@ class Model extends MvcAbstract
      * Set the lower bound of limit statement
      * @param int $val
      */
-    public function setLowerLimit($val)
+    public final function setLowerLimit($val)
     {
         $this->limit['lower'] = (int) $val;
         return $this;
@@ -568,7 +552,7 @@ class Model extends MvcAbstract
     /**
      * Clears the limit settings
      */
-    public function resetLimit()
+    public final function resetLimit()
     {
         $this->limit = array();
         return $this;
@@ -578,7 +562,7 @@ class Model extends MvcAbstract
      * Add fields for GROUP BY clause
      * Can be an array of values to group by
      */
-    public function setGroupBy($val)
+    public final function setGroupBy($val)
     {
         if (is_array($val))
             $val = implode(', ', $val);
@@ -590,7 +574,7 @@ class Model extends MvcAbstract
     /**
      * Clears the group by string
      */
-    public function resetGroupBy()
+    public final function resetGroupBy()
     {
         $this->group_by = '';
         return $this;
@@ -603,8 +587,11 @@ class Model extends MvcAbstract
      * @param string $by
      * @param string $condition
      */
-    public function addJoin($tbl, $as, $by, $condition)
+    public final function addJoin($tbl, $as, $by, $condition, $reset=false)
     {
+        if ($reset==true)
+        	$this->join = array();
+
         $this->join[] = array(
             'tbl' => $tbl,
             'as' => $as,
@@ -616,21 +603,9 @@ class Model extends MvcAbstract
     }
 
     /**
-     * Resets join array and calls addJoin()
-     * @param string $tbl
-     * @param string $as
-     * @param string $by
-     * @param string $condition
-     */
-    public function setJoin($tbl, $as, $by, $condition)
-    {
-        return $this->resetJoin()->addJoin($tbl, $as, $by, $condition);
-    }
-
-    /**
      * Reset join definitions
      */
-    public function resetJoin()
+    public final function resetJoin()
     {
         $this->join = array();
         return $this;
@@ -642,7 +617,7 @@ class Model extends MvcAbstract
      *
      * @param array $data
      */
-    public function setData($data)
+    public final function setData($data)
     {
         $this->data = $data;
         return $this;
@@ -651,7 +626,7 @@ class Model extends MvcAbstract
     /**
      * Clears all set data from model
      */
-    public function resetData()
+    public final function resetData()
     {
         $this->data = false;
         return $this;
@@ -660,7 +635,7 @@ class Model extends MvcAbstract
     /**
      * Resets the error storage
      */
-    public function resetErrors()
+    public final function resetErrors()
     {
         $this->errors = array();
         return $this;
@@ -675,7 +650,7 @@ class Model extends MvcAbstract
      * @param int $mode
      * @return \Web\Framework\Lib\Model
      */
-    public function cleanMode($mode)
+    public final function cleanMode($mode)
     {
         switch ($mode)
         {
@@ -696,9 +671,9 @@ class Model extends MvcAbstract
      * Builds the sql string for select queries.
      * @return string smf coded sql
      */
-    private function buildSqlString()
+    public function buildSqlString()
     {
-        $params = array();
+        $param = array();
 
         $join = '';
         $filter = '';
@@ -725,11 +700,14 @@ class Model extends MvcAbstract
             // Add `` to some field names as reaction to those stupid developers who chose systemnames as fieldnames
             foreach ( $this->fields as $key_field => $field )
             {
-                if (in_array($field, array(
-                    'date',
-                    'time'
-                )))
-                    $this->fields[$key_field] = '`' . $field . '`';
+                if (in_array($field, array('date', 'time')))
+                   $field = '`' . $field . '`';
+
+                // Extend fieldname either by table alias or name when no dot as alias/table indicator is found.
+                #if (strpos($field, '.') === false)
+                #    $field .= (!empty($this->alias) ? $this->alias : $this->tbl) . '.' . $field;
+
+                $this->fields[$key_field] = $field;
             }
 
             $fieldlist = implode(', ', $this->fields);
@@ -775,79 +753,174 @@ class Model extends MvcAbstract
     }
 
     /**
-     * Get the sql string which will be send to db
-     * @return \Web\Framework\Lib\mysql_result
-     */
-    public function getSqlString()
-    {
-        return $this->buildSqlString();
-    }
-
-    /**
      * Returns debug informations about a query
      * @return string
      */
-    public function getQueryDebug()
+    public final function getQueryDebug()
     {
-        $sql = $this->getSqlString();
+        $sql = $this->buildSqlString();
 
         $out = '
 		<div class="debug">
 			<h3>SQL</h3>
 			<p>' . $sql . '</p>
 			<h3>Params</h3>
-			' . $this->debug($this->params) . '
+			' . $this->debug($this->param) . '
 			<h3>Full query</h3>
-			' . $this->db->quote($sql, $this->params) . '
+			' . $this->db->quote($sql, $this->param) . '
 		</div>';
 
         return $out;
     }
 
     /**
-     * Basic mathod to query data from db
-     * @param string $query_type
-     * @param string $callback Array of methodnames to call on loops through records
-     * @return Ambigous <\Web\Framework\Lib\mixed, number, mixed, unknown>|stdClass
+     * Processes aray based query defintion and sets corresponding properties accordingly.
+     * Resets the model (without data).
+     * @var array $def Query definition in form of array
+     * <code>
+     * <?php
+     * # Structure of query definition
+     * $query = array(
+     *  'type' => 'row',
+     *  'field' => array(
+     *      'field1',
+     *      'field2',
+     *  ),
+     *  'join' => array(
+     *      array($tbl, $as, $by, $condition),
+     *      array($tbl, $as, $by, $condition),
+     *  ),
+     *  'filter' => 'field1={type:param1}',
+     *  'param' => array(
+     *      'param1' => $val1
+     *  ),
+     *  'order' => 'field2 DESC',
+     *  'limit' => 50
+     * );
+     *
+     * return $this->read($query);
+     * ?>
+	 * </code>
+	 * @access private
      */
-    public function read($query_type = 'row', $callbacks = array(), $preserve = false)
+    private function processQueryDefinition($def)
     {
-        // Manually set querytype
-        if (isset($query_type))
+        $this->reset();
+
+        // Use set query type or use 'row' as default
+        $this->query_type = isset($def['type']) ? $def['type'] : 'row';
+
+        // Set fields
+        if (isset($def['field']))
+            $this->fields = is_array($def['field']) ? $def['field'] : array($def['field']);
+        else
+            $this->fields = array('*');
+
+        // Set filter
+      	$this->filter = isset($def['filter']) ? $def['filter'] : '';
+
+        // Set params
+        if (isset($def['param']))
+        	$this->setParameter($def['param']);
+
+        // Set joins
+        if (isset($def['join']) && is_array($def['join']))
+        {
+            $this->resetJoin();
+
+            foreach ($def['join'] as $join)
+            {
+                if (Arrays::isAssoc($join))
+                {
+                    $this->join[] = array(
+                        'tbl' => $join['tbl'],
+                        'as' => $join['as'],
+                        'by' => $join['by'],
+                        'cond' => $join['condition']
+                    );
+                }
+                else
+                {
+                    $this->join[] = array(
+                    	'tbl' => $join[0],
+                    	'as' => $join[1],
+                    	'by' => $join[2],
+                    	'cond' => $join[3]
+                    );
+                }
+            }
+        }
+
+        // Do we have an order statement?
+        if (isset($def['order']))
+            $this->order = $def['order'];
+
+        // Limit to be set?
+        if (isset($def['limit']))
+        {
+            // Single int value as limit?
+            if (is_int($def['limit']))
+                $this->limit['lower'] = $def['limit'];
+
+            // Array but only one value`?
+            elseif(is_array($def['limit']) && count($def['limit']) == 1)
+                $this->limit['lower'] = (int) $def['limit'][0];
+
+            // Array and two values?
+            elseif(is_array($def['limit']) && count($def['limit']) == 2)
+            {
+                $this->limit['lower'] = (int) $def['limit'][0];
+                $this->limit['upper'] = (int) $def['limit'][1];
+            }
+        }
+    }
+
+    /**
+     * Basic mathod to query data from db
+     * @param string|array $query_type String with name of query type or query definition as array
+     * @param string $callback Array of methodnames to call on loops through records
+     * @return Ambigous
+     * @access public
+     */
+    public final function read($query_type='row', $callbacks=array())
+    {
+        // Is our query type an array which indicates we have to parse a query definition?
+        if (is_array($query_type))
+            $this->processQueryDefinition($query_type);
+        else
             $this->query_type = $query_type;
 
-            // On count we count only the pk column
-        if ($query_type == 'num')
-            $this->setField('Count(' . $this->pk . ')');
+        // On count we count only the pk column
+        if ($this->query_type == 'num')
+            $this->fields = array('Count(' . $this->pk . ')');
 
-            // On pklist we only want the pk column
-        if ($query_type == 'key')
-            $this->setField($this->pk);
+        // On pklist we only want the pk column
+        if ($this->query_type == 'key' && !$this->fields)
+            $this->fields = array($this->pk);
 
-            // Build the sql string
+        // Build the sql string
         $this->buildSqlString();
 
         // Array check and conversion for list of serialized columns
         if (!is_array($this->serialized))
             $this->serialized = (array) $this->serialized;
 
-            // Array check for callback parameter
+        // Array check for callback parameter
         if (!is_array($callbacks))
             $callbacks = (array) $callbacks;
 
-            // Are we trying to entend non exiting data?
+        // Are we trying to entend non exiting data? Create Data object to prevent errors when it comes to extending.
         if ($this->query_type == 'ext' && $this->data == false)
-            // Create Data object to prevent errors when it comes to extending
             $this->data = new Data();
 
-            // Do the query!
-        $res = $this->db->query($this->sql, $this->params);
+        // Do the query!
+        $res = $this->db->query($this->sql, $this->param);
 
         // Reset data on all queries not of type 'ext'
         if ($this->query_type !== 'ext')
             $this->resetData();
 
-            // Process result
+        // Process result
         switch ($this->query_type)
         {
             /**
@@ -865,10 +938,12 @@ class Model extends MvcAbstract
 
                     foreach ( $row as $col => $val )
                     {
-                        // Add this key/value if it is not already present. Checks value to be unserialized.
+                        /**
+                         * Add this key/value if it is not already present. Checks value to be unserialized.
+                         * @todo Is override prevention really necessary?
+                         */
                         if (!isset($this->data->{$col}))
-                            $val = in_array($col, $this->serialized) ? unserialize($val) : $val;
-
+                            $this->data->{$col} = in_array($col, $this->serialized) ? unserialize($val) : $val;
                     }
 
                     $this->data = $this->runCallbacks($callbacks, $this->data);
@@ -1002,7 +1077,16 @@ class Model extends MvcAbstract
                 break;
 
             default :
-                Throw new Error('Wrong query type', 1000, array($this->query_type));
+                Throw new Error(
+                    'Wrong query type',
+                    3001,
+                    array(
+                        'caller' => get_called_class(),
+                        'query_type' => $this->query_type,
+                        'table' => $this->tbl,
+                        'params' => $this->param
+                    )
+                );
                 break;
         }
 
@@ -1014,11 +1098,11 @@ class Model extends MvcAbstract
     /**
      * For direct sql calls avoiding the model system.
      * @param string $sql (need to be smf conform)
-     * @param array $params (optional paramter array)
+     * @param array $param (optional paramter array)
      */
-    public function sqlQuery($sql, $params = array())
+    public final function sqlQuery($sql, $param = array())
     {
-        $this->db->query($sql, $params);
+        $this->db->query($sql, $param);
     }
 
     /**
@@ -1031,14 +1115,11 @@ class Model extends MvcAbstract
      * pk value and returns it after the data has been processed.
      * @return boolean multitype:\Web\Framework\Lib\id_of_table
      */
-    protected function save($validate = true)
+    public final function save($validate = true)
     {
         // Make sure $this->data is an Data object
         if (!$this->data instanceof Data)
-        {
-            $this->addError('@', 'Save: Data given to save is no Dataobject.');
-            return false;
-        }
+            Throw new Error('Data given to save is no Dataobject.', 1001, $this->data);
 
         // Validate given data.
         if ($validate)
@@ -1061,7 +1142,7 @@ class Model extends MvcAbstract
      * Insert method used by save()
      * @return mixed PK value of created record
      */
-    private function insert()
+    public final function insert()
     {
         // Run beforeCreate event methods and stop when one of them return bool false
         if ($this->runBefore('create') === false)
@@ -1104,7 +1185,7 @@ class Model extends MvcAbstract
     // Update method used by save()
     private function internalUpdate()
     {
-        $params = array();
+        $param = array();
 
         // Run before update methods and stop here if the return bool false
         if ($this->runBefore('update') === false)
@@ -1124,14 +1205,14 @@ class Model extends MvcAbstract
             $type = $val == 'NULL' ? 'raw' : $this->getFieldtype($fld);
 
             $fieldlist[] = $this->alias . '.' . $fld . '={' . $type . ':' . $fld . '}';
-            $params[$fld] = $val;
+            $param[$fld] = $val;
         }
 
         // Create filter
         $filter = ' WHERE ' . $this->alias . '.' . $this->pk . '={' . $this->getFieldtype($this->pk) . ':' . $this->pk . '}';
 
         // Even if the pk value is present in data, we set this param manually to prevent errors
-        $params[$this->pk] = $this->data->{$this->pk};
+        $param[$this->pk] = $this->data->{$this->pk};
 
         // Build fieldlist
         $fieldlist = implode(', ', $fieldlist);
@@ -1140,7 +1221,7 @@ class Model extends MvcAbstract
         $sql = "UPDATE {db_prefix}{$this->tbl} AS {$this->alias} SET {$fieldlist}{$filter}";
 
         // Run query
-        $this->db->query($sql, $params);
+        $this->db->query($sql, $param);
 
         // Run after update event methods
         if ($this->runAfter('update') === false)
@@ -1150,8 +1231,11 @@ class Model extends MvcAbstract
     /**
      * Updates records of model with the data which was set
      */
-    public function update()
+    public final function update($def=null)
     {
+        if (isset($def))
+            $this->processQueryDefinition($def);
+
         if (isset($this->fields) && $this->data)
             Throw new Error('Fieldset and data records are set for update. You can only have the one or the other. Not both. Stopping Update.');
 
@@ -1164,13 +1248,13 @@ class Model extends MvcAbstract
                 if (!$this->getFieldtype($fld))
                     Throw new Error('The field you set to be updated does not exist in this table.<br />Table: ' . $this->tbl . '<br>Field: ' . $fld);
 
-                if (!array_key_exists($fld, $this->params))
+                if (!array_key_exists($fld, $this->param))
                     Throw new Error('The field "' . $fld . '" you set to be updated has no matching parameter.');
 
                 $fieldlist[] = $this->alias . '.' . $fld . '={' . $this->getFieldtype($fld) . ':' . $fld . '}';
 
                 // sanitize input?
-                $this->params[$fld] = $this->checkFieldvalue($fld, $this->params[$fld]);
+                $this->param[$fld] = $this->checkFieldvalue($fld, $this->param[$fld]);
             }
         }
 
@@ -1183,7 +1267,7 @@ class Model extends MvcAbstract
                     Throw new Error('The field you set to be updated does not exist in this table.<br>Table: ' . $this->tbl . '<br>Field: ' . $fld);
 
                 $fieldlist[] = $this->alias . '.' . $fld . '={' . $this->getFieldtype($fld) . ':' . $fld . '}';
-                $this->params[$fld] = $this->checkFieldAndValue($fld, $val);
+                $this->param[$fld] = $this->checkFieldAndValue($fld, $val);
             }
         }
 
@@ -1196,7 +1280,7 @@ class Model extends MvcAbstract
         // create complete sql string
         $sql = "UPDATE {db_prefix}{$this->tbl} AS {$this->alias} SET {$fieldlist}{$filter}";
 
-        $this->db->query($sql, $this->params);
+        $this->db->query($sql, $this->param);
     }
 
     /**
@@ -1286,22 +1370,32 @@ class Model extends MvcAbstract
      * Setting the $pk parameter will override a model filter.
      * @param mixed $pk
      */
-    public function delete($pk = null)
+    public final function delete($pk=null)
     {
-        $filter = isset($this->filter) ? ' WHERE ' . $this->filter : null;
-
+        // When pk is set
         if (isset($pk))
         {
-            $filter = ' WHERE ' . $this->pk . '={int:pk}';
-            $this->params = array(
-                'pk' => $pk
-            );
+            // Do we have a definition like filter and paramerter to process?
+            if (is_array($pk))
+                $this->processQueryDefinition($pk);
+            // Or is it a primary key value?
+            else
+            {
+                $this->filter = $this->pk . '={int:pk}';
+                $this->param = array('pk' => $pk);
+            }
         }
 
+        // Do we have to prepare a filter statement
+        $filter = $this->filter ? ' WHERE ' . $this->filter : '';
+
+        // Build sql string
         $sql = "DELETE FROM {db_prefix}{$this->tbl}{$filter}";
 
-        $this->db->query($sql, $this->params);
+        // Running delete
+        $this->db->query($sql, $this->param);
 
+        // Reset filter and parameter
         $this->resetFilter();
         $this->resetParameter();
     }
@@ -1312,19 +1406,21 @@ class Model extends MvcAbstract
      * WITHOUT any further confirmation question
      * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
      */
-    public function truncate()
+    public final function truncate()
     {
         $sql = 'TRUNCATE {db_prefix}' . $this->tbl;
         $this->db->query($sql);
     }
 
     /**
-     * Stars the validation process and returns true or false
+     * Stars the validation process and returns true or false as result of this process
      * @return boolean
      */
-    public function validate()
+    protected final function validate()
     {
-        $this->validator->validate();
+        $validator = new Validator($this);
+        $validator->validate();
+
         return $this->hasErrors() ? false : true;
     }
 
@@ -1333,7 +1429,7 @@ class Model extends MvcAbstract
      * @param string $field The fieldname the validator is used for
      * @param string|array $rule Validator rule
      */
-    public function addValidationRule($field, $rule)
+    public final function addValidationRule($field, $rule)
     {
         $this->validate[$field][] = $rule;
         return $this;
@@ -1344,7 +1440,7 @@ class Model extends MvcAbstract
      * @param string $field The fieldname the validator is used for
      * @param array $ruleset List of rules to add to the validator
      */
-    public function addValidationRuleset($field, $ruleset)
+    public final function addValidationRuleset($field, $ruleset)
     {
         if (!is_array($ruleset))
             $ruleset = (array) $ruleset;
@@ -1361,7 +1457,7 @@ class Model extends MvcAbstract
      * @param string $fld
      * @param string $msg
      */
-    public function addError($fld, $msg)
+    public final function addError($fld, $msg)
     {
         if (!isset($this->errors[$fld]))
             $this->errors[$fld] = array();
@@ -1381,7 +1477,7 @@ class Model extends MvcAbstract
      * Checks errors in the model and returns true or false
      * @return boolean
      */
-    public function hasErrors()
+    public final function hasErrors()
     {
         return !empty($this->errors);
     }
@@ -1390,7 +1486,7 @@ class Model extends MvcAbstract
      * Checks for no errors in the model and returns true or false
      * @return boolean
      */
-    public function hasNoErrors()
+    public final function hasNoErrors()
     {
         return empty($this->errors);
     }
@@ -1399,7 +1495,7 @@ class Model extends MvcAbstract
      * Returns the models errorlist
      * @return array
      */
-    public function getErrors()
+    public final function getErrors()
     {
         return $this->errors;
     }
@@ -1408,12 +1504,12 @@ class Model extends MvcAbstract
      * Checks for set data and returns true or false
      * @return boolean
      */
-    public function hasData()
+    public final function hasData()
     {
         return $this->data == false ? false : true;
     }
 
-    public function hasNoData()
+    public final function hasNoData()
     {
         return $this->data == false ? true : false;
     }
@@ -1424,8 +1520,12 @@ class Model extends MvcAbstract
      * @param mixed $val Value to check
      * @return mixed The checked and processed value
      */
-    public function checkFieldvalue($fld, $val)
+    public final function checkFieldvalue($fld, $val)
     {
+        // Return NULL value as string 'NULL' to identify this value to be passed as raw type to query
+        if (is_null($val))
+        	return 'NULL';
+
         // trim the string, baby!
         if (is_string($val))
             $val = trim($val);
@@ -1464,7 +1564,7 @@ class Model extends MvcAbstract
         if (is_string($val) && $this->clean == 1)
             $val = Lib::sanitizeUserInput($val);
 
-        if (in_array($fld, $this->serialized))
+        if (in_array($fld, $this->serialized) && (is_array($val) || $val instanceof Data))
             $val = serialize($val);
 
         return $val;
@@ -1485,7 +1585,7 @@ class Model extends MvcAbstract
      * If you set the parameter to true, also all data will be erased from memory.
      * @param boolean $with_data
      */
-    public function reset($with_data = false)
+    public final function reset($with_data = false)
     {
         $this->resetFields();
         $this->resetFilter();
@@ -1507,7 +1607,7 @@ class Model extends MvcAbstract
      * If data represents a recordset, the number of records will be returnd
      * @return number
      */
-    public function countData()
+    public final function countData()
     {
         return $this->data == false ? 0 : $this->data->count();
     }
@@ -1516,11 +1616,18 @@ class Model extends MvcAbstract
      * Method to count records
      * You do not need to set any field because this method overrides already set fields with "Count(pk_name)".
      * All other settings like filters, parameters or joins will be used.
-     *
+     * @var string $filter Optional filter string
+     * @var array $param Optional array of parameters used in filter
      * @return int
      */
-    public function count()
+    public final function count($filter='', $param=array())
     {
+        if ($filter)
+            $this->filter = $filter;
+
+        if ($param)
+            $this->param = $param;
+
         return $this->read('num');
     }
 
@@ -1530,7 +1637,7 @@ class Model extends MvcAbstract
      * @throws Error
      * @return Data
      */
-    public function combine()
+    public final function combine()
     {
         if (!isset($this->data->{$this->pk}))
             Throw new Error('No pk key/value set for combining data.');
@@ -1549,7 +1656,7 @@ class Model extends MvcAbstract
      * @param string $fld
      * @return boolean
      */
-    public function compare($fld)
+    public final function compare($fld)
     {
         if (!isset($this->data->{$this->pk}))
             Throw new Error('Db field compare is allowed only with existing pk value in your current dataset.');
@@ -1578,7 +1685,7 @@ class Model extends MvcAbstract
      * @param string $key
      * @param mixed $val
      */
-    public function addColumn($fld, $key, $val)
+    public final function addColumn($fld, $key, $val)
     {
         if (!isset($this->columns))
             $this->columns = new Data();
@@ -1599,7 +1706,7 @@ class Model extends MvcAbstract
      * @param string $model_name Optional: When not set the name of the current model will be used
      * @return Model
      */
-    public function getModel($model_name = null)
+    public final function getModel($model_name = null)
     {
         if (!isset($model_name))
             $model_name = $this->getName();
@@ -1615,7 +1722,7 @@ class Model extends MvcAbstract
      * @param bool $exit_on_false Optional flag to stop processing callbacks as soon as one callback methos return boolean false.
      * @return mixed Processed $data
      */
-    public function runCallbacks($callbacks, $data, $exit_on_false = false)
+    public final function runCallbacks($callbacks, $data, $exit_on_false = false)
     {
         foreach ( $callbacks as $callback )
         {
@@ -1636,15 +1743,18 @@ class Model extends MvcAbstract
         return $data;
     }
 
-    public function __get($key)
+    /**
+     * Returns the model validation rule stack
+     * @return array
+     */
+    public function getValidationStack()
     {
-        if (strpos($key, '@') !== 0)
-            return;
+        return $this->validate;
+    }
 
-        $key = substr($key, 1);
-
-        if ($this->data !== false && isset($this->data->{$key}))
-            return $this->data->{key};
+    public function getTableName()
+    {
+        return $this->tbl;
     }
 }
 ?>

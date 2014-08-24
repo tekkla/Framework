@@ -23,6 +23,7 @@ class ObjectError extends ErrorAbstract
         5002 => 'PropertyMissing',
         5003 => 'PropertyNotSet',
         5004 => 'PropertyEmpty',
+        5005 => 'NotAllowedProperty',
     );
 
     protected $fatal = true;

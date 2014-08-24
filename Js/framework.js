@@ -2,7 +2,7 @@
 // Function with commands to use on "ready" and in/after ajax requests
 // ----------------------------------------------------------------------------
 function webReadyAndAjax() {
-
+    
     // Bind datepicker
     $('.web-form-datepicker').webDatepicker();
 
@@ -18,7 +18,6 @@ function webReadyAndAjax() {
 
     // Fade out elements
     $('.web-fadeout').delay(web_fadeout_time).slideUp(800, function() {
-
         $(this).remove();
     });
 }
@@ -27,6 +26,7 @@ function webReadyAndAjax() {
 // Eventhandler "ready"
 // ----------------------------------------------------------------------------
 $(document).ready(function() {
+
     // scroll to top button
     $(window).scroll(function() {
 
@@ -45,6 +45,7 @@ $(document).ready(function() {
 // Eventhandler on "ajaxStart"
 // ----------------------------------------------------------------------------
 $(document).ajaxStart(function() {
+
     // Show loading circle on ajax loads
     $('body').addClass("loading");
 });
@@ -53,8 +54,11 @@ $(document).ajaxStart(function() {
 // Do this on "ready" and on "ajaxComplete" events
 // ----------------------------------------------------------------------------
 $(document).ajaxStop(function(event) {
+
     // Hide loading circle
     $('body').removeClass("loading");
+    
+    webReadyAndAjax();
 });
 
 // ----------------------------------------------------------------------------
@@ -83,9 +87,17 @@ $(document).on('keyup input paste', 'textarea[maxlength]', function() {
 // ----------------------------------------------------------------------------
 $(document).on('click', '#web-scrolltotop', function(event) {
 
-    $('body,html').animate({
-        scrollTop : 0
-    }, 400);
+    if (navigator.userAgent.match(/(iPod|iPhone|iPad|Android)/)) {           
+        window.scrollTo(0,0) // first value for left offset, second value for top offset
+    } else {
+        $('html,body').animate({
+            scrollTop: 0,
+            scrollLeft: 0
+        }, 800, function(){
+            $('html,body').clearQueue();
+        });
+    }    
+
     return false;
 });
 
@@ -93,10 +105,12 @@ $(document).on('click', '#web-scrolltotop', function(event) {
 // ClickHandler for back button
 // ----------------------------------------------------------------------------
 $(document).on('click', '.web-btn-back', function(event) {
-
     document.history.go(-1);
 });
 
+//----------------------------------------------------------------------------
+//ClickHandler for confirms
+//----------------------------------------------------------------------------
 $(document).on('click', '*[data-web-confirm]', function(event) {
 
     if ($(this).data('web-ajax') !== undefined)
@@ -188,7 +202,7 @@ $(document).on('click', '*[data-web-ajax]', function(event) {
 
         parseWebJson({
             cmd : {
-                type : 'alert',
+                type : 'error',
                 target : '#web-message',
                 mode : 'replace',
                 content : XMLHttpRequest.responseText
@@ -207,73 +221,66 @@ $(document).on('click', '*[data-web-ajax]', function(event) {
 // ----------------------------------------------------------------------------
 function parseWebJson(json) {
 
-    // console.debug(json);
-
-    $.each(json, function(i, v) {
-
-        switch (v.type) {
-            case 'refresh':
-                window.location.replace(v.content);
-                return true;
-                break;
-            case "html":
-                switch (v.mode) {
-                    case "replace":
-                        $(v.target).html(v.content);
-                        webReadyAndAjax();
-                        break;
-                    case "before":
-                        $(v.target).before(v.content);
-                        webReadyAndAjax();
-                        break;
-                    case "after":
-                        $(v.target).after(v.content);
-                        webReadyAndAjax();
-                        break;
-                    case "prepend":
-                        $(v.target).prepend(v.content);
-                        webReadyAndAjax();
-                        break;
-                    case "append":
-                        $(v.target).append(v.content);
-                        webReadyAndAjax();
-                        break;
-                    case "remove":
-                        $(v.target).remove();
-                        break;
-                }
-                break;
-
-            case "alert":
-                Apprise(v.content);
-                webReadyAndAjax();
-                break;
-            case "error":
-                $(v.target).addClass('fade in').html('<a class="close" data-dismiss="alert" href="#" aria-hidden="true">&times;</a>' + v.content).alert();
-                webReadyAndAjax();
-                $(v.target).bind('closed.bs.alert', function() {
-
-                    $(this).removeClass().html('').unbind('closed.bs.alert');
+    //console.debug(json);
+    
+    $.each(json, function(type, stack) {
+        
+        // DOM manipulations
+        if (type=='dom')
+        {
+            console.log('DOM manipulation');
+            
+            $.each(stack, function(id, cmd) {
+                
+                var selector = $(id);
+                
+                $.each(cmd, function(i, x) {
+                    selector = selector[x.f](x.a);
+                    
+                    webReadyAndAjax();
                 });
-
-                break;
-            case "log":
-            case "console":
-                console.log(v.content);
-                break;
-            case "modal":
-
-                // fill dialog with content
-                $('#web-modal').html(v.content).modal({
-                    keyboard : false
-                });
-                webReadyAndAjax();
-                break;
-
-            case 'load_script':
-                $.getScript(v.content);
-                break;
+            });
         }
+        
+        // Specific actions
+        if (type=='act')
+        {
+            console.log('Specific action');
+            
+            $.each(stack, function(i, cmd) {
+              
+                switch (cmd.f) {
+                    case "alert":
+                        bootbox.alert(cmd.a[0]);
+                        break;
+                    case "error":
+                        $(v.target).addClass('fade in').html('<a class="close" data-dismiss="alert" href="#" aria-hidden="true">&times;</a>' + cmd.a[0]).alert();
+                        $(v.target).bind('closed.bs.alert', function() {
+                            $(this).removeClass().html('').unbind('closed.bs.alert');
+                        });
+                        break;
+                    case "log":
+                    case "console":
+                        console.log(cmd.a[0]);
+                        break;
+                    case "modal":
 
+                        // fill dialog with content
+                        $('#web-modal').html(cmd.a[0]).modal({
+                            keyboard : false
+                        });
+                        break;
+
+                    case 'load_script':
+                        $.getScript(cmd.a[0]);
+                        break;
+                        
+                    case 'refresh':
+                        window.location.href = cmd.a[0];
+                        return;
+                }
+                
+            });
+        }
     });
 }

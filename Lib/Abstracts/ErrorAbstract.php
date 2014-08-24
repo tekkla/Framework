@@ -9,7 +9,7 @@ use Web\Framework\Lib\User;
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  *
  */
-abstract class ErrorAbstract
+abstract class ErrorAbstract extends ClassAbstract
 {
 
     /**
@@ -214,7 +214,19 @@ abstract class ErrorAbstract
      */
     protected function processGeneral()
     {
-        $this->admin_message .= '<br><br>Parameter:<br>' .print_r($this->params, true);
+        $this->admin_message = '
+        <h2>Error (Code: ' . $this->code . ')</h2>
+        <p class="lead">' . $this->admin_message .'</p>';
+
+        if ($this->params)
+            $this->admin_message .= '
+            <h4>Parameter</h4>
+            <pre>' .print_r($this->params, true). '</pre>';
+
+
+      	$this->admin_message .= '
+        <h4>Trace</h4>
+        <pre>' . $this->trace(5) . '</pre>';
     }
 
     /**

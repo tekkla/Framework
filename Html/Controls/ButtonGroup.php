@@ -17,21 +17,13 @@ if (!defined('WEB'))
  * @license BSD
  * @copyright 2014 by author
  */
-class ButtonGroup extends Div
+final class ButtonGroup extends Div
 {
     /**
      * Button stroage
      * @var array
      */
     private $buttons = array();
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
 
     /**
      * Adds a button to the group
@@ -56,7 +48,7 @@ class ButtonGroup extends Div
      * @return string
      * @see \Web\Framework\Lib\Abstracts\HtmlAbstract::build()
      */
-    public function build($wrapper = null)
+    public function build()
     {
         if (empty($this->buttons))
             Throw new Error('No buttons for buttongroup set.');
@@ -70,7 +62,7 @@ class ButtonGroup extends Div
         $this->setInner($inner);
         $this->addCss('btn-group');
 
-        return parent::build($wrapper);
+        return parent::build();
     }
 }
 ?>

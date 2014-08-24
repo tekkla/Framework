@@ -17,7 +17,19 @@ if (!defined('WEB'))
  */
 final class DbError extends ErrorAbstract
 {
+    protected $codes = array(
+    	3000 => 'General',
+        3001 => 'WrongQueryType',
+        3002 => 'ParameterError'
+    );
+
     protected $fatal = true;
+
+    protected function processWrongQueryType()
+    {
+        $this->admin_message .= '<pre>' . print_r($this->params, true) . '</pre>';
+    }
+
 }
 ?>
 

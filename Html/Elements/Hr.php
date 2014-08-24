@@ -11,20 +11,12 @@ if (!defined('WEB'))
  * Creates a horizontal ruler (<hr>) html object
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
- * @subpackage Lib
+ * @subpackage Html\Element
  * @license BSD
  * @copyright 2014 by author
  */
 class Hr extends HtmlAbstract
 {
-	public static function factory()
-	{
-		return new Hr();
-	}
-
-	function __construct()
-	{
-		$this->setElement('hr');
-	}
+    protected $element = 'hr';
 }
 ?>

@@ -2,10 +2,9 @@
 namespace Web\Framework\Html\Controls;
 
 use Web\Framework\Lib\App;
-use Web\Framework\Lib\Invoker;
+use Web\Framework\Lib\Lib;
 use Web\Framework\Html\Form\Select;
 
-// Check for direct file access
 if (!defined('WEB'))
     die('Cannot run without WebExt framework...');
 
@@ -13,11 +12,11 @@ if (!defined('WEB'))
  * Creates a data driven select element
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
- * @subpackage Helper
+ * @subpackage Html\Controls
  * @license BSD
  * @copyright 2014 by author
  */
-class DataSelect extends Select
+final class DataSelect extends Select
 {
     /**
      * The data from which the options of the select will be created
@@ -39,19 +38,6 @@ class DataSelect extends Select
     private $selected;
 
     /**
-     * Returns an DataSelect object
-     * @param string $app
-     * @param string $model
-     * @return \web\framework\Html\controls\DataSelect
-     */
-    public static function factory($name)
-    {
-        $obj = new DataSelect();
-        $obj->setName($name);
-        return $obj;
-    }
-
-    /**
      * Sets a datasource
      * @param string $app Name of app the model is of
      * @param string $model Name of model
@@ -60,15 +46,13 @@ class DataSelect extends Select
      * @param string $datatype How to use the modeldata in the select options (value and inner value)
      * @return \Web\Framework\Html\Controls\DataSelect
      */
-    public function setDataSource($app_name, $model, $func, $params = null, $datatype = 'assoc')
+    public function setDataSource($app_name, $model, $func, $param = array(), $datatype = 'assoc')
     {
         // Create model object
         $model = App::create($app_name)->getModel($model);
 
         // Get data from model and use is as datasource
-        $this->datasource = Invoker::Run($model, $func, $params);
-
-        // var_dump($this->datasource);
+        $this->datasource = Lib::invokeMethod($model, $func, $param);
 
         // Set the dataype
         $this->datatype = $datatype;
@@ -91,11 +75,11 @@ class DataSelect extends Select
      * Builds and returna html code
      * @see \Web\Framework\Html\Form\Select::build()
      */
-    public function build($wrapper = null)
+    public function build()
     {
         foreach ( $this->datasource as $val => $inner )
         {
-            $option = $this->newOption();
+            $option = $this->createOption();
 
             // inner will always be used
             $option->setInner($inner);
@@ -122,7 +106,7 @@ class DataSelect extends Select
             }
         }
 
-        return parent::build($wrapper);
+        return parent::build();
     }
 }
 ?>

@@ -1,7 +1,6 @@
 <?php
 namespace Web\Framework\Lib;
 
-// Check for direct file access
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
 
@@ -13,7 +12,7 @@ if (!defined('WEB'))
  * @package WebExt
  * @subpackage Lib
  */
-class Security
+final class Security
 {
     /**
      * Global method to prove user access.
@@ -21,7 +20,7 @@ class Security
      * @param string $mode
      * @return boolean
      */
-    public static function checkAccess($perms, $mode = 'smf', $force = false)
+    public static function checkAccess($perms=array(), $mode = 'smf', $force = false)
     {
         // Perms check with boolean result
         if ($mode == 'smf' && $force == false)
@@ -30,10 +29,6 @@ class Security
             // Perms check with error result
         if ($mode == 'smf' && $force == true)
             isAllowedTo($perms);
-
-            // @todo Experimantal interface. Logic behind not implemented now
-        if ($mode == 'app')
-            return App::create('web')->getModel('access')->checkAccess($perms);
     }
 }
 ?>

@@ -1,17 +1,12 @@
 <?php
 namespace Web\Framework\Helper;
 
-// Used libs
 use Web\Framework\Lib\Error;
 use Web\Framework\Lib\Model;
 use Web\Framework\Lib\Txt;
 use Web\Framework\Lib\String;
 use Web\Framework\Lib\FileIO;
-
-// Used helper
 use Web\Framework\Html\Controls\UiButton;
-
-// Used html stuff
 use Web\Framework\Html\Form\Form;
 use Web\Framework\Html\Form\Input;
 use Web\Framework\Html\Form\Textarea;
@@ -20,7 +15,6 @@ use Web\Framework\Html\Form\Select;
 use Web\Framework\Html\Form\Checkbox;
 use Web\Framework\Html\Elements\Div;
 use Web\Framework\Html\Elements\Heading;
-use Web\Framework\Html\Elements\FormElement;
 use Web\Framework\Html\Elements\Paragraph;
 use Web\Framework\Html\Controls\OptionGroup;
 use Web\Framework\Html\Controls\OnOffSwitch;
@@ -28,6 +22,7 @@ use Web\Framework\Html\Controls\Editor;
 use Web\Framework\Html\Controls\DataSelect;
 use Web\Framework\Html\Controls\Group;
 use Web\Framework\Html\Controls\DateTimePicker;
+use Web\Framework\Lib\Abstracts\FormElementAbstract;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -41,26 +36,15 @@ if (!defined('WEB'))
  * @subpackage Helper
  * @license BSD
  * @copyright 2014 by author
+ * @final
  */
-class FormDesigner extends Form
+final class FormDesigner extends Form
 {
     /**
      * Form controls storage
      * @var array
      */
     private $controls = array();
-
-    /**
-     * Forms name
-     * @var string
-     */
-    private $name;
-
-    /**
-     * Form send method
-     * @var string Default: post
-     */
-    private $method = 'post';
 
     /**
      * The mode the data will be send to server
@@ -160,23 +144,6 @@ class FormDesigner extends Form
 
     private $grid_control;
 
-    private $elements = array();
-
-    /**
-     * Factory method
-     * @return Form
-     */
-    public static function factory()
-    {
-        return new FormDesigner();
-    }
-
-    function __construct()
-    {
-        parent::__construct();
-        $this->setEnctype('multipart/form-data');
-    }
-
     /**
      * Inject model dependency
      * @param Model $model
@@ -251,15 +218,18 @@ class FormDesigner extends Form
      * @param unknown $group_name
      * @return Group
      */
-    public function &openGroup($group_name)
+    public function &openGroup($group_name='')
     {
+        if (!$group_name)
+            $group_name = uniqid();
+
         // close current open group
         if (isset($this->group_name))
             $this->closeGroup();
 
         $this->group_name = $group_name;
 
-        $this->addControl($this->group_name, Group::factory($group_name));
+        $this->controls[$this->group_name] = Group::factory($group_name);
 
         return $this->controls[$this->group_name];
     }
@@ -271,7 +241,7 @@ class FormDesigner extends Form
     {
         if (isset($this->group_name))
         {
-            $this->addControl($this->group_name . '_close', 'close_group');
+            $this->controls[$this->group_name . '_close'] = 'close_group';
             unset($this->group_name);
         }
     }
@@ -304,7 +274,7 @@ class FormDesigner extends Form
 
             case 'text' :
 				/* @var Input $element */
-				$element = Input::factory($name)->addCss('web-form-text');
+				$element = Input::factory($name)->setType('text')->addCss('web-form-text');
                 break;
 
             case 'number' :
@@ -375,10 +345,7 @@ class FormDesigner extends Form
 
             case 'multiselect' :
 				/* @var Select $element */
-				$element = Select::factory($name);
-                $element->isMultiple(1);
-                $element->setSize(10);
-                $element->addCss('web-form-multiselect');
+				$element = Select::factory($name)->isMultiple(1)->setSize(10)->addCss('web-form-multiselect');
                 break;
 
             case 'dataselect' :
@@ -386,17 +353,11 @@ class FormDesigner extends Form
                 break;
 
             case 'submit' :
-                $element = Button::factory($name);
-                $element->setType('submit');
-                $element->setInner(Txt::get('web_btn_save'));
-                $element->useIcon('save');
-                $element->isPrimary();
+                $element = Button::factory($name)->setType('submit')->setInner(Txt::get('web_btn_save'))->useIcon('save')->isPrimary();
                 break;
 
             case 'reset' :
-                $element = Button::factory($name);
-                $element->setType('reset');
-                $element->setInner(Txt::get('web_btn_reset'));
+                $element = Button::factory($name)->setType('reset')->setInner(Txt::get('web_btn_reset'));
                 break;
 
             case 'textarea' :
@@ -416,8 +377,7 @@ class FormDesigner extends Form
                 break;
 
             case 'button' :
-                $element = Button::factory($name);
-                $element->setType('button');
+                $element = Button::factory($name)->setType('button');
                 break;
 
             case 'ajaxbutton' :
@@ -476,8 +436,8 @@ class FormDesigner extends Form
         }
         else
         {
-            // Set element as unbound as long as it is no UiButton
-            if ($element instanceof FormElement)
+            // Set element as unbound as long as it is a FormElement subclass
+            if ($element instanceof FormElementAbstract)
                 $element->setUnbound();
         }
 
@@ -497,7 +457,7 @@ class FormDesigner extends Form
         return $this;
     }
 
-    public function build($wrapper = null)
+    public function build()
     {
         if (empty($this->controls))
             Throw new Error('Your form has no controls to show. Add controls and try again.', 10000);
@@ -524,20 +484,30 @@ class FormDesigner extends Form
         $this->app_name = String::uncamelize($this->app_name);
         $this->model_name = String::uncamelize($this->model_name);
 
-        // create formname
-        $form_name = $form_id = $base_form_name . '_' . $this->app_name . '_' . $this->model_name . (isset($this->name_ext) ? '_' . $this->name_ext : '');
+        // Create formname
+        if (!$this->name)
+        {
+            // Create control id prefix based on the model name
+            $control_id_prefix = 'web_' . $this->app_name . '_' . $this->model_name;
 
-        // create control name prefix
+            // Create form name based on model name and possible extensions
+            $this->name = $base_form_name . '_' . $this->app_name . '_' . $this->model_name . (isset($this->name_ext) ? '_' . $this->name_ext : '');
+        }
+        else
+        {
+            // Create control id prefix based on the provided form name
+            $control_id_prefix = 'web_' . $this->app_name . '_' . $this->name;
+
+            // Create form name based on th provided form name
+            $this->name = $base_form_name . $this->app_name . '_' . $this->name . (isset($this->name_ext) ? '_' . $this->name_ext : '');
+        }
+
+        // Use formname as id when not set
+        if (!$this->id)
+        	$this->id = str_replace('_', '-', $this->name);
+
+        // Create control name prefix
         $control_name_prefix = 'web[' . $this->app_name . '][' . $this->model_name . ']';
-
-        // create control id prefix
-        $control_id_prefix = 'web_' . $this->app_name . '_' . $this->model_name;
-
-        // set name only when no name was set
-        $this->setName($form_name);
-
-        // set id only when no id was set
-        $this->setId($form_name);
 
         // Create display mode
         switch ($this->display_mode)
@@ -567,7 +537,7 @@ class FormDesigner extends Form
         foreach ( $this->buttons as $btn => $text )
         {
             $btn_name = 'web_btn_' . $btn;
-            $btn_id = 'web-btn-' . $btn;
+            $btn_id = 'web-btn-' . str_replace('_', '-', $btn);
 
             /* @var $button \Web\Framework\Html\Form\Button */
             $button = $this->createElement('button', $btn_name)->setId($btn_id)->setInner(Txt::get($text));
@@ -613,6 +583,7 @@ class FormDesigner extends Form
 
             if ($control instanceof Group)
             {
+                $control->setId($this->id . '-group-' . $control->getId());
                 $this->group = $control;
                 $this->group_open = true;
                 continue;
@@ -642,7 +613,7 @@ class FormDesigner extends Form
                 $html_control .= $control->build();
             }
             // No ajax button. Normal form control.
-            elseif ($control instanceof FormElement)
+            elseif ($control instanceof FormElementAbstract)
             {
                 // Only visible fields get a tabindex
                 if (!$control instanceof Input || ($control instanceof Input && $control->getType() !== 'hidden'))
@@ -673,17 +644,17 @@ class FormDesigner extends Form
                 }
 
                 // create control id {app}_{model}_{existing id}
-                $control->setId($control_id_prefix . '_' . $field_name);
+                $control->setId(str_replace('_', '-', $control_id_prefix . '-' . $field_name));
 
                 // Set BS group class
                 switch ($type)
                 {
                     case 'radio' :
-                        $container = '<div class="radio{state}"><label class="control-label" for="{id}">{control}{description}</label></div>';
+                        $container = '<div class="radio{state}">{control}{description} (' . $type . ')</div>';
                         break;
 
                     case 'checkbox' :
-                        $container = '<div class="checkbox{state}"><label class="control-label" for="{id}">{control}{description}</label></div>';
+                        $container = '<div class="checkbox{state}">{control}{description} (' . $type . ')</div>';
                         break;
 
                     case 'button' :
@@ -720,6 +691,10 @@ class FormDesigner extends Form
                     }
                 }
 
+                // Set the form id to editor controls
+                if ($type == 'editor')
+                	$control->setFormId($this->getId());
+
                 // Hidden controls dont need any label or other stuff to display
                 if ($type == 'hidden')
                 {
@@ -727,11 +702,7 @@ class FormDesigner extends Form
                     continue;
                 }
 
-                // Set the form id to editor controls
-                if ($type == 'editor')
-                    $control->setFormId($this->getId());
-
-                    // Set working state for fields to nothing
+                // Set working state for fields to nothing
                 $state = '';
 
                 // Add possible validation errors css to label and control
@@ -755,7 +726,7 @@ class FormDesigner extends Form
                     $control->setLabel($label);
                 }
 
-                // add possible label
+                // Add possible label
                 if ($control->hasLabel())
                 {
                     $control->label->setFor($control->getId());
@@ -777,7 +748,7 @@ class FormDesigner extends Form
                 // Insert label into controlcontainer
                 $container = str_replace('{label}', $label, $container);
 
-                // build possible description
+                // Build possible description
                 $help = $control->hasDescription() ? '<span class="help-block">' . $control->getDescription() . '</span>' : '';
 
                 // Insert description into controlcontainer
@@ -787,7 +758,7 @@ class FormDesigner extends Form
                 if ($type == 'checkbox' || $type == 'radio')
                     $container = str_replace('{id}', $control->getId(), $container);
 
-                    // Add max file size field before file input field
+                // Add max file size field before file input field
                 if ($control instanceof Input && $control->getType() == 'file')
                 {
                     $max_size_field = Input::factory('MAX_FILE_SIZE')->setType('hidden')->setValue(FileIO::getMaximumFileUploadSize());
@@ -798,11 +769,11 @@ class FormDesigner extends Form
                 if ($control->hasCompare())
                 {
                     $compare_name = str_replace($field_name, $field_name . '_compare', $control->getName());
-                    $compare_control = Input::factory($compare_name)->setType('hidden')->setValue($control->getValue())->setId($control->getId() . '_compare');
+                    $compare_control = Input::factory($compare_name)->setType('hidden')->setValue($control->getCompare())->setId($control->getId() . '_compare');
                     $container = str_replace('{control}', '{control}' . $compare_control->build(), $container);
                 }
 
-                // build control
+                // Build control
                 $ctrl = $this->display_mode == 'h' && $control->hasLabel() ? '<div class="col-sm-8">' . $control->build() . '</div>' : $control->build();
 
                 if ($control->hasElementWidth())
@@ -828,7 +799,7 @@ class FormDesigner extends Form
 
         $this->setInner($html_control);
 
-        return parent::build($wrapper);
+        return parent::build();
     }
 
     private function hasModel()

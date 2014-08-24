@@ -1,7 +1,7 @@
 <?php
 namespace Web\Framework\Html\Controls;
 
-use Web\Framework\Lib\Abstracts\HtmlAbstract;
+use Web\Framework\Html\Elements\Div;
 
 // Check for direct file access
 if (!defined('WEB'))
@@ -11,11 +11,11 @@ if (!defined('WEB'))
  * Creates a group control with heading and leading text.
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
- * @subpackage Html\Form
+ * @subpackage Html\Controls
  * @license BSD
  * @copyright 2014 by author
  */
-class Group extends HtmlAbstract
+class Group extends Div
 {
 
 	private $new_row = false;
@@ -77,14 +77,6 @@ class Group extends HtmlAbstract
 			$obj->setId($id);
 
 		return $obj;
-	}
-
-	/**
-	 * Constructor
-	 */
-	private function __construct()
-	{
-		$this->setElement('div');
 	}
 
 	/**
@@ -169,7 +161,7 @@ class Group extends HtmlAbstract
 	 * (non-PHPdoc)
 	 * @see \Web\Framework\Lib\Abstracts\HtmlAbstract::build()
 	 */
-	public function build($wrapper=null)
+	public function build()
 	{
 		// Prepare group template.
 		$html = '';
@@ -252,7 +244,7 @@ class Group extends HtmlAbstract
 
 		$this->setInner($html);
 
-		return parent::build($wrapper);
+		return parent::build();
 
 	}
 }

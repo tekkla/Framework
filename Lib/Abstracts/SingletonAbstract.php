@@ -1,12 +1,12 @@
 <?php
 namespace Web\Framework\Lib\Abstracts;
 
-use Web\Framework\Lib\Interfaces\SingletonInterface;
 use Web\Framework\Lib\Abstracts\ClassAbstract;
 
 // Check for direct file access
 if (!defined('WEB'))
     die('Cannot run without WebExt framework...');
+
 /**
  * Abstract class for singleton patterns
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
@@ -16,7 +16,7 @@ if (!defined('WEB'))
  * @subpackage Lib\Abstracts
  * @namespace Web\Framework\Lib\Abstracts
  */
-abstract class SingletonAbstract extends ClassAbstract implements SingletonInterface
+abstract class SingletonAbstract extends ClassAbstract
 {
     /**
      * Instance storage
@@ -27,7 +27,7 @@ abstract class SingletonAbstract extends ClassAbstract implements SingletonInter
     /**
      * Creates the singleton instance of the class
      */
-    public static function getInstance()
+    final public static function getInstance()
     {
         // Get the name of the child class
         $class = get_called_class();

@@ -6,8 +6,8 @@ use Web\Framework\Lib\Javascript;
 use Web\Framework\Lib\Error;
 use Web\Framework\Lib\Txt;
 use Web\Framework\Lib\Settings;
+use Web\Framework\Lib\Cfg;
 
-// Check for direct file access
 if (!defined('WEB'))
     die('Cannot run without WebExt framework...');
 
@@ -19,8 +19,12 @@ if (!defined('WEB'))
  * @license BSD
  * @copyright 2014 by author
  */
-class DateTimePicker extends Input
+final class DateTimePicker extends Input
 {
+    protected $css = array(
+        'web-form-datepicker'
+    );
+
     /**
      * Default date format: ISO date
      * @var string
@@ -138,27 +142,6 @@ class DateTimePicker extends Input
     private static $translation_requested = false;
 
     /**
-     * Control factory
-     * @param name of control $name
-     * @return \Web\Framework\Html\Controls\DateTimePicker
-     */
-    public static function factory($name)
-    {
-        $obj = new DateTimePicker();
-        $obj->setName($name);
-        return $obj;
-    }
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        parent::__construct();
-        $this->addCss('web-form-datepicker');
-    }
-
-    /**
      * Returns set default date
      * @return string
      */
@@ -247,8 +230,7 @@ class DateTimePicker extends Input
             $this->option_show_today = is_bool($bool) ? $bool : false;
             $this->set_options['show_today'] = 'showToday';
             return $this;
-        }
-        else
+        } else
             return $this->option_show_today;
     }
 
@@ -266,8 +248,7 @@ class DateTimePicker extends Input
             $this->option_use_current = is_bool($bool) ? $bool : false;
             $this->set_options['use_current'] = 'useCurrent';
             return $this;
-        }
-        else
+        } else
             return $this->option_show_today;
     }
 
@@ -378,8 +359,7 @@ class DateTimePicker extends Input
         {
             $this->option_pick_date = is_bool($bool) ? $bool : false;
             $this->set_options['pick_date'] = 'pickDate';
-        }
-        else
+        } else
             return $this->option_pick_date;
     }
 
@@ -396,8 +376,7 @@ class DateTimePicker extends Input
         {
             $this->option_pick_time = is_bool($bool) ? $bool : false;
             $this->set_options['pick_time'] = 'pickTime';
-        }
-        else
+        } else
             return $this->option_pick_time;
     }
 
@@ -414,8 +393,7 @@ class DateTimePicker extends Input
         {
             $this->option_use_minutes = is_bool($bool) ? $bool : false;
             $this->set_options['use_minutes'] = 'useMinutes';
-        }
-        else
+        } else
             return $this->option_use_minutes;
     }
 
@@ -432,8 +410,7 @@ class DateTimePicker extends Input
         {
             $this->option_use_seconds = is_bool($bool) ? $bool : false;
             $this->set_options['use_seconds'] = 'useSeconds';
-        }
-        else
+        } else
             return $this->option_use_seconds;
     }
 
@@ -452,7 +429,9 @@ class DateTimePicker extends Input
         $this->option_language = Txt::get('lang_dictionary', 'SMF');
         $this->set_options['language'] = 'language';
 
-        Javascript::useFile(Settings::get('default_theme_url') . '/languages/js/bootstrap-datetimepicker.' . $this->option_language . '.js');
+        // Load non english languagefile
+        if ($this->option_language != 'en')
+            Javascript::useFile(Cfg::get('Web', 'url_js') . '/locale/moment/' . $this->option_language . '.js');
 
         // Set flag for loaded translation
         self::$translation_requested = true;
@@ -460,7 +439,7 @@ class DateTimePicker extends Input
         return $this;
     }
 
-    public function build($wrapper = null)
+    public function build()
     {
         // Get translation
         $this->loadTranslation();
@@ -482,7 +461,9 @@ class DateTimePicker extends Input
                     foreach ( $this->{$property} as $date )
                     {
                         if (!is_int($date) || !$date instanceof \DateTime || !is_string($date))
-                            Throw new Error('Datepicker controls ' . $option . ' date must by of type integer, string or DateTime object.');
+                            Throw new Error('Datepicker controls ' . $option . ' date must by of type integer (timestamp), string or DateTime object.', 1000, array(
+                                'data' => $date
+                            ));
 
                         if (is_string($date))
                             $date = strtotime($date);
@@ -507,7 +488,7 @@ class DateTimePicker extends Input
         // Add options as json encoded data attribute
         $this->addData('web-datepicker-options', json_encode($options));
 
-        return parent::build($wrapper);
+        return parent::build();
     }
 
     /**
@@ -520,4 +501,3 @@ class DateTimePicker extends Input
     }
 }
 ?>
-

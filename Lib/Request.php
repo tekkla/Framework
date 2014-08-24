@@ -3,7 +3,6 @@ namespace Web\Framework\Lib;
 
 use Web\Framework\Lib\Abstracts\SingletonAbstract;
 
-// Check for direct file access
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
 
@@ -104,6 +103,13 @@ class Request extends SingletonAbstract
      */
     private $post = false;
 
+
+    /**
+     * Storage for unprocessed POST values
+     * @var Data
+     */
+    private $post_raw = false;
+
     /**
      * Route storage
      * @var array
@@ -178,68 +184,6 @@ class Request extends SingletonAbstract
     public function addMatchTypes($match_types)
     {
         $this->match_types = array_merge($this->match_types, $match_types);
-    }
-
-    /**
-     * Map a route to a target
-     * @param string $method One of 4 HTTP Methods, or a pipe-separated list of multiple HTTP Methods (GET|POST|PUT|DELETE)
-     * @param string $route The route regex, custom regex must start with an @. You can use multiple pre-set regex filters, like [i:id]
-     * @param mixed $target The target where this route should point to. Can be anything.
-     * @param string $name Optional name of this route. Supply if you want to reverse route this url in your application.
-     * @param array $access Optional array with names of SMF access rights.
-     */
-    public function mapRoute2($method, $route, $target, $name = '', $access = array())
-    {
-
-        var_dump($name);
-
-        $map = array();
-
-        if ($method != 'GET')
-            $map['method'] = $method;
-
-        $map['route'] = $route;
-        $map['ctrl'] = $target['ctrl'];
-        $map['action'] = $target['action'];
-        $map['access'] = $access;
-
-        if (isset($name))
-            self::$map[$name] = $map;
-        else
-            self::$map[] = $map;
-
-        $route = $this->base_path . $route;
-
-        $this->routes[] = array(
-            $method,
-            $route,
-            $target,
-            $name,
-            $access
-        );
-
-        if ($name)
-        {
-            if (isset($this->named_routes[$name]))
-                throw new Error(
-                    'Route has been already declared.',
-                    6002,
-                    array(
-                        'method' => $method,
-                        'route' => $route,
-                        'tatget' => $target,
-                        'name' => $name,
-                        'access' => $access
-                    )
-                );
-            else
-                $this->named_routes[$name] = array(
-                    'route' => $route,
-                    'access' => $access
-                );
-        }
-
-        return $this;
     }
 
     /**
@@ -346,7 +290,7 @@ class Request extends SingletonAbstract
                 else
                     Throw new Error(
                         'Parameter missing.',
-                        6000,
+                        6001,
                         array(
                             'route_name' => $route_name,
                             'params' => $params,
@@ -368,6 +312,9 @@ class Request extends SingletonAbstract
      */
     public function processRequest($request_url=null, $request_method=null)
     {
+        if (empty($_REQUEST['action']) && Cfg::exists('Web', 'default_action'))
+        	$_REQUEST['action'] = Cfg::get('Web', 'default_action');
+
         // Is this a web request?
         $this->is_web = isset($_REQUEST['action']) && $_REQUEST['action'] == 'web';
 
@@ -491,10 +438,30 @@ class Request extends SingletonAbstract
 
                 $this->name = $name;
 
+                // Map target results to request properties
                 foreach ( $target as $key => $val )
-                    $this->{$key} = String::camelize($val);
+                {
+                    if (property_exists($this, $key))
+                        $this->{$key} = String::camelize($val);
+                }
+
+                // When no target controller defined in route but provided by parameter
+                // we use the parameter as requested controller
+                if (!$this->ctrl && isset($params['controller']))
+                    $this->ctrl = String::camelize($params['controller']);
+
+                // Same for action as for controller
+                if (!$this->action && isset($params['action']))
+                	$this->action = String::camelize($params['action']);
 
                 $this->params = $params;
+
+                // Finally try to process possible posted data
+                if (isset($_POST) && isset($_POST['web']))
+                {
+                    $this->post = new Data($_POST['web']);
+                    $this->post_raw = $_POST['web'];
+                }
 
                 return $this;
             }
@@ -503,7 +470,7 @@ class Request extends SingletonAbstract
         $this->match = false;
 
         if ($this->isWeb())
-            Throw new Error('No matching route found.',6001, func_num_args());
+            Throw new Error('No matching route found.', 6001, array($request_url, $request_method));
 
         return $this;
     }
@@ -554,8 +521,6 @@ class Request extends SingletonAbstract
     {
         return $this->name;
     }
-
-    // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Returns smf related infos
@@ -661,7 +626,7 @@ class Request extends SingletonAbstract
      */
     public function checkCtrl()
     {
-        return isset($this->ctrl);
+        return !empty($this->ctrl);
     }
 
     /**
@@ -688,7 +653,7 @@ class Request extends SingletonAbstract
      */
     public function checkAction()
     {
-        return isset($this->action);
+        return !empty($this->action);
     }
 
     /**
@@ -710,6 +675,19 @@ class Request extends SingletonAbstract
     {
         $this->action = $action;
         return $this;
+    }
+
+    /**
+     * Returns requested app, controller and action as array
+     * @return multitype:string
+     */
+    public function getACA()
+    {
+        return array(
+        	'app' => $this->app,
+            'ctrl' => $this->ctrl,
+            'action' => $this->action
+        );
     }
 
     /**
@@ -747,12 +725,11 @@ class Request extends SingletonAbstract
 
     /**
      * Returns the value of a paramter as long as it exists.
-     * @param unknown $key
+     * @param string $key
      */
     public function getParam($key)
     {
-        if (isset($this->params[$key]))
-            return $this->params[$key];
+        return isset($this->params[$key]) ? $this->params[$key] : false;
     }
 
     /**
@@ -770,55 +747,40 @@ class Request extends SingletonAbstract
     }
 
     /**
-     * Processes possible $_POST[web] data
-     *
-     * The framework only processes POST data from it's own apps. all other data will be ignored
-     */
-    public function processPostData()
-    {
-        if ($this->isPost())
-            $this->post = new Data($_POST['web']);
-
-        return $this;
-    }
-
-    /**
      * Returns the value of $_POST[web][appname][controllername][key]
      * @param string $key
      */
-    public function getPost($app_name = null, $model_name = null)
+    public function getPost($app_name='', $model_name='')
     {
-        if (!isset($app_name) || !isset($model_name))
+    	// Use values provided by request for missing app and model name
+        if (!$app_name || !$model_name)
         {
             $app_name = $this->getApp();
             $model_name = $this->getCtrl();
         }
 
-        if ($this->checkPost($app_name, $model_name))
+        $app_name = String::uncamelize($app_name);
+        $model_name = String::uncamelize($model_name);
+
+        if (isset($this->post->{$app_name}->{$model_name}))
             return $this->post->{$app_name}->{$model_name};
         else
             return false;
     }
 
     /**
-     * Returns the complete post object or
-     * @param string $key
-     * @deprecated
-     *
-     *
+     * Returns the complete raw post array
+     * @return array
      */
-    public function getRawPost($key = null)
+    public function getRawPost()
     {
-        if (!isset($key))
-            return $this->post;
-
-        $app_name = $this->getApp();
-        $ctrl_name = $this->getCtrl();
-
-        if (isset($this->post[$app_name][$ctrl_name][$key]))
-            return $this->post[$app_name][$ctrl_name][$key];
+    	return $this->post_raw;
     }
 
+    /**
+     * Returns the complete processed post object
+     * @return \Web\Framework\Lib\Data
+     */
     public function getCompletePost()
     {
         return $this->post;
