@@ -163,7 +163,7 @@ class Controller extends MvcAbstract
     {
         // Argument checks and name conversions.
         // If no func is set as arg, use the request action.
-        $this->action = $action ? $action : $this->request->getAction();
+        $this->action = empty($action) ? $this->request->getAction() : $action;
 
         // If accesscheck failed => stop here and return false!
         if ($this->checkControllerAccess() == false)
@@ -174,7 +174,7 @@ class Controller extends MvcAbstract
         // will overwrite controller param copied from request handler.
 
         // Copy request param to controller param.
-        $this->param = $param ? $param : $this->request->getAllParams();
+        $this->param = empty($param) ? $this->request->getAllParams() : $param;
 
         // Init return var with boolean false as default value. This default prevents from running the views render()
         // method when the controller action is stopped manually by using return.
@@ -219,13 +219,13 @@ class Controller extends MvcAbstract
         $this->is_ajax = true;
 
         if ($selector)
-            $this->ajax->setTarget($selector);
+            $this->ajax->setSelector($selector);
 
         $content = $this->run($action, $param);
 
         if ($content)
         {
-            $this->ajax->setContent($content);
+            $this->ajax->setArgs($content);
             $this->ajax->add();
         }
 
@@ -239,15 +239,27 @@ class Controller extends MvcAbstract
      */
     final protected function redirect($action, $param = array())
     {
-        // Reset model data
-        if (isset($this->model))
-            $this->model->reset(true);
-
-        // Reset post data
-        $this->request->clearPost();
+        // Clean data
+        $this->cleanUp();
 
         // Run redirect method
         return $this->run($action, $param);
+    }
+
+    /**
+     * Method to cleanup data in controllers model and the request handler
+     * @param bool $model Flag to clean model data (default: true)
+     * @param string $post Flag to clean post data (default: true)
+     */
+    final protected function cleanUp($model=true, $post=true)
+    {
+        // Reset model data
+        if ($model && isset($this->model))
+        	$this->model->reset(true);
+
+        // Reset post data
+        if ($post)
+            $this->request->clearPost();
     }
 
     /**
@@ -291,8 +303,11 @@ class Controller extends MvcAbstract
         if ($url instanceof Url)
             $url = $url->getUrl();
 
-        if ($this->request->isAjax() === true)
-            $this->ajax->refresh($url);
+        if ($this->request->isAjax())
+        {
+        	Ajax::refresh($url);
+        	$this->firephp('Ajax refresh command set: ' . $url);
+        }
         else
             redirectexit($url);
     }
@@ -523,7 +538,7 @@ class Controller extends MvcAbstract
     final protected function setAjaxTarget($target)
     {
         if ($this->is_ajax)
-            $this->ajax->setTarget($target);
+            $this->ajax->setSelector($target);
 
         return $this;
     }
