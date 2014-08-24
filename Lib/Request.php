@@ -470,7 +470,7 @@ class Request extends SingletonAbstract
         $this->match = false;
 
         if ($this->isWeb())
-            Throw new Error('No matching route found.',6001, func_num_args());
+            Throw new Error('No matching route found.', 6001, array($request_url, $request_method));
 
         return $this;
     }
