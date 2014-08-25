@@ -199,15 +199,7 @@ $(document).on('click', '*[data-web-ajax]', function(event) {
 
     // Add error handler
     ajaxOptions.error = function(XMLHttpRequest, textStatus, errorThrown) {
-
-        parseWebJson({
-            cmd : {
-                type : 'error',
-                target : '#web-message',
-                mode : 'replace',
-                content : XMLHttpRequest.responseText
-            }
-        });
+        $('#web-message').append(XMLHttpRequest.responseText);
     };
 
     // Fire ajax request!
@@ -221,7 +213,7 @@ $(document).on('click', '*[data-web-ajax]', function(event) {
 // ----------------------------------------------------------------------------
 function parseWebJson(json) {
 
-    //console.debug(json);
+    console.debug(json);
     
     $.each(json, function(type, stack) {
         
