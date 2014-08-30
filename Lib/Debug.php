@@ -21,13 +21,13 @@ class Debug extends ClassAbstract
 	 * @var mixed
 	 */
 	private $data = '';
-
+	
 	/**
 	 * How to inspect the var
 	 * @var string
 	 */
 	private $mode = 'plain';
-
+	
 	/**
 	 * How to return the inspection information
 	 * @var unknown
@@ -55,17 +55,17 @@ class Debug extends ClassAbstract
 	public function setMode($mode = 'plain')
 	{
 		$modes = array(
-			'print',
-			'dump',
+			'print', 
+			'dump', 
 			'plain'
 		);
-
+		
 		if (!in_array($mode, $modes))
 			Throw new Error('Wrong mode set.', 1000, array(
-				$mode,
+				$mode, 
 				$modes
 			));
-
+		
 		$this->mode = $mode;
 		return $this;
 	}
@@ -82,19 +82,19 @@ class Debug extends ClassAbstract
 	public function setTarget($target = 'console')
 	{
 		$targets = array(
-			'return',
-			'echo',
+			'return', 
+			'echo', 
 			'console'
 		);
-
+		
 		if (!in_array($target, $targets))
 			Throw new Error('Wrong target set.', 1000, array(
-				$target,
+				$target, 
 				$targets
 			));
-
+		
 		$this->target = $target;
-
+		
 		return $this;
 	}
 
@@ -113,7 +113,7 @@ class Debug extends ClassAbstract
 	public static function toConsole($data)
 	{
 		self::factory()->run(array(
-			'data' => $data,
+			'data' => $data
 		));
 	}
 
@@ -123,8 +123,8 @@ class Debug extends ClassAbstract
 	public static function dumpVar($var, $target = '')
 	{
 		return self::factory()->run(array(
-			'data' => $var,
-			'target' => $target,
+			'data' => $var, 
+			'target' => $target, 
 			'mode' => 'dump'
 		));
 	}
@@ -137,27 +137,27 @@ class Debug extends ClassAbstract
 	public static function traceCalls($ignore = 2, $target = '')
 	{
 		$trace = '';
-
+		
 		$dt = debug_backtrace();
-
+		
 		if (!$dt)
 			return false;
-
+		
 		foreach ( $dt as $k => $v )
 		{
 			if ($k < $ignore)
 				continue;
-
+			
 			array_walk($v['args'], function (&$item, $key)
 			{
 				$item = var_export($item, true);
 			});
-
-			$trace .= '#' . ($k - $ignore) . ' ' . $v['file'] . '(' . $v['line'] . '): ' . (isset($v['class']) ? $v['class'] . '->' : '') . $v['function'] . "\n";
+			
+			$trace .= '#' . ( $k - $ignore ) . ' ' . $v['file'] . '(' . $v['line'] . '): ' . ( isset($v['class']) ? $v['class'] . '->' : '' ) . $v['function'] . "\n";
 		}
-
+		
 		return self::factory()->run(array(
-			'data' => $trace,
+			'data' => $trace, 
 			'target' => $target
 		));
 	}
@@ -169,8 +169,8 @@ class Debug extends ClassAbstract
 	public static function printVar($var, $target = '')
 	{
 		return self::factory()->run(array(
-			'data' => $var,
-			'target' => $target,
+			'data' => $var, 
+			'target' => $target, 
 			'mode' => 'print'
 		));
 	}
@@ -188,7 +188,7 @@ class Debug extends ClassAbstract
 				if (property_exists($this, $property))
 					$this->{$property} = $value;
 		}
-
+		
 		// Which display mode is requested?
 		switch ($this->mode)
 		{
@@ -196,44 +196,44 @@ class Debug extends ClassAbstract
 				$dt = debug_backtrace();
 				$output = $this->target == 'echo' ? '<div class="panel panel-info panel-body"><p>Called by: ' . $dt[0]['file'] . ' (' . $dt[0]['line'] . ')</p><pre>' . htmlspecialchars(print_r($this->data, true), ENT_QUOTES) . '</pre></div>' : $this->data;
 				break;
-
+			
 			case 'dump' :
 				ob_start();
 				var_dump($this->data);
 				$output = ob_get_clean();
 				break;
-
+			
 			default :
 				$output = $this->data;
 				break;
 		}
-
+		
 		// If var is not set explicit, the calling object will
 		// be used for debug output.
 		if (!$output)
 			Throw new Error('Data to debug not set.', 1001);
-
-		// Target 'console' is used for ajax requests and
-		// returns the debug content to the browser console
+			
+			// Target 'console' is used for ajax requests and
+			// returns the debug content to the browser console
 		if ($this->target == 'console')
 		{
-
+			
 			// Load FirePHP classfile only when class not exists
 			if (!class_exists('FirePHP'))
-				require_once (Cfg::get('Web', 'dir_tools') . '/FirePHPCore/FirePHP.class.php');
-
-			// Create the ajax console.log ajax
+				require_once ( Cfg::get('Web', 'dir_tools') . '/FirePHPCore/FirePHP.class.php' );
+				
+				// Create the ajax console.log ajax
 			\FirePHP::getInstance(true)->log($output);
 			return;
 		}
-
+		
 		// Echoing debug content and end this
 		elseif ($this->target == 'echo')
 		{
 			echo '<h2>Debug</h2>' . $output;
 			return;
 		}
-
+		
 		// Falling through here means to return the output
 		else
 		{

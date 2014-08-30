@@ -18,6 +18,7 @@ if (!defined('WEB'))
  */
 class Session extends SingletonAbstract
 {
+
 	protected function __construct()
 	{
 		$this->init();

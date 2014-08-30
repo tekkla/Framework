@@ -20,7 +20,7 @@ final class ModalWindow
 	 * @var string
 	 */
 	private $title = 'ModalWindow';
-
+	
 	/**
 	 * Content
 	 * @var string
@@ -38,7 +38,7 @@ final class ModalWindow
 
 	/**
 	 * Set title of window
-	 * @param string $title
+	 * @param string $title 
 	 * @return \Web\Framework\Html\Controls\ModalWindow
 	 */
 	public function setTitle($title)
@@ -49,7 +49,7 @@ final class ModalWindow
 
 	/**
 	 * Sets content of window
-	 * @param string $content
+	 * @param string $content 
 	 * @return \Web\Framework\Html\Controls\ModalWindow
 	 */
 	public function setContent($content)
@@ -78,7 +78,7 @@ final class ModalWindow
 				</div>
 			</div>
 		</div>';
-
+		
 		return $html;
 	}
 }

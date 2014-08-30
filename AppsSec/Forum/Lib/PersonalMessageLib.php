@@ -17,15 +17,10 @@ if (!defined('WEB'))
  */
 class PersonalMessageLib
 {
-
 	private $subject;
-
 	private $msg;
-
 	private $to = array();
-
 	private $bcc = array();
-
 	private $from;
 
 	public function __construct($to, $subject, $msg)
@@ -90,8 +85,8 @@ class PersonalMessageLib
 	public function setFrom($id, $name, $username)
 	{
 		$this->from = array(
-			'id' => $id,
-			'name' => $name,
+			'id' => $id, 
+			'name' => $name, 
 			'username' => $username
 		);
 	}
@@ -104,12 +99,12 @@ class PersonalMessageLib
 	{
 		// include the needed smf-lib
 		Smf::useSource('Subs-Post');
-
+		
 		sendpm(array(
-			'to' => $this->to,
+			'to' => $this->to, 
 			'bcc' => $this->bcc
 		), $this->subject, $this->msg, false, $this->from, 0);
-
+		
 		return true;
 	}
 }

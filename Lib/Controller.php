@@ -23,49 +23,49 @@ class Controller extends MvcAbstract
 	 * @var String
 	 */
 	protected $type = 'Controller';
-
+	
 	/**
 	 * Signals that the corresponding view will be rendered
 	 * @var Boolean
 	 */
 	protected $render = true;
-
+	
 	/**
 	 * Action to render
 	 * @var String
 	 */
 	private $action = 'Index';
-
+	
 	/**
 	 * Storage for access rights
 	 * @var array
 	 */
 	protected $access = array();
-
+	
 	/**
 	 * Storage for events
 	 * @var array
 	 */
 	protected $events = array();
-
+	
 	/**
 	 * The View object
 	 * @var View
 	 */
 	public $view = false;
-
+	
 	/**
 	 * Storage for parameter
 	 * @var Data
 	 */
 	private $param = array();
-
+	
 	/**
 	 * Stores the controller bound Model object. Is false when controller has no model.
 	 * @var Model
 	 */
 	public $model;
-
+	
 	/**
 	 * Falg to signal that this controller is in ajax mode
 	 * @var bool
@@ -81,12 +81,12 @@ class Controller extends MvcAbstract
 	 */
 	public static function factory(App $app, $controller_name)
 	{
-		if (!isset($app) || (isset($app) && !$app instanceof App))
+		if (!isset($app) || ( isset($app) && !$app instanceof App ))
 			Throw new Error('Controller factory needs an app object.');
-
+			
 			// App or framework controller?
-		$class = ($app->isSecure() ? '\\Web\\Framework\\AppsSec' : '\\Web\\Apps') . "\\" . $app->getName() . '\\Controller\\' . $controller_name . 'Controller';
-
+		$class = ( $app->isSecure() ? '\\Web\\Framework\\AppsSec' : '\\Web\\Apps' ) . "\\" . $app->getName() . '\\Controller\\' . $controller_name . 'Controller';
+		
 		// Create controller object
 		return new $class($controller_name, $app);
 	}
@@ -99,19 +99,19 @@ class Controller extends MvcAbstract
 	{
 		// Store name
 		$this->name = $name;
-
+		
 		// Run onload event
 		$this->runEvent('load');
-
+		
 		// Inject app object
 		$this->app = $app;
-
+		
 		// Some controllers do not need a view to render
 		// they are recognized by public has_no_view property
 		if (!property_exists($this, 'has_no_view'))
 			$this->view = View::factory($app, $name);
-
-		// Model to bind?
+			
+			// Model to bind?
 		$this->model = property_exists($this, 'has_no_model') ? false : $this->app->getModel($name);
 	}
 
@@ -159,51 +159,52 @@ class Controller extends MvcAbstract
 	 * @param string $param
 	 * @return boolean unknown void
 	 */
-	final public function run($action='', $param=array())
+	final public function run($action = '', $param = array())
 	{
 		// Argument checks and name conversions.
 		// If no func is set as arg, use the request action.
 		$this->action = empty($action) ? $this->request->getAction() : $action;
-
+		
 		// If accesscheck failed => stop here and return false!
 		if ($this->checkControllerAccess() == false)
 			return false;
-
-		// We can set the controllers parameter by hand and will have automatic all
-		// parameters set by the request handler. If param are set manually, possible dublicates
-		// will overwrite controller param copied from request handler.
+			
+			// We can set the controllers parameter by hand and will have automatic all
+			// parameters set by the request handler. If param are set manually, possible dublicates
+			// will overwrite controller param copied from request handler.
+			
 
 		// Copy request param to controller param.
 		$this->param = empty($param) ? $this->request->getAllParams() : $param;
-
+		
 		// Init return var with boolean false as default value. This default prevents from running the views render()
 		// method when the controller action is stopped manually by using return.
 		$return = false;
-
+		
 		// run possible before event handler
 		$this->runEvent('before');
-
+		
 		// a little bit of reflection magic to pass request param into controller func
 		$return = Lib::invokeMethod($this, $this->action, $this->param);
-
+		
 		// run possible after event handler
 		$this->runEvent('after');
-
+		
 		// No result to return? Return false
 		if (isset($return) && $return == false)
 			return false;
-
-		// Render the view and return the result
+			
+			// Render the view and return the result
 		if ($this->render === true)
 		{
 			// Render into own outputbuffer
 			ob_start();
 			$this->view->render($this->action, $this->param);
 			$content = ob_get_clean();
-
+			
 			if (empty($content) && method_exists($this->app, 'onEmpty'))
 				$content = $this->app->onEmpty();
-
+			
 			return $content;
 		}
 	}
@@ -214,21 +215,21 @@ class Controller extends MvcAbstract
 	 * @param array $param Array of parameter to be used in action call
 	 * @param string $selector Optional jQuery selector to html() the result. Can be overridden by setAjaxTarget() method
 	 */
-	final public function ajax($action='', $param=array(), $selector='')
+	final public function ajax($action = '', $param = array(), $selector = '')
 	{
 		$this->is_ajax = true;
-
+		
 		if ($selector)
 			$this->ajax->setSelector($selector);
-
+		
 		$content = $this->run($action, $param);
-
+		
 		if ($content)
 		{
 			$this->ajax->setArgs($content);
 			$this->ajax->add();
 		}
-
+		
 		return $this;
 	}
 
@@ -241,7 +242,7 @@ class Controller extends MvcAbstract
 	{
 		// Clean data
 		$this->cleanUp();
-
+		
 		// Run redirect method
 		return $this->run($action, $param);
 	}
@@ -251,13 +252,13 @@ class Controller extends MvcAbstract
 	 * @param bool $model Flag to clean model data (default: true)
 	 * @param string $post Flag to clean post data (default: true)
 	 */
-	final protected function cleanUp($model=true, $post=true)
+	final protected function cleanUp($model = true, $post = true)
 	{
 		// Reset model data
 		if ($model && isset($this->model))
 			$this->model->reset(true);
-
-		// Reset post data
+			
+			// Reset post data
 		if ($post)
 			$this->request->clearPost();
 	}
@@ -275,11 +276,11 @@ class Controller extends MvcAbstract
 				$this->events[$this->action][$event] = array(
 					$this->events[$this->action][$event]
 				);
-
+			
 			foreach ( $this->events[$this->action][$event] as $event_func )
-			   Lib::invokeMethod($this, $event_func, $this->request->getAllParams());
+				Lib::invokeMethod($this, $event_func, $this->request->getAllParams());
 		}
-
+		
 		return $this;
 	}
 
@@ -302,7 +303,7 @@ class Controller extends MvcAbstract
 	{
 		if ($url instanceof Url)
 			$url = $url->getUrl();
-
+		
 		if ($this->request->isAjax())
 		{
 			Ajax::refresh($url);
@@ -323,7 +324,7 @@ class Controller extends MvcAbstract
 			$perm = array(
 				$perm
 			);
-
+		
 		return allowedTo($perm);
 	}
 
@@ -341,12 +342,12 @@ class Controller extends MvcAbstract
 		// Is there an global access method in the app main class to call?
 		if (method_exists($this->app, 'appAccess') && $this->app->appAccess() === false)
 			return false;
-
-		// ACL set?
+			
+			// ACL set?
 		if (isset($this->access))
 		{
 			$perm = array();
-
+			
 			// Global access for all actions?
 			if (isset($this->access['*']))
 			{
@@ -355,7 +356,7 @@ class Controller extends MvcAbstract
 				else
 					$perm += $this->access['*'];
 			}
-
+			
 			// Actions access set?
 			if (isset($this->access[$this->action]))
 			{
@@ -364,12 +365,12 @@ class Controller extends MvcAbstract
 				else
 					$perm += $this->access[$this->action];
 			}
-
+			
 			// No perms until here means we can finish here and allow access by returning true
 			if ($perm)
 				return Security::checkAccess($perm, $mode, $force);
 		}
-
+		
 		// Not set ACL or falling through here grants access by default
 		return true;
 	}
@@ -395,17 +396,17 @@ class Controller extends MvcAbstract
 		// On non existing view we do not have to set anything
 		if (!isset($this->view) || !$this->view instanceof View)
 			return;
-
+			
 			// Some vars are protected and not allowed to be used outside the framework
 		$protected_var_names = array(
-			'app',
-			'controller',
-			'action',
-			'view',
-			'model',
+			'app', 
+			'controller', 
+			'action', 
+			'view', 
+			'model', 
 			'cfg'
 		);
-
+		
 		// One argument has to be an assoc array
 		if (!isset($arg2))
 		{
@@ -413,10 +414,10 @@ class Controller extends MvcAbstract
 			{
 				if (in_array($var, $protected_var_names))
 					Throw new Error('Varname is protected. Use other name for your var.', 5005, array(
-						$var,
+						$var, 
 						$protected_var_names
 					));
-
+				
 				$this->view->setVar($var, $value);
 			}
 		}
@@ -424,15 +425,15 @@ class Controller extends MvcAbstract
 		{
 			if (in_array($arg1, $protected_var_names))
 				Throw new Error('Varname is protected. Use other name for your var.', 5005, array(
-					func_get_arg(0),
+					func_get_arg(0), 
 					$protected_var_names
 				));
-
+			
 			$this->view->setVar($arg1, $arg2);
 		}
 		else
 			Throw new Error('The vars to set are not correct.', 1001, func_get_args());
-
+		
 		return $this;
 	}
 
@@ -479,9 +480,9 @@ class Controller extends MvcAbstract
 	{
 		if ($url instanceof Url)
 			$url = $url->getUrl();
-
+		
 		Context::addLinktree($label, $url);
-
+		
 		return $this;
 	}
 
@@ -539,7 +540,7 @@ class Controller extends MvcAbstract
 	{
 		if ($this->is_ajax)
 			$this->ajax->setSelector($target);
-
+		
 		return $this;
 	}
 }

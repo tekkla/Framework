@@ -11,7 +11,7 @@ class MembergroupsModel extends Model
 	public function getMembergroups()
 	{
 		$this->setField(array(
-			'id_group',
+			'id_group', 
 			'group_name'
 		));
 		$this->setOrder('group_name');

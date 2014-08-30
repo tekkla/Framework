@@ -11,61 +11,61 @@ use Web\Framework\Lib\User;
  */
 abstract class ErrorAbstract extends ClassAbstract
 {
-
+	
 	/**
 	 * Error code
 	 * @var int
 	 */
 	protected $code = 0;
-
+	
 	/**
 	 * Parameterlist provided by constructor
 	 * @var array
 	 */
 	protected $params = array();
-
+	
 	/**
 	 * Flag to set the error to be fatal. Defaul: false
 	 * @var bool
 	 */
 	protected $fatal = false;
-
+	
 	/**
 	 * Url to redirect to
 	 * @var string
 	 */
 	protected $redirect = '';
-
+	
 	/**
 	 * User message string
 	 * @var string
 	 */
 	protected $user_message;
-
+	
 	/**
 	 * Admin message string
 	 * @var string
 	 */
 	protected $admin_message;
-
+	
 	/**
 	 * Log message string
 	 * @var string
 	 */
 	protected $log_message;
-
+	
 	/**
 	 * List of error codes
 	 * @var array
 	 */
 	protected $codes = array();
-
+	
 	/**
 	 * Flag to log error
 	 * @var bool
 	 */
 	protected $log = false;
-
+	
 	/**
 	 * Flag to wrap error in a box
 	 * @var bool
@@ -78,24 +78,24 @@ abstract class ErrorAbstract extends ClassAbstract
 	 * @param int $code Errorcode
 	 * @param array $params Optional parameters
 	 */
-	function __construct($message='', $code = 0, $params=array())
+	function __construct($message = '', $code = 0, $params = array())
 	{
 		// On empty message the default error txt will be used
 		if (!$message)
 		{
 			$message = Txt::get('error_general', 'Web');
-
+			
 			$this->admin_message = $message;
 			$this->user_message = $message;
 		}
-
+		
 		// None array messages are for admins. Users will get a default error.
-		if ($message && ! is_array($message))
+		if ($message && !is_array($message))
 		{
 			$this->admin_message = $message;
 			$this->user_message = Txt::get('error_general', 'Web');
 		}
-
+		
 		// Message as array means:
 		// The first entry with text for admins
 		// The second entry with text for normal users
@@ -104,15 +104,15 @@ abstract class ErrorAbstract extends ClassAbstract
 			// Set default error message if not set in message array
 			if (!isset($message[1]))
 				$message[1] = Txt::get('error_general', 'Web');
-
+			
 			$this->admin_message = $message[0];
 			$this->user_message = $message[1];
 		}
-
+		
 		// Store provided code and parameter
 		$this->code = $code;
 		$this->params = $params;
-
+		
 		// Set admin message as log message
 		$this->log_message = $this->admin_message;
 	}
@@ -216,15 +216,15 @@ abstract class ErrorAbstract extends ClassAbstract
 	{
 		$this->admin_message = '
 		<h2>Error (Code: ' . $this->code . ')</h2>
-		<p class="lead">' . $this->admin_message .'</p>';
-
+		<p class="lead">' . $this->admin_message . '</p>';
+		
 		if ($this->params)
 			$this->admin_message .= '
 			<h4>Parameter</h4>
-			<pre>' .print_r($this->params, true). '</pre>';
-
+			<pre>' . print_r($this->params, true) . '</pre>';
+		
 		$trace = $this->trace(5);
-
+		
 		if ($trace)
 			$this->admin_message .= '
 			<h4>Trace</h4>

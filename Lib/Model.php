@@ -1,12 +1,11 @@
 <?php
-
 namespace Web\Framework\Lib;
 
 // Check for direct file access
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
-
-// Used classes
+	
+	// Used classes
 use Web\Framework\Lib\Data;
 use Web\Framework\Lib\Abstracts\MvcAbstract;
 
@@ -25,134 +24,134 @@ class Model extends MvcAbstract
 	 * @var string
 	 */
 	protected $type = 'Model';
-
+	
 	/**
 	 * Tablename
 	 * @var string
 	 */
 	protected $tbl = '';
-
+	
 	/**
 	 * Table alias
 	 * @var string
 	 */
 	protected $alias = '';
-
+	
 	/**
 	 * Database table prefix
 	 * @var string
 	 */
 	protected $prefix = NULL;
-
+	
 	/**
 	 * Name of primary key
 	 * @var string
 	 */
 	protected $pk = '';
-
+	
 	/**
 	 * Distinct flag
 	 * @var bool
 	 */
 	private $distinct = false;
-
+	
 	/**
 	 * Filter statement
 	 * @var string
 	 */
 	private $filter = '';
-
+	
 	/**
 	 * Group by statement
 	 * @var string
 	 */
 	private $group_by = '';
-
+	
 	/**
 	 * Queryparameters
 	 * @var array
 	 */
 	private $param = array();
-
+	
 	/**
 	 * Query types
 	 * @var string
 	 */
 	private $query_type = 'row';
-
+	
 	/**
 	 * Order by string
 	 * @var string
 	 */
 	private $order = '';
-
+	
 	/**
 	 * Having string
 	 * @var string
 	 */
 	private $having = '';
-
+	
 	/**
 	 * Limit statement
 	 * @var string
 	 */
 	private $limit = array();
-
+	
 	/**
 	 * List of fileds to query
 	 * @var array
 	 */
 	private $fields = array();
-
+	
 	/**
 	 * Join storage for multiple table joins
 	 * @var unknown
 	 */
 	private $join = array();
-
+	
 	/**
 	 * Flag for $this->data cleaning before insert or update
 	 * @var bool
 	 */
 	private $clean = 1;
-
+	
 	/**
 	 * Validation rules.
 	 * Set in Childmodels. Here only for error prevention
 	 * @var array
 	 */
 	protected $validate = array();
-
+	
 	/**
 	 * Errorstorage filled by validator
 	 * @var array
 	 */
 	public $errors = array();
-
+	
 	/**
 	 * Stores the definitions of tables fields
 	 * @var \stdClass
 	 */
 	public $columns;
-
+	
 	/**
 	 * List of fields which are serializable
 	 * @var array
 	 */
 	protected $serialized = array();
-
+	
 	/**
 	 * Storage for the query results
 	 * @var Data
 	 */
 	public $data = false;
-
+	
 	/**
 	 * Stores sql string
 	 * @var unknown
 	 */
 	private $sql = '';
-
+	
 	/**
 	 * Database instance
 	 * @var Database
@@ -169,18 +168,18 @@ class Model extends MvcAbstract
 	 */
 	public static function factory(App $app, $model_name)
 	{
-		if (!isset($app) || (isset($app) && !$app instanceof App))
+		if (!isset($app) || ( isset($app) && !$app instanceof App ))
 			Throw new Error('App object not set', 1000);
-
-		// Framework, SMF or App model? Create proper namespace.
-		$model_class = ($app->isSecure() ? '\\Web\\Framework\\AppsSec' : '\\Web\\Apps') . "\\" . $app->getName() . '\\Model\\' . $model_name . 'Model';
-
+			
+			// Framework, SMF or App model? Create proper namespace.
+		$model_class = ( $app->isSecure() ? '\\Web\\Framework\\AppsSec' : '\\Web\\Apps' ) . "\\" . $app->getName() . '\\Model\\' . $model_name . 'Model';
+		
 		// Create and return modelobject
 		$model = new $model_class($model_name);
-
+		
 		// Inject app object
 		$model->injectApp($app);
-
+		
 		return $model;
 	}
 
@@ -191,18 +190,19 @@ class Model extends MvcAbstract
 	{
 		// Set basic data
 		$this->name = $name;
-
+		
 		// Inject db object
 		$this->db = Database::getInstance();
-
+		
 		## Load table definition
+		
 
 		// No related table set and no data definition set?
 		if (empty($this->tbl) && !isset($this->definition))
 			return;
-
-		// When no related table is set, the definition for the uses datafields
-		// has to be set in the model. Otherwise you can not use the validator.
+			
+			// When no related table is set, the definition for the uses datafields
+			// has to be set in the model. Otherwise you can not use the validator.
 		if (empty($this->tbl) && isset($this->definition))
 		{
 			#$this->columns = Lib::toObject($this->definition);
@@ -210,16 +210,16 @@ class Model extends MvcAbstract
 			unset($this->definition);
 			return;
 		}
-
+		
 		// Get fielddefinition from db table
 		$structure = $this->db->getTblStructure($this->tbl);
-
+		
 		// Get the columns
 		$this->columns = $structure->columns;
-
+		
 		// Get primary key column
 		$this->pk = $structure->indexes->PRIMARY->columns->{0};
-
+		
 		$this->setPK();
 	}
 
@@ -263,22 +263,24 @@ class Model extends MvcAbstract
 	 * @param array $fields
 	 * @return array
 	 */
-	public final function find($key, $fields=array(), $callbacks=array())
+	public final function find($key, $fields = array(), $callbacks = array())
 	{
 		$this->reset(true);
 		$this->filter = $this->alias . '.' . $this->pk . '= {int:' . $this->pk . '}';
-		$this->param = array($this->pk => $key);
-
+		$this->param = array(
+			$this->pk => $key
+		);
+		
 		if (!empty($fields))
 		{
 			if (!is_array($fields))
 				$fields = array(
 					$fields
 				);
-
+			
 			$this->fields = $fields;
 		}
-
+		
 		return $this->read('row', $callbacks);
 	}
 
@@ -290,7 +292,7 @@ class Model extends MvcAbstract
 	 * @param array $callbacks
 	 * @return bool Data
 	 */
-	public final function search($filter, $param=array(), $read_mode='all', $callbacks=array())
+	public final function search($filter, $param = array(), $read_mode = 'all', $callbacks = array())
 	{
 		$this->reset(true);
 		$this->filter = $filter;
@@ -306,7 +308,10 @@ class Model extends MvcAbstract
 	public final function exists($key)
 	{
 		$this->filter = $this->alias . '.' . $this->pk . '= {int:' . $this->pk . '}';
-		$this->param = array($this->pk, $key);
+		$this->param = array(
+			$this->pk, 
+			$key
+		);
 		return count((array) $this->read()) == 0 ? false : true;
 	}
 
@@ -320,7 +325,7 @@ class Model extends MvcAbstract
 		// $tbl not set in model?
 		if (!isset($this->tbl) || $force === true)
 			$this->tbl = String::uncamelize($val);
-
+		
 		return $this;
 	}
 
@@ -332,7 +337,7 @@ class Model extends MvcAbstract
 	{
 		if (isset($this->tbl) && isset($alias))
 			$this->alias = $alias;
-
+		
 		return $this;
 	}
 
@@ -360,7 +365,7 @@ class Model extends MvcAbstract
 		return $this;
 	}
 	 */
-
+	
 	/**
 	 * Sets the primary key of the table
 	 * Every table (except web_config) of the WebMod needs a integer based
@@ -375,7 +380,7 @@ class Model extends MvcAbstract
 			if (!isset($this->pk) || $force === true)
 				$this->pk = isset($val) ? $val : 'id_' . $this->alias;
 		}
-
+		
 		return $this;
 	}
 
@@ -391,7 +396,7 @@ class Model extends MvcAbstract
 				$this->fields[] = $fld;
 		else
 			$this->fields[] = $val;
-
+		
 		return $this;
 	}
 
@@ -432,10 +437,11 @@ class Model extends MvcAbstract
 	public final function setFilter($filter, $param = null)
 	{
 		$this->filter = $filter;
-
-		if (isset($param) && is_array($param));
-			$this->param = $param;
-
+		
+		if (isset($param) && is_array($param))
+			;
+		$this->param = $param;
+		
 		return $this;
 	}
 
@@ -480,20 +486,20 @@ class Model extends MvcAbstract
 	 * @throws Error
 	 * @return \Web\Framework\Lib\Url
 	 */
-	function setParameter($arg1, $arg2=null, $reset=true)
+	function setParameter($arg1, $arg2 = null, $reset = true)
 	{
-		if ($reset===true)
+		if ($reset === true)
 			$this->param = array();
-
-		if ($arg2 === null && (is_array($arg1) || is_object($arg1)))
+		
+		if ($arg2 === null && ( is_array($arg1) || is_object($arg1) ))
 		{
 			foreach ( $arg1 as $key => $val )
 				$this->param[$key] = Lib::fromObjectToArray($val);
 		}
-
+		
 		if (isset($arg2))
 			$this->param[$arg1] = Lib::fromObjectToArray($arg2);
-
+		
 		return $this;
 	}
 
@@ -501,7 +507,7 @@ class Model extends MvcAbstract
 	 * Same as setParameter but without resetting existing parameters.
 	 * @see setParameter()
 	 */
-	public final function addParameter($arg1, $arg2=null)
+	public final function addParameter($arg1, $arg2 = null)
 	{
 		$this->setParameter($arg1, $arg2, false);
 	}
@@ -566,7 +572,7 @@ class Model extends MvcAbstract
 	{
 		if (is_array($val))
 			$val = implode(', ', $val);
-
+		
 		$this->group_by = $val;
 		return $this;
 	}
@@ -587,18 +593,18 @@ class Model extends MvcAbstract
 	 * @param string $by
 	 * @param string $condition
 	 */
-	public final function addJoin($tbl, $as, $by, $condition, $reset=false)
+	public final function addJoin($tbl, $as, $by, $condition, $reset = false)
 	{
-		if ($reset==true)
+		if ($reset == true)
 			$this->join = array();
-
+		
 		$this->join[] = array(
-			'tbl' => $tbl,
-			'as' => $as,
-			'by' => $by,
+			'tbl' => $tbl, 
+			'as' => $as, 
+			'by' => $by, 
 			'cond' => $condition
 		);
-
+		
 		return $this;
 	}
 
@@ -674,81 +680,86 @@ class Model extends MvcAbstract
 	public function buildSqlString()
 	{
 		$param = array();
-
+		
 		$join = '';
 		$filter = '';
 		$order = '';
 		$limit = '';
-
+		
 		// Create the fieldprefix. If given as alias use this, otherwise we use the tablename
 		$field_prefifx = !empty($this->alias) ? $this->alias : '{db_prefix}' . $this->tbl;
-
+		
 		// Biuld joins
 		if (!empty($this->join))
 		{
 			$tmp = array();
-
+			
 			foreach ( $this->join as $def )
-				$tmp[] = ' ' . $def['by'] . ' JOIN ' . '{db_prefix}' . (isset($def['as']) ? $def['tbl'] . ' AS ' . $def['as'] : $def['join']) . ' ON (' . $def['cond'] . ')';
+				$tmp[] = ' ' . $def['by'] . ' JOIN ' . '{db_prefix}' . ( isset($def['as']) ? $def['tbl'] . ' AS ' . $def['as'] : $def['join'] ) . ' ON (' . $def['cond'] . ')';
 		}
-
+		
 		$join = isset($tmp) ? implode(' ', $tmp) : '';
-
+		
 		// Create fieldlist
 		if (!empty($this->fields))
 		{
 			// Add `` to some field names as reaction to those stupid developers who chose systemnames as fieldnames
 			foreach ( $this->fields as $key_field => $field )
 			{
-				if (in_array($field, array('date', 'time')))
-				   $field = '`' . $field . '`';
-
-				// Extend fieldname either by table alias or name when no dot as alias/table indicator is found.
-				#if (strpos($field, '.') === false)
-				#	$field .= (!empty($this->alias) ? $this->alias : $this->tbl) . '.' . $field;
+				if (in_array($field, array(
+					'date', 
+					'time'
+				)))
+					$field = '`' . $field . '`';
+					
+					// Extend fieldname either by table alias or name when no dot as alias/table indicator is found.
+					#if (strpos($field, '.') === false)
+					#	$field .= (!empty($this->alias) ? $this->alias : $this->tbl) . '.' . $field;
+				
 
 				$this->fields[$key_field] = $field;
 			}
-
+			
 			$fieldlist = implode(', ', $this->fields);
-		} else
+		}
+		else
 		{
 			$fieldlist = '*';
 		}
-
+		
 		// Create filterstatement
 		$filter = !empty($this->filter) ? ' WHERE ' . $this->filter : null;
-
+		
 		// Create group by statement
 		$group_by = !empty($this->group_by) ? ' GROUP BY ' . $this->group_by : null;
-
+		
 		// Create having statement
 		$having = !empty($this->having) ? ' HAVING ' . $this->having : null;
-
+		
 		// Create order statement
 		$order = !empty($this->order) ? ' ORDER BY ' . $this->order : null;
-
+		
 		// Create limit statement
 		if (!empty($this->limit))
 		{
 			$limit = ' LIMIT ';
-
+			
 			if (isset($this->limit['lower']))
 				$limit .= $this->limit['lower'];
-
+			
 			if (isset($this->limit['lower']) && isset($this->limit['upper']))
 				$limit .= ',' . $this->limit['upper'];
 		}
-
+		
 		// We need a string for the table. if there is an alias, we have to set it
 		$tbl = !empty($this->alias) ? $this->tbl . ' AS ' . $this->alias : $this->tbl;
-
+		
 		// Is this an distinct query?
 		$distinct = $this->distinct ? 'DISTINCT ' : '';
-
+		
 		// Create sql statement by joining all parts from above
 		$this->sql = 'SELECT ' . $distinct . $fieldlist . ' FROM {db_prefix}' . $tbl . $join . $filter . $group_by . $having . $order . $limit;
-
+		
 		return $this->sql;
 	}
 
@@ -759,7 +770,7 @@ class Model extends MvcAbstract
 	public final function getQueryDebug()
 	{
 		$sql = $this->buildSqlString();
-
+		
 		$out = '
 		<div class="debug">
 			<h3>SQL</h3>
@@ -769,7 +780,7 @@ class Model extends MvcAbstract
 			<h3>Full query</h3>
 			' . $this->db->quote($sql, $this->param) . '
 		</div>';
-
+		
 		return $out;
 	}
 
@@ -806,68 +817,72 @@ class Model extends MvcAbstract
 	private function processQueryDefinition($def)
 	{
 		$this->reset();
-
+		
 		// Use set query type or use 'row' as default
 		$this->query_type = isset($def['type']) ? $def['type'] : 'row';
-
+		
 		// Set fields
 		if (isset($def['field']))
-			$this->fields = is_array($def['field']) ? $def['field'] : array($def['field']);
+			$this->fields = is_array($def['field']) ? $def['field'] : array(
+				$def['field']
+			);
 		else
-			$this->fields = array('*');
-
-		// Set filter
-	  	$this->filter = isset($def['filter']) ? $def['filter'] : '';
-
+			$this->fields = array(
+				'*'
+			);
+			
+			// Set filter
+		$this->filter = isset($def['filter']) ? $def['filter'] : '';
+		
 		// Set params
 		if (isset($def['param']))
 			$this->setParameter($def['param']);
-
-		// Set joins
+			
+			// Set joins
 		if (isset($def['join']) && is_array($def['join']))
 		{
 			$this->resetJoin();
-
-			foreach ($def['join'] as $join)
+			
+			foreach ( $def['join'] as $join )
 			{
 				if (Arrays::isAssoc($join))
 				{
 					$this->join[] = array(
-						'tbl' => $join['tbl'],
-						'as' => $join['as'],
-						'by' => $join['by'],
+						'tbl' => $join['tbl'], 
+						'as' => $join['as'], 
+						'by' => $join['by'], 
 						'cond' => $join['condition']
 					);
 				}
 				else
 				{
 					$this->join[] = array(
-						'tbl' => $join[0],
-						'as' => $join[1],
-						'by' => $join[2],
+						'tbl' => $join[0], 
+						'as' => $join[1], 
+						'by' => $join[2], 
 						'cond' => $join[3]
 					);
 				}
 			}
 		}
-
+		
 		// Do we have an order statement?
 		if (isset($def['order']))
 			$this->order = $def['order'];
-
-		// Limit to be set?
+			
+			// Limit to be set?
 		if (isset($def['limit']))
 		{
 			// Single int value as limit?
 			if (is_int($def['limit']))
 				$this->limit['lower'] = $def['limit'];
-
-			// Array but only one value`?
-			elseif(is_array($def['limit']) && count($def['limit']) == 1)
+				
+				// Array but only one value`?
+			elseif (is_array($def['limit']) && count($def['limit']) == 1)
 				$this->limit['lower'] = (int) $def['limit'][0];
-
-			// Array and two values?
-			elseif(is_array($def['limit']) && count($def['limit']) == 2)
+				
+				// Array and two values?
+			elseif (is_array($def['limit']) && count($def['limit']) == 2)
 			{
 				$this->limit['lower'] = (int) $def['limit'][0];
 				$this->limit['upper'] = (int) $def['limit'][1];
@@ -882,45 +897,49 @@ class Model extends MvcAbstract
 	 * @return Ambigous
 	 * @access public
 	 */
-	public final function read($query_type='row', $callbacks=array())
+	public final function read($query_type = 'row', $callbacks = array())
 	{
 		// Is our query type an array which indicates we have to parse a query definition?
 		if (is_array($query_type))
 			$this->processQueryDefinition($query_type);
 		else
 			$this->query_type = $query_type;
-
-		// On count we count only the pk column
+			
+			// On count we count only the pk column
 		if ($this->query_type == 'num')
-			$this->fields = array('Count(' . $this->pk . ')');
-
-		// On pklist we only want the pk column
+			$this->fields = array(
+				'Count(' . $this->pk . ')'
+			);
+			
+			// On pklist we only want the pk column
 		if ($this->query_type == 'key' && !$this->fields)
-			$this->fields = array($this->pk);
-
-		// Build the sql string
+			$this->fields = array(
+				$this->pk
+			);
+			
+			// Build the sql string
 		$this->buildSqlString();
-
+		
 		// Array check and conversion for list of serialized columns
 		if (!is_array($this->serialized))
 			$this->serialized = (array) $this->serialized;
-
-		// Array check for callback parameter
+			
+			// Array check for callback parameter
 		if (!is_array($callbacks))
 			$callbacks = (array) $callbacks;
-
-		// Are we trying to entend non exiting data? Create Data object to prevent errors when it comes to extending.
+			
+			// Are we trying to entend non exiting data? Create Data object to prevent errors when it comes to extending.
 		if ($this->query_type == 'ext' && $this->data == false)
 			$this->data = new Data();
-
-		// Do the query!
+			
+			// Do the query!
 		$res = $this->db->query($this->sql, $this->param);
-
+		
 		// Reset data on all queries not of type 'ext'
 		if ($this->query_type !== 'ext')
 			$this->resetData();
-
-		// Process result
+			
+			// Process result
 		switch ($this->query_type)
 		{
 			/**
@@ -931,11 +950,11 @@ class Model extends MvcAbstract
 			 */
 			case 'ext' :
 				$counter = 0;
-
+				
 				while ( $row = $this->db->fetchAssoc($res) )
 				{
 					$counter++;
-
+					
 					foreach ( $row as $col => $val )
 					{
 						/**
@@ -945,28 +964,28 @@ class Model extends MvcAbstract
 						if (!isset($this->data->{$col}))
 							$this->data->{$col} = in_array($col, $this->serialized) ? unserialize($val) : $val;
 					}
-
+					
 					$this->data = $this->runCallbacks($callbacks, $this->data);
-
+					
 					// We only want truely only one row. Not more!
 					if ($counter == 1)
 						break;
 				}
 				break;
-
+			
 			/**
 			 * Reads on record and returns the value of the first field.
 			 */
 			case 'val' :
 				$row = $this->db->fetchRow($res);
-
+				
 				if ($this->db->numRows($res) != 0 || !empty($row[0]))
 					$this->data = Lib::isSerialized($row[0]) ? unserialize($row[0]) : $row[0];
-
+				
 				$this->data = $this->runCallbacks($callbacks, $this->data);
-
+				
 				break;
-
+			
 			/**
 			 * Reads only the first two columns.
 			 * Good for key=>val data
@@ -975,82 +994,82 @@ class Model extends MvcAbstract
 				if ($this->db->numRows($res) > 0)
 				{
 					$this->data = new Data();
-
+					
 					while ( $row = $this->db->fetchRow($res) )
 					{
 						$row = $this->runCallbacks($callbacks, $row);
-
+						
 						// Skip row which is set to false by callback function
 						if ($row == false)
 							continue;
-
+						
 						$this->data->{$row[0]} = $row[1];
 					}
 				}
 				break;
-
+			
 			/**
 			 * Reads all columns in all rows.
 			 */
 			case '*' :
-
+				
 				while ( $row = $this->db->fetchAssoc($res) )
 				{
 					// Prepare data object
 					if (!$this->data)
 						$this->data = new Data();
-
-					// Convert row to record object
+						
+						// Convert row to record object
 					$record = new Data($row);
-
+					
 					// Serializationcheck
 					foreach ( $this->serialized as $col_to_unserialize )
 					{
 						if (isset($record->{$col_to_unserialize}))
 							$record->{$col_to_unserialize} = unserialize($record->{$col_to_unserialize});
 					}
-
+					
 					// Run callback methods
 					$record = $this->runCallbacks($callbacks, $record, true);
-
+					
 					// Not to use flagged records will be skipped.
 					if ($record == false)
 						continue;
-
+						
 						// Get the index name
 					$cols = array_keys($row);
-
+					
 					// Publish record to data
 					$this->data->{$record->{$cols[0]}} = $record;
 				}
 				break;
-
+			
 			/**
 			 * Reads th first and only the first row of a result
 			 */
 			case 'row' :
 				$counter = 0;
-
+				
 				while ( $row = $this->db->fetchAssoc($res) )
 				{
 					$counter++;
-
+					
 					$row = new Data($row);
-
+					
 					foreach ( $this->serialized as $col_to_unserialize )
 					{
 						if (isset($row->{$col_to_unserialize}))
 							$row->{$col_to_unserialize} = unserialize($row->{$col_to_unserialize});
 					}
-
+					
 					$this->data = $this->runCallbacks($callbacks, $row);
-
+					
 					if ($counter == 1)
 						break;
 				}
-
+				
 				break;
-
+			
 			/**
 			 * Reads one value
 			 */
@@ -1058,40 +1077,36 @@ class Model extends MvcAbstract
 				$row = $this->db->fetchRow($res);
 				$this->data = $this->runCallbacks($callbacks, $row[0]);
 				break;
-
+			
 			case 'key' :
 				if ($this->db->numRows($res))
 				{
 					$this->data = array();
-
+					
 					while ( $row = $this->db->fetchRow($res) )
 					{
 						$row = $this->runCallbacks($callbacks, $row, true);
-
+						
 						if ($row == false)
 							continue;
-
+						
 						$this->data[$row[0]] = $row[0];
 					}
 				}
 				break;
-
+			
 			default :
-				Throw new Error(
-					'Wrong query type',
-					3001,
-					array(
-						'caller' => get_called_class(),
-						'query_type' => $this->query_type,
-						'table' => $this->tbl,
-						'params' => $this->param
-					)
-				);
+				Throw new Error('Wrong query type', 3001, array(
+					'caller' => get_called_class(), 
+					'query_type' => $this->query_type, 
+					'table' => $this->tbl, 
+					'params' => $this->param
+				));
 				break;
 		}
-
+		
 		$this->db->freeResult($res);
-
+		
 		return $this->data;
 	}
 
@@ -1120,20 +1135,20 @@ class Model extends MvcAbstract
 		// Make sure $this->data is an Data object
 		if (!$this->data instanceof Data)
 			Throw new Error('Data given to save is no Dataobject.', 1001, $this->data);
-
-		// Validate given data.
+			
+			// Validate given data.
 		if ($validate)
 			$this->validate();
-
-		// Erros on validation means to end the saving process and return a boolean false.
+			
+			// Erros on validation means to end the saving process and return a boolean false.
 		if ($this->hasErrors())
 			return false;
-
-		// When the pk isset in a record, this is the signal for an update.
+			
+			// When the pk isset in a record, this is the signal for an update.
 		if (isset($this->data->{$this->pk}) && !empty($this->data->{$this->pk}))
 			$this->internalUpdate();
-
-		// No set pk or empty pk in record signals that this is an insert.
+			
+			// No set pk or empty pk in record signals that this is an insert.
 		if (!isset($this->data->{$this->pk}) || empty($this->data->{$this->pk}))
 			return $this->insert();
 	}
@@ -1147,82 +1162,82 @@ class Model extends MvcAbstract
 		// Run beforeCreate event methods and stop when one of them return bool false
 		if ($this->runBefore('create') === false)
 			return false;
-
-		// Create tablename
+			
+			// Create tablename
 		$tbl = '{db_prefix}' . $this->tbl;
-
+		
 		// Prepare query and content arrays
 		$fields = array();
 		$values = array();
 		$keys = array();
-
+		
 		// Build insert fields
 		foreach ( $this->data as $fld => $val )
 		{
 			// Skip datafields not in definition
 			if (!$this->isField($fld))
 				continue;
-
-			// Regardless of all further actions, check and cleanup the value
+				
+				// Regardless of all further actions, check and cleanup the value
 			$val = $this->checkFieldvalue($fld, $val);
-
+			
 			// Put fieldname and the fieldtype to the fields array
 			$fields[$fld] = $this->getFieldtype($fld);
-
+			
 			// Object or array values are stored serialized to db
 			$values[] = is_array($val) || is_object($val) ? serialize($val) : $val;
 		}
-
+		
 		// Add name of primary key field
 		$keys[0] = $this->pk;
-
+		
 		// Run query and store insert id as pk value
 		$this->data->{$this->pk} = $this->db->insert('insert', $tbl, $fields, $values, $keys);
-
+		
 		return $this->data->{$this->pk};
 	}
-
+	
 	// Update method used by save()
 	private function internalUpdate()
 	{
 		$param = array();
-
+		
 		// Run before update methods and stop here if the return bool false
 		if ($this->runBefore('update') === false)
 			return false;
-
-		// Define fieldlist array
+			
+			// Define fieldlist array
 		$fieldlist = array();
-
+		
 		// Build updatefields
 		foreach ( $this->data as $fld => $val )
 		{
 			// Skip datafields not in definition
 			if (!$this->isField($fld))
 				continue;
-
+			
 			$val = $this->checkFieldvalue($fld, $val);
 			$type = $val == 'NULL' ? 'raw' : $this->getFieldtype($fld);
-
+			
 			$fieldlist[] = $this->alias . '.' . $fld . '={' . $type . ':' . $fld . '}';
 			$param[$fld] = $val;
 		}
-
+		
 		// Create filter
 		$filter = ' WHERE ' . $this->alias . '.' . $this->pk . '={' . $this->getFieldtype($this->pk) . ':' . $this->pk . '}';
-
+		
 		// Even if the pk value is present in data, we set this param manually to prevent errors
 		$param[$this->pk] = $this->data->{$this->pk};
-
+		
 		// Build fieldlist
 		$fieldlist = implode(', ', $fieldlist);
-
+		
 		// Create complete sql string
 		$sql = "UPDATE {db_prefix}{$this->tbl} AS {$this->alias} SET {$fieldlist}{$filter}";
-
+		
 		// Run query
 		$this->db->query($sql, $param);
-
+		
 		// Run after update event methods
 		if ($this->runAfter('update') === false)
 			return false;
@@ -1231,33 +1246,33 @@ class Model extends MvcAbstract
 	/**
 	 * Updates records of model with the data which was set
 	 */
-	public final function update($def=null)
+	public final function update($def = null)
 	{
 		if (isset($def))
 			$this->processQueryDefinition($def);
-
+		
 		if (isset($this->fields) && $this->data)
 			Throw new Error('Fieldset and data records are set for update. You can only have the one or the other. Not both. Stopping Update.');
-
+		
 		$fieldlist = array();
-
+		
 		if (isset($this->fields))
 		{
 			foreach ( $this->fields as $fld )
 			{
 				if (!$this->getFieldtype($fld))
 					Throw new Error('The field you set to be updated does not exist in this table.<br />Table: ' . $this->tbl . '<br>Field: ' . $fld);
-
+				
 				if (!array_key_exists($fld, $this->param))
 					Throw new Error('The field "' . $fld . '" you set to be updated has no matching parameter.');
-
+				
 				$fieldlist[] = $this->alias . '.' . $fld . '={' . $this->getFieldtype($fld) . ':' . $fld . '}';
-
+				
 				// sanitize input?
 				$this->param[$fld] = $this->checkFieldvalue($fld, $this->param[$fld]);
 			}
 		}
-
+		
 		if ($this->hasData())
 		{
 			// Build updatefields
@@ -1265,21 +1280,21 @@ class Model extends MvcAbstract
 			{
 				if (!$this->getFieldtype($fld))
 					Throw new Error('The field you set to be updated does not exist in this table.<br>Table: ' . $this->tbl . '<br>Field: ' . $fld);
-
+				
 				$fieldlist[] = $this->alias . '.' . $fld . '={' . $this->getFieldtype($fld) . ':' . $fld . '}';
 				$this->param[$fld] = $this->checkFieldAndValue($fld, $val);
 			}
 		}
-
+		
 		// build fieldlist
 		$fieldlist = implode(', ', $fieldlist);
-
+		
 		// create filterstatement
 		$filter = isset($this->filter) ? ' WHERE ' . $this->filter : '';
-
+		
 		// create complete sql string
 		$sql = "UPDATE {db_prefix}{$this->tbl} AS {$this->alias} SET {$fieldlist}{$filter}";
-
+		
 		$this->db->query($sql, $this->param);
 	}
 
@@ -1296,31 +1311,31 @@ class Model extends MvcAbstract
 				$this->beforeCreate = array(
 					$this->beforeCreate
 				);
-
+			
 			foreach ( $this->beforeCreate as $method_name )
 			{
 				if (method_exists($this, $method_name))
 					$ok = $this->{$method_name}();
-
+					
 					// this is an exitcheck if runBefore func returned false,
 					// so the whole creation process can be stopped then
 				if (isset($ok) && $ok === false)
 					return false;
 			}
 		}
-
+		
 		if ($when == 'update' && isset($this->beforeUpdate))
 		{
 			if (!is_array($this->beforeUpdate))
 				$this->beforeUpdate = array(
 					$this->beforeUpdate
 				);
-
+			
 			foreach ( $this->beforeUpdate as $method_name )
 			{
 				if (method_exists($this, $method_name))
 					$ok = $this->{$method_name}();
-
+					
 					// this is an exitcheck if runBefore func returned false,
 					// so the whole creation process can be stopped then
 				if (isset($ok) && $ok === false)
@@ -1342,21 +1357,21 @@ class Model extends MvcAbstract
 				$this->afterCreate = array(
 					$this->afterCreate
 				);
-
+			
 			foreach ( $this->afterCreate as $method_name )
 			{
 				if (method_exists($this, $method_name))
 					$this->{$method_name}($data);
 			}
 		}
-
+		
 		if ($when == 'update' && isset($this->afterUpdate))
 		{
 			if (!is_array($this->afterUpdate))
 				$this->afterUpdate = array(
 					$this->afterUpdate
 				);
-
+			
 			foreach ( $this->afterUpdate as $method_name )
 			{
 				if (method_exists($this, $method_name))
@@ -1370,7 +1385,7 @@ class Model extends MvcAbstract
 	 * Setting the $pk parameter will override a model filter.
 	 * @param mixed $pk
 	 */
-	public final function delete($pk=null)
+	public final function delete($pk = null)
 	{
 		// When pk is set
 		if (isset($pk))
@@ -1378,23 +1393,25 @@ class Model extends MvcAbstract
 			// Do we have a definition like filter and paramerter to process?
 			if (is_array($pk))
 				$this->processQueryDefinition($pk);
-			// Or is it a primary key value?
+				// Or is it a primary key value?
 			else
 			{
 				$this->filter = $this->pk . '={int:pk}';
-				$this->param = array('pk' => $pk);
+				$this->param = array(
+					'pk' => $pk
+				);
 			}
 		}
-
+		
 		// Do we have to prepare a filter statement
 		$filter = $this->filter ? ' WHERE ' . $this->filter : '';
-
+		
 		// Build sql string
 		$sql = "DELETE FROM {db_prefix}{$this->tbl}{$filter}";
-
+		
 		// Running delete
 		$this->db->query($sql, $this->param);
-
+		
 		// Reset filter and parameter
 		$this->resetFilter();
 		$this->resetParameter();
@@ -1420,7 +1437,7 @@ class Model extends MvcAbstract
 	{
 		$validator = new Validator($this);
 		$validator->validate();
-
+		
 		return $this->hasErrors() ? false : true;
 	}
 
@@ -1444,10 +1461,10 @@ class Model extends MvcAbstract
 	{
 		if (!is_array($ruleset))
 			$ruleset = (array) $ruleset;
-
+		
 		foreach ( $ruleset as $rule )
 			$this->validate[$field][] = $rule;
-
+		
 		return $this;
 	}
 
@@ -1461,15 +1478,15 @@ class Model extends MvcAbstract
 	{
 		if (!isset($this->errors[$fld]))
 			$this->errors[$fld] = array();
-
+		
 		if (!is_array($msg))
 			$msg = array(
 				$msg
 			);
-
+		
 		foreach ( $msg as $val )
 			$this->errors[$fld][] = $val;
-
+		
 		return $this;
 	}
 
@@ -1525,26 +1542,26 @@ class Model extends MvcAbstract
 		// Return NULL value as string 'NULL' to identify this value to be passed as raw type to query
 		if (is_null($val))
 			return 'NULL';
-
-		// trim the string, baby!
+			
+			// trim the string, baby!
 		if (is_string($val))
 			$val = trim($val);
-
+			
 			// convert string numbers into correct fieldtypes
-		if ($this->isField($fld) && ($this->getFieldtype($fld) == 'int' || $this->getFieldtype($fld) == 'float') && is_string($val))
+		if ($this->isField($fld) && ( $this->getFieldtype($fld) == 'int' || $this->getFieldtype($fld) == 'float' ) && is_string($val))
 		{
 			switch ($this->getFieldtype($fld))
 			{
 				case 'int' :
 					$val = intval($val);
 					break;
-
+				
 				case 'float' :
 					$val = floatval($val);
 					break;
 			}
 		}
-
+		
 		// check for not allowed empty field value
 		if ($val === '' && $this->isField($fld) && $this->isNullAllowed($fld) == false)
 		{
@@ -1553,20 +1570,20 @@ class Model extends MvcAbstract
 				case 'string' :
 					$val = '';
 					break;
-
+				
 				case 'int' :
 				case 'float' :
 					$val = 0;
 					break;
 			}
 		}
-
+		
 		if (is_string($val) && $this->clean == 1)
 			$val = Lib::sanitizeUserInput($val);
-
-		if (in_array($fld, $this->serialized) && (is_array($val) || $val instanceof Data))
+		
+		if (in_array($fld, $this->serialized) && ( is_array($val) || $val instanceof Data ))
 			$val = serialize($val);
-
+		
 		return $val;
 	}
 
@@ -1594,10 +1611,10 @@ class Model extends MvcAbstract
 		$this->resetLimit();
 		$this->resetOrder();
 		$this->resetErrors();
-
+		
 		if ($with_data == true)
 			$this->resetData();
-
+		
 		return $this;
 	}
 
@@ -1620,14 +1637,14 @@ class Model extends MvcAbstract
 	 * @var array $param Optional array of parameters used in filter
 	 * @return int
 	 */
-	public final function count($filter='', $param=array())
+	public final function count($filter = '', $param = array())
 	{
 		if ($filter)
 			$this->filter = $filter;
-
+		
 		if ($param)
 			$this->param = $param;
-
+		
 		return $this->read('num');
 	}
 
@@ -1641,13 +1658,13 @@ class Model extends MvcAbstract
 	{
 		if (!isset($this->data->{$this->pk}))
 			Throw new Error('No pk key/value set for combining data.');
-
+		
 		$model = $this->getModel();
 		$model->find($this->data->{$this->pk});
-
+		
 		foreach ( $this->data as $key => $val )
 			$model->data->{$key} = $val;
-
+		
 		return $model->data;
 	}
 
@@ -1660,21 +1677,21 @@ class Model extends MvcAbstract
 	{
 		if (!isset($this->data->{$this->pk}))
 			Throw new Error('Db field compare is allowed only with existing pk value in your current dataset.');
-
+			
 			// Create a new model of our current model
 		$model = $this->getModel();
-
+		
 		// We want only the field set as parameter
 		$model->setField($fld);
-
+		
 		// The data to compare must be the current record in db
 		$model->setFilter($this->pk . '={int:' . $this->pk . '}', array(
 			$this->pk => $this->data->{$this->pk}
 		));
-
+		
 		// Only the value of field for comparision wanted
 		$value = $model->read('val');
-
+		
 		// Is it different from the current set data?
 		return $value == $this->data->{$fld};
 	}
@@ -1689,12 +1706,12 @@ class Model extends MvcAbstract
 	{
 		if (!isset($this->columns))
 			$this->columns = new Data();
-
+		
 		if (!isset($this->columns->{$fld}))
 			$this->columns->{$fld} = new Data();
-
+		
 		$this->columns->{$fld}->{$key} = $val;
-
+		
 		return $this;
 	}
 
@@ -1710,7 +1727,7 @@ class Model extends MvcAbstract
 	{
 		if (!isset($model_name))
 			$model_name = $this->getName();
-
+		
 		return $this->app->getModel($model_name);
 	}
 
@@ -1732,14 +1749,15 @@ class Model extends MvcAbstract
 				list($model_name, $callback) = explode('::', $callback);
 				$model = $this->getModel($model_name);
 				$data = $model->{$callback}($data);
-			} else
+			}
+			else
 				$data = $this->{$callback}($data);
-
-			// Stop processing as soon as return value of callback is boolean false.
+				
+				// Stop processing as soon as return value of callback is boolean false.
 			if ($exit_on_false && $data === false)
 				break;
 		}
-
+		
 		return $data;
 	}
 

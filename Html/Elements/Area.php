@@ -21,7 +21,7 @@ class Abbr extends Link
 
 	/**
 	 * Sets the coordinates of the area
-	 * @param string $cords
+	 * @param string $cords 
 	 * @return \Web\Framework\Html\Elements\Abbr
 	 */
 	public function setCoords($cords)
@@ -32,22 +32,25 @@ class Abbr extends Link
 
 	/**
 	 * Sets the shape of the area
-	 * @param string $shape
+	 * @param string $shape 
 	 * @throws Error
 	 * @return \Web\Framework\Html\Elements\Abbr
 	 */
 	public function setShape($shape)
 	{
 		$shapes = array(
-			'default',
-			'rect',
-			'circle',
-			'poly',
+			'default', 
+			'rect', 
+			'circle', 
+			'poly'
 		);
-
+		
 		if (!in_array($shape, $shapes))
-			Throw new Error('Set shape is not valid.', 1000, array($shape, $shapes));
-
+			Throw new Error('Set shape is not valid.', 1000, array(
+				$shape, 
+				$shapes
+			));
+		
 		$this->attribute['shape'] = $shape;
 		return $this;
 	}

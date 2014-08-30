@@ -18,13 +18,13 @@ class OnOffSwitch extends Select
 {
 	// array with option objects
 	private $switch = array();
-
+	
 	// by deafult switch state is off eg 0
 	private $state = 0;
 
 	/**
 	 * Factory Pattern
-	 * @param string $name
+	 * @param string $name 
 	 * @return \web\framework\Html\controls\OnOffSwitch
 	 */
 	public static function factory($name, $state = 0)
@@ -45,7 +45,7 @@ class OnOffSwitch extends Select
 		$option->setValue(1);
 		$option->setInner(Txt::get('web_on'));
 		$this->switch['on'] = $option;
-
+		
 		// Add off option
 		$option = Option::factory();
 		$option->setValue(0);
@@ -70,26 +70,29 @@ class OnOffSwitch extends Select
 	{
 		$this->switch['off']->isSelected(1);
 		$this->switch['on']->isSelected(0);
-
+		
 		$this->state = 0;
 	}
 
 	/**
 	 * Set switch to a specific state
-	 * @param number $state
+	 * @param number $state 
 	 */
 	public function switchTo($state)
 	{
 		$states = array(
-			0,
-			1,
-			false,
+			0, 
+			1, 
+			false, 
 			true
 		);
-
+		
 		if (!in_array($state, $states))
-			Throw new Error('Wrong state for switch.', 1000, array($state, $states));
-
+			Throw new Error('Wrong state for switch.', 1000, array(
+				$state, 
+				$states
+			));
+		
 		switch ($state)
 		{
 			case 0 :
@@ -119,7 +122,7 @@ class OnOffSwitch extends Select
 	{
 		foreach ( $this->switch as $option )
 			$this->addOption($option);
-
+		
 		return parent::build();
 	}
 }

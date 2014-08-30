@@ -25,55 +25,54 @@ class Icon extends HtmlAbstract
 	 * @var string
 	 */
 	private $icon;
-
+	
 	/**
 	 * Size of icon
 	 * @var string
 	 */
 	private $size;
-
+	
 	/**
 	 * Icon this icon will stack on
 	 * @var Icon
 	 */
 	private $on;
-
+	
 	/**
 	 * Float direction
 	 * @var string left | right
 	 */
 	private $pull;
-
+	
 	/**
 	 * Draw a border around icon?
 	 * @var boolean
 	 */
 	private $border = false;
-
+	
 	/**
 	 * Set icon as muted?
 	 * @var boolean
 	 */
 	private $muted = false;
-
+	
 	/**
 	 * Degree to rotate the icon
 	 * @var int
 	 */
 	private $rotation;
-
+	
 	/**
 	 * Icon flip orientation
 	 * @var string
 	 */
 	private $flip;
-
+	
 	/**
 	 * Spinning flag
 	 * @var boolean
 	 */
 	private $spin = false;
-
 	protected $element = 'i';
 	protected $css = array(
 		'fa'
@@ -81,20 +80,21 @@ class Icon extends HtmlAbstract
 
 	/**
 	 * Factory method
-	 * @param string $icon Plain name of icon without leading "icon-"
+	 * @param string $icon
+	 * Plain name of icon without leading "icon-"
 	 * @return \Web\Framework\Html\Elements\Icon
 	 */
 	public static function factory($icon)
 	{
 		$obj = new Icon();
 		$obj->useIcon($icon);
-
+		
 		return $obj;
 	}
 
 	/**
 	 * Iconname of icon to use
-	 * @param string $icon
+	 * @param string $icon 
 	 * @return \Web\Framework\Html\Elements\Icon
 	 */
 	public function useIcon($icon)
@@ -106,22 +106,25 @@ class Icon extends HtmlAbstract
 	/**
 	 * Sets the size of our icon.
 	 * Sizes are 'large', '2x', '3x' and '4x'. All other sizes will throw an error
-	 * @param string $size
+	 * @param string $size 
 	 * @return \Web\Framework\Html\Elements\Icon
 	 */
 	public function setSize($size)
 	{
 		// sizes which are allowed
 		$sizes = array(
-			'lg',
-			'2x',
-			'3x',
+			'lg', 
+			'2x', 
+			'3x', 
 			'4x'
 		);
-
+		
 		if (!in_array($size, $sizes))
-			Throw new Error('Wrong size set.', 1000, array($size, $sizes));
-
+			Throw new Error('Wrong size set.', 1000, array(
+				$size, 
+				$sizes
+			));
+		
 		$this->size = $size;
 		return $this;
 	}
@@ -179,27 +182,30 @@ class Icon extends HtmlAbstract
 	/**
 	 * Set icon rotation degree.
 	 * Select from 0, 90, 180 or 270. Value of 0 cancels rotaton.
-	 * @param int $rotation
+	 * @param int $rotation 
 	 * @throws Error
 	 * @return \Web\Framework\Html\Elements\Icon
 	 */
 	public function setRotation($rotation)
 	{
 		$rotas = array(
-			0,
-			90,
-			180,
+			0, 
+			90, 
+			180, 
 			270
 		);
-
+		
 		if (!in_array($rotation, $rotas))
-			Throw new Error('Wrong rotation degree set.', 1000, array($rotation, $rotas));
-
+			Throw new Error('Wrong rotation degree set.', 1000, array(
+				$rotation, 
+				$rotas
+			));
+		
 		if ($rotation == 0)
 			unset($this->rotation);
 		else
 			$this->rotation = $rotation;
-
+		
 		return $this;
 	}
 
@@ -230,7 +236,7 @@ class Icon extends HtmlAbstract
 	/**
 	 * Set an icon name to stack our icon on.
 	 * The parameter needs to be a fontawesome icon name without the leading "icon-".
-	 * @param string $icon
+	 * @param string $icon 
 	 * @return \Web\Framework\Html\Elements\Icon
 	 */
 	public function stackOn($icon)
@@ -257,22 +263,22 @@ class Icon extends HtmlAbstract
 	{
 		// first step is to set the icon name itself
 		$this->addCss('fa-' . $this->icon);
-
+		
 		if (isset($this->on))
 		{
 			$stack = Span::factory();
 			$stack->addCss('fa fa-stack');
 			$this->addCss('fa-stack-1x');
-
+			
 			// Create the on icon
 			$on = Icon::factory($this->on);
 			$on->addCss(array(
-				'fa-stack-2x',
+				'fa-stack-2x', 
 				'web_icon_bg'
 			));
 			$icon_1 = $on->build();
 		}
-
+		
 		// size set for icon?
 		if (isset($this->size))
 		{
@@ -281,7 +287,7 @@ class Icon extends HtmlAbstract
 			else
 				$this->addCss('fa-' . $this->size);
 		}
-
+		
 		// any floating wanted?
 		if (isset($this->pull))
 		{
@@ -290,12 +296,12 @@ class Icon extends HtmlAbstract
 			else
 				$this->addCss('fa-pull-' . $this->pull);
 		}
-
+		
 		// draw border?
 		if ($this->border && !isset($stack))
 			$this->addCss('fa-border');
 		;
-
+		
 		// is muted?
 		if ($this->muted)
 		{
@@ -304,7 +310,7 @@ class Icon extends HtmlAbstract
 			else
 				$this->addCss('fa-muted');
 		}
-
+		
 		// flip icon?
 		if (isset($this->flip))
 		{
@@ -313,7 +319,7 @@ class Icon extends HtmlAbstract
 			else
 				$this->addCss('fa-flip-' . $this->flip);
 		}
-
+		
 		// rotate icon?
 		if (isset($this->rotation))
 		{
@@ -322,7 +328,7 @@ class Icon extends HtmlAbstract
 			else
 				$this->addCss('fa-rotate-' . $this->rotation);
 		}
-
+		
 		// spin icon?
 		if ($this->spin)
 		{
@@ -331,9 +337,9 @@ class Icon extends HtmlAbstract
 			else
 				$this->addCss('fa-spin');
 		}
-
+		
 		$icon_2 = parent::build();
-
+		
 		if (isset($stack))
 		{
 			$stack->setInner($icon_1 . PHP_EOL . $icon_2);
@@ -341,7 +347,7 @@ class Icon extends HtmlAbstract
 		}
 		else
 			$html = $icon_2;
-
+		
 		return $html;
 	}
 }

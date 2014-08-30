@@ -24,38 +24,39 @@ class Option extends FormElementAbstract
 	);
 
 	/**
-	 * Selected attribute setter and checker. Accepts parameter "null", "0" and "1".
+	 * Selected attribute setter and checker.
+	 * Accepts parameter "null", "0" and "1".
 	 * "null" means to check for a set disabled attribute
 	 * "0" means to remove disabled attribute
 	 * "1" means to set disabled attribute
-	 * @param int $state
+	 * @param int $state 
 	 * @return \Web\Framework\Html\Form\Option
 	 */
-	public function isSelected($state=null)
+	public function isSelected($state = null)
 	{
 		$attrib = 'selected';
-
+		
 		if (!isset($state))
 			return $this->checkAttribute($attrib);
-
-		if ($state==0)
+		
+		if ($state == 0)
 			$this->removeAttribute($attrib);
 		else
 			$this->addAttribute($attrib, false);
-
+		
 		return $this;
 	}
 
 	/**
 	 * Sets value of option
-	 * @param string|number $value
+	 * @param string|number $value 
 	 * @return \Web\Framework\Html\Form\Option
 	 */
 	public function setValue($value)
 	{
-		if ($value===null)
+		if ($value === null)
 			Throw new Error('Your are not allowed to set a NULL as value for a html option.');
-
+		
 		$this->addAttribute('value', $value);
 		return $this;
 	}

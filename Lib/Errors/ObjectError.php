@@ -18,14 +18,13 @@ if (!defined('WEB'))
 class ObjectError extends ErrorAbstract
 {
 	protected $codes = array(
-		5000 => 'General',
-		5001 => 'MethodMissing',
-		5002 => 'PropertyMissing',
-		5003 => 'PropertyNotSet',
-		5004 => 'PropertyEmpty',
-		5005 => 'NotAllowedProperty',
+		5000 => 'General', 
+		5001 => 'MethodMissing', 
+		5002 => 'PropertyMissing', 
+		5003 => 'PropertyNotSet', 
+		5004 => 'PropertyEmpty', 
+		5005 => 'NotAllowedProperty'
 	);
-
 	protected $fatal = true;
 }
 ?>

@@ -11,7 +11,6 @@ if (!defined('WEB'))
 
 /**
  * Creates a Bootstrap buttongroup
- *
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
  * @subpackage Html\Form
@@ -22,32 +21,29 @@ final class ButtonGroup extends Div
 {
 	/**
 	 * Button stroage
-	 *
 	 * @var array
 	 */
 	private $buttons = array();
 
 	/**
 	 * Adds a button to the group
-	 *
-	 * @param Button $button
+	 * @param Button $button 
 	 * @return \Web\Framework\Html\Controls\ButtonGroup
 	 */
 	public function addButton($button)
 	{
 		if (!$button instanceof Button && !$button instanceof UiButton)
 			Throw new Error('Buttons for a buttongroup must be an instance of Button or UiButton');
-
+		
 		if (!$button->checkCss('btn'))
 			$button->addCss('btn');
-
+		
 		$this->buttons[] = $button;
 		return $this;
 	}
 
 	/**
 	 * Builds buttongroup
-	 *
 	 * @throws Error
 	 * @return string
 	 * @see \Web\Framework\Lib\Abstracts\HtmlAbstract::build()
@@ -56,16 +52,16 @@ final class ButtonGroup extends Div
 	{
 		if (empty($this->buttons))
 			Throw new Error('No buttons for buttongroup set.');
-
+		
 		$inner = '';
-
+		
 		/* @var $button Button */
 		foreach ( $this->buttons as $button )
 			$inner .= $button->build();
-
+		
 		$this->setInner($inner);
 		$this->addCss('btn-group');
-
+		
 		return parent::build();
 	}
 }

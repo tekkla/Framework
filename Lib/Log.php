@@ -1,5 +1,4 @@
 <?php
-
 namespace Web\Framework\Lib;
 
 // Check for direct file access
@@ -21,25 +20,25 @@ final class Log
 	 * @var string
 	 */
 	private $message = '';
-
+	
 	/**
 	 * Log type
 	 * @var string
 	 */
 	private $type = '';
-
+	
 	/**
 	 * Memory used
 	 * @var int
 	 */
 	private $memory = 0;
-
+	
 	/**
 	 * Timestamp
 	 * @var int
 	 */
 	private $time = 0;
-
+	
 	/**
 	 * Trace flag for appending traces to log
 	 * @var boolean
@@ -125,26 +124,26 @@ final class Log
 		// Do not log when settingto check is wsitched off
 		if (!empty($check_setting) && !Cfg::get('Web', $check_setting))
 			return;
-
+			
 			// Logging only when log is activated
 		if (!Cfg::get('Web', 'log') || !User::isAdmin())
 			return;
-
+			
 			// Debug the message if it is not of type string
 		if (is_object($msg))
 			$msg = Debug::dumpVar($msg);
-
+			
 			// Start new log entry
 		$log = new Log();
-
+		
 		// SSI tag if SSI and not in log
 		if (SMF == 'SSI' && strpos($function, 'SSI') === false)
 			$function .= ' (SSI)';
-
+			
 			// Trace append requested?
 		if ($trace == true)
 			$msg .= '<pre>' . print_r(Debug::traceCalls(), true) . '<pre>';
-
+			
 			// Putting all together to the log
 		$log->setType($app . '::' . $function);
 		$log->setMessage($msg);
@@ -162,26 +161,26 @@ final class Log
 		// Logging only when log is activated
 		if (!Cfg::get('Web', 'log') || !User::isAdmin())
 			return;
-
+		
 		$log = new Log();
-
+		
 		$dt = debug_backtrace();
-
+		
 		$logs = array();
-
+		
 		for($i = 0; $i < $depth; $i++)
 		{
 			$key = $i + 1;
-
+			
 			$file = isset($dt[$key]['file']) ? $dt[$key]['file'] . ' => ' : '';
 			$line = isset($dt[$key]['line']) ? '[' . $dt[$key]['line'] . ']' : '';
-
+			
 			if ($key == 1)
 				$logs[] = '<strong>' . $file . $dt[$key]['function'] . '() ' . $line . '</strong>';
 			else
 				$logs[] = $file . $dt[$key]['function'] . '() ' . $line . ']';
 		}
-
+		
 		// Putting all together to the log
 		$log->setMessage(implode('<br>', $logs));
 		$log->setType('Trace');
@@ -232,7 +231,7 @@ final class Log
 			// Still her? Output to session so the output can go to page
 			if (empty($_SESSION['web']['logs']))
 				$_SESSION['web']['log'] = array();
-
+			
 			$_SESSION['web']['logs'][] = $this;
 		}
 	}
@@ -246,10 +245,10 @@ final class Log
 		// No admin? no output wanted? return false!
 		if (!User::isAdmin() || !Cfg::get('Web', 'show_log_output'))
 			return false;
-
+			
 			// Simple counter
 		$log_counter = 0;
-
+		
 		$html = '
 		<hr>
 		<div class="container">
@@ -266,38 +265,38 @@ final class Log
 						   </tr>
 						</thead>
 						<tbody>';
-
-			 if (empty($_SESSION['web']['logs']))
-					$html .= '
+		
+		if (empty($_SESSION['web']['logs']))
+			$html .= '
 						<tr>
 						  <td colspan="4" class="text-center"><strong>No logs to show.</strong></td>
 						</tr>';
-
-			 else
-			 {
-				 /* @var $log Log */
-				 foreach ( $_SESSION['web']['logs'] as $log )
-				 {
-					 $html .= '
-						 <tr class="' . ($log_counter % 2 == 0 ? 'odd' : 'even') . '">
+		
+		else
+		{
+			/* @var $log Log */
+			foreach ( $_SESSION['web']['logs'] as $log )
+			{
+				$html .= '
+						 <tr class="' . ( $log_counter % 2 == 0 ? 'odd' : 'even' ) . '">
 							 <td>' . $log_counter . '</td>
 							 <td>' . $log->getType() . '</td>
 							 <td>' . $log->getMessage() . '</td>
 							 <td>' . $log->getMemory() . '</td>
 						 </tr>';
-
-					 $log_counter++;
-				 }
-			 }
-
-					$html .= '
+				
+				$log_counter++;
+			}
+		}
+		
+		$html .= '
 					</tbody>
 				</table>
 			</div>
 		</div>';
-
+		
 		self::resetLogs();
-
+		
 		return $html;
 	}
 

@@ -18,14 +18,14 @@ if (!defined('WEB'))
  */
 class Input extends FormElementAbstract
 {
-
+	
 	// element specific value for
 	// type: text|hidden|button|submit
 	// default: text
 	protected $type = 'text';
 	protected $element = 'input';
 	protected $data = array(
-		'web-control' => 'input',
+		'web-control' => 'input'
 	);
 
 	public function setType($type)
@@ -35,9 +35,9 @@ class Input extends FormElementAbstract
 		$this->data['web-control'] = $type == 'hidden' ? 'hidden' : 'input';
 		return $this;
 	}
-
-	/*+
-	 * Returns the input type attribute
+	
+	/*
+	 * + Returns the input type attribute
 	 */
 	public function getType()
 	{
@@ -59,7 +59,7 @@ class Input extends FormElementAbstract
 	{
 		if (!is_int($size))
 			Throw new Error('Framework: Input size needs to be an integer.');
-
+		
 		$this->attribute['size'] = $size;
 		return $this;
 	}
@@ -68,7 +68,7 @@ class Input extends FormElementAbstract
 	{
 		if (!is_int($maxlenght))
 			Throw new Error('Framework: Input maxlenght needs to be an integer.');
-
+		
 		$this->attribute['maxlenght'] = $maxlenght;
 		return $this;
 	}
@@ -82,15 +82,15 @@ class Input extends FormElementAbstract
 	public function isChecked($state = null)
 	{
 		$attrib = 'checked';
-
+		
 		if (!isset($state))
 			return $this->checkAttribute($attrib);
-
-		if ($state==0)
+		
+		if ($state == 0)
 			$this->removeAttribute($attrib);
 		else
 			$this->attribute[$attrib] = false;
-
+		
 		return $this;
 	}
 

@@ -1,5 +1,4 @@
 <?php
-
 namespace Web\Framework\Lib;
 
 /**
@@ -26,14 +25,14 @@ class Http
 		try
 		{
 			$result = self::getURL($url);
-
+			
 			if (preg_match('/Found/', $result))
 				return false;
-
+			
 			$fp = fopen($target, 'wb');
 			fwrite($fp, $result);
 			fclose($fp);
-
+			
 			return true;
 		}
 		catch ( Error $e )
@@ -55,27 +54,27 @@ class Http
 	{
 		// Define useragent
 		$agent = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; ' . $lang . '; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12';
-
+		
 		// Url encode
 		$url = urlencode($url);
-
+		
 		// Language of request
 		$lang = array(
 			'Accept-Language: ' . $lang
 		);
-
+		
 		$curl = curl_init();
-
+		
 		curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
 		curl_setopt($curl, CURLOPT_HTTPHEADER, $lang);
 		curl_setopt($curl, CURLOPT_USERAGENT, $agent);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, $return);
 		curl_setopt($curl, CURLOPT_URL, $url);
-
+		
 		$result = curl_exec($curl);
-
+		
 		curl_close($curl);
-
+		
 		return $result;
 	}
 }

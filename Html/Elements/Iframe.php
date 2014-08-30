@@ -20,12 +20,12 @@ if (!defined('WEB'))
 class Iframe extends HtmlAbstract
 {
 	private $sandbox = array();
-
 	protected $element = 'iframe';
 
 	/**
 	 * Factory pattern.
-	 * @param string|Url $src Url of iframe. Accepts url as string and an url object.
+	 * @param string|Url $src
+	 * Url of iframe. Accepts url as string and an url object.
 	 * @return \Web\Framework\Html\Elements\Iframe
 	 */
 	public static function factory($src)
@@ -37,21 +37,23 @@ class Iframe extends HtmlAbstract
 
 	/**
 	 * Sets src attribute of iframe..
-	 * @param string|Url $src Url of iframe. Accepts url as string and an url object.
+	 * @param string|Url $src
+	 * Url of iframe. Accepts url as string and an url object.
 	 * @return \Web\Framework\Html\Elements\Iframe
 	 */
 	public function setSrc($src)
 	{
 		if ($src instanceof Url)
 			$src = $src->getUrl();
-
+		
 		$this->attribute['src'] = $src;
 		return $this;
 	}
 
 	/**
 	 * Sets the srcdoc attribute
-	 * @param string $srcdoc Html code to show
+	 * @param string $srcdoc
+	 * Html code to show
 	 * @return \Web\Framework\Html\Elements\Iframe
 	 */
 	public function setSrcDoc($srcdoc)
@@ -62,32 +64,35 @@ class Iframe extends HtmlAbstract
 
 	/**
 	 * Adds a sandbox mode
-	 * @param string $mode
+	 * @param string $mode 
 	 * @throws NoValidParameterError
 	 * @return \Web\Framework\Html\Elements\Iframe
 	 */
 	public function addSandboxMode($mode)
 	{
 		$modes = array(
-			'',
-			'allow-forms',
-			'allow-same-origin',
-			'allow-scripts',
+			'', 
+			'allow-forms', 
+			'allow-same-origin', 
+			'allow-scripts', 
 			'allow-top-navigation'
 		);
-
+		
 		if (!in_array($mode, $modes))
-			Throw new Error('Wrong sanbox mode.', 1000, array($mode, $modes));
-
+			Throw new Error('Wrong sanbox mode.', 1000, array(
+				$mode, 
+				$modes
+			));
+		
 		if (!in_array($mode, $this->sandbox))
 			$this->sandbox[] = $mode;
-
+		
 		return $this;
 	}
 
 	/**
 	 * Sets the width attribute
-	 * @param int $width
+	 * @param int $width 
 	 * @return \Web\Framework\Html\Elements\Iframe
 	 */
 	public function setWidth($width)
@@ -98,7 +103,7 @@ class Iframe extends HtmlAbstract
 
 	/**
 	 * Sets the height attribute
-	 * @param int $height
+	 * @param int $height 
 	 * @return \Web\Framework\Html\Elements\Iframe
 	 */
 	public function setHeight($height)
@@ -109,7 +114,7 @@ class Iframe extends HtmlAbstract
 
 	/**
 	 * Sets the iframe to be seamless or not
-	 * @param string $state
+	 * @param string $state 
 	 */
 	public function setSeamless($state = true)
 	{
@@ -117,7 +122,7 @@ class Iframe extends HtmlAbstract
 			$this->attribute['seamless'] = false;
 		else
 			$this->removeAttribute('seamless');
-
+		
 		return $this;
 	}
 
@@ -129,7 +134,7 @@ class Iframe extends HtmlAbstract
 	{
 		if ($this->sandbox)
 			$this->attribute['sandbox'] = implode(' ', $this->sandbox);
-
+		
 		return parent::build();
 	}
 }

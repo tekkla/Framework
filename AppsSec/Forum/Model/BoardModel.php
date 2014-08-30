@@ -12,7 +12,7 @@ class BoardModel extends Model
 	public function getBoardlist()
 	{
 		$this->setField(array(
-			'id_board',
+			'id_board', 
 			'name'
 		));
 		$this->setOrder('`name`');

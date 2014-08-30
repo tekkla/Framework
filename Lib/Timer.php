@@ -15,9 +15,7 @@ if (!defined('WEB'))
  */
 final class Timer
 {
-
 	private $start;
-
 	private $end;
 
 	public function start()

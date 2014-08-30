@@ -15,6 +15,7 @@ if (!defined('WEB'))
  */
 final class Smf
 {
+
 	/**
 	 * Includes a needed source file.
 	 * Parameter can be an array of files to include.

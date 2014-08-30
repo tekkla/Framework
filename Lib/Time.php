@@ -15,6 +15,7 @@ if (!defined('WEB'))
  */
 final class Time
 {
+
 	/**
 	 * Converts a date and time string into timestamp
 	 * @param string $date
@@ -25,7 +26,7 @@ final class Time
 	{
 		if (!isset($time))
 			$time = '00:00:01';
-
+			
 			// create unix_timestamp
 		return strtotime($date . ' ' . $time);
 	}
@@ -40,13 +41,13 @@ final class Time
 	public static function fromTimestamp($timestamp, $dateformat = 'd.m.Y', $timeformat = 'H:i')
 	{
 		return array(
-			'stamp' => $timestamp,
-			'date' => date($dateformat, $timestamp),
-			'time' => date($timeformat, $timestamp),
-			'week' => date('W', $timestamp),
-			'day' => date('d', $timestamp),
-			'month' => date('m', $timestamp),
-			'hour' => date('H', $timestamp),
+			'stamp' => $timestamp, 
+			'date' => date($dateformat, $timestamp), 
+			'time' => date($timeformat, $timestamp), 
+			'week' => date('W', $timestamp), 
+			'day' => date('d', $timestamp), 
+			'month' => date('m', $timestamp), 
+			'hour' => date('H', $timestamp), 
 			'minute' => date('i', $timestamp)
 		);
 	}
@@ -71,21 +72,21 @@ final class Time
 	public static function timeLeft($iTimestamp, $bLeft = true)
 	{
 		global $txt;
-
+		
 		if ($bLeft == true)
 			$diff = time() - $iTimestamp;
 		else
 			$diff = $iTimestamp;
-
+		
 		$showdiff = array(
-			"y" => 0,
-			"m" => 0,
-			"w" => 0,
-			"d" => 0,
-			"h" => 0,
+			"y" => 0, 
+			"m" => 0, 
+			"w" => 0, 
+			"d" => 0, 
+			"h" => 0, 
 			"min" => 0
 		);
-
+		
 		while ( $diff >= 31536000 )
 		{
 			// 1 year = 31536000 seconds
@@ -104,48 +105,48 @@ final class Time
 			$diff -= 648000;
 			$showdiff['w']++;
 		}
-
+		
 		while ( $diff >= 86400 )
 		{
 			// 1 day = 86400 seconds
 			$diff -= 86400;
 			$showdiff['d']++;
 		}
-
+		
 		while ( $diff >= 3600 )
 		{
 			// 1 hour = 3600 seconds
 			$diff -= 3600;
 			$showdiff['h']++;
 		}
-
+		
 		while ( $diff >= 60 )
 		{
 			// 1 minute = 60 seconds
 			$diff -= 60;
 			$showdiff['min']++;
 		}
-
+		
 		$out = '';
-
+		
 		if (!empty($showdiff['y']))
-			return $showdiff['y'] . ' ' . $txt['app_web_time_year' . ($showdiff['y'] > 1 ? 's' : '')];
-
+			return $showdiff['y'] . ' ' . $txt['app_web_time_year' . ( $showdiff['y'] > 1 ? 's' : '' )];
+		
 		if (!empty($showdiff['m']))
-			return $showdiff['m'] . ' ' . $txt['app_web_time_month' . ($showdiff['m'] > 1 ? 's' : '')];
-
+			return $showdiff['m'] . ' ' . $txt['app_web_time_month' . ( $showdiff['m'] > 1 ? 's' : '' )];
+		
 		if (!empty($showdiff['w']))
-			return $showdiff['w'] . ' ' . $txt['app_web_time_week' . ($showdiff['w'] > 1 ? 's' : '')];
-
+			return $showdiff['w'] . ' ' . $txt['app_web_time_week' . ( $showdiff['w'] > 1 ? 's' : '' )];
+		
 		if (!empty($showdiff['d']))
-			return $showdiff['d'] . ' ' . $txt['app_web_time_day' . ($showdiff['d'] > 1 ? 's' : '')];
-
+			return $showdiff['d'] . ' ' . $txt['app_web_time_day' . ( $showdiff['d'] > 1 ? 's' : '' )];
+		
 		if (!empty($showdiff['h']))
-			$out .= $showdiff['h'] . ' ' . $txt['app_web_time_hour' . ($showdiff['h'] > 1 ? 's' : '')];
-
+			$out .= $showdiff['h'] . ' ' . $txt['app_web_time_hour' . ( $showdiff['h'] > 1 ? 's' : '' )];
+		
 		if (!empty($showdiff['min']))
-			$out .= $showdiff['min'] . ' ' . $txt['app_web_time_minute' . ($showdiff['min'] > 1 ? 's' : '')];
-
+			$out .= $showdiff['min'] . ' ' . $txt['app_web_time_minute' . ( $showdiff['min'] > 1 ? 's' : '' )];
+		
 		return $out;
 	}
 }

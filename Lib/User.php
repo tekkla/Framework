@@ -15,6 +15,7 @@ if (!defined('WEB'))
  */
 class User
 {
+
 	/**
 	 * Returns users login state
 	 * @return bool
@@ -43,7 +44,7 @@ class User
 	public static function getInfo($key)
 	{
 		global $user_info;
-
+		
 		if (isset($user_info[$key]))
 			return $user_info[$key];
 	}

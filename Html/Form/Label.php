@@ -19,16 +19,16 @@ class Label extends FormElementAbstract
 {
 	protected $element = 'label';
 
-	public static function factory($for, $inner=null)
+	public static function factory($for, $inner = null)
 	{
 		$obj = new Label();
 		$obj->setFor($for);
-
+		
 		if (isset($inner))
 			$obj->setInner($inner);
 		else
 			$obj->setInner($for);
-
+		
 		return $obj;
 	}
 

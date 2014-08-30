@@ -31,12 +31,12 @@ abstract class SingletonAbstract extends ClassAbstract
 	{
 		// Get the name of the child class
 		$class = get_called_class();
-
+		
 		// Create class object it does not exist and add it to instance storage
 		if (!isset(self::$instances[$class]))
 			self::$instances[$class] = new $class();
-
-		// Return class object from instance storage
+			
+			// Return class object from instance storage
 		return self::$instances[$class];
 	}
 

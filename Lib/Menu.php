@@ -18,6 +18,7 @@ if (!defined('WEB'))
  */
 final class Menu extends ClassAbstract
 {
+
 	/**
 	 * Checks for a set menu handler in framework config
 	 * @return boolean
@@ -40,12 +41,15 @@ final class Menu extends ClassAbstract
 		{
 			// Get an instance of app in which the menu handler is to find
 			$app = App::create(Cfg::get('Web', 'menu_handler'));
-
+			
 			// Check for missing MenuHandler method. Throws an error if it is missing.
 			if (!method_exists($app, 'menuHandler'))
-				Throw new Error('Method not found.', 5000, array('menuHandler', Cfg::get('Web', 'menu_handler')));
-
-			// Run MenuHandler method in app
+				Throw new Error('Method not found.', 5000, array(
+					'menuHandler', 
+					Cfg::get('Web', 'menu_handler')
+				));
+				
+				// Run MenuHandler method in app
 			$app->menuHandler();
 		}
 	}
@@ -75,18 +79,18 @@ final class Menu extends ClassAbstract
 	{
 		// Rebuild the menu structure
 		setupMenuContext();
-
+		
 		// Start own outputbuffer...
 		ob_start();
-
+		
 		// ... to get the result of templates menu function
 		template_menu();
-
+		
 		// Create ajax command to refresh #main_menu
 		Ajax::command(array(
-			'selector' => '#main_menu',
-			'args' => ob_get_clean(),
-			'fn' => 'html',
+			'selector' => '#main_menu', 
+			'args' => ob_get_clean(), 
+			'fn' => 'html', 
 			'type' => 'dom'
 		));
 	}

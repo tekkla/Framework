@@ -1,5 +1,4 @@
 <?php
-
 namespace Web\Framework\Lib;
 
 // Check for direct file access
@@ -17,13 +16,13 @@ if (!defined('WEB'))
  */
 class Data implements \IteratorAggregate
 {
-
+	
 	/**
 	 * Keeps the state of each property
 	 * @var array
 	 */
 	private $properties = array();
-
+	
 	/**
 	 * Keeps the current propertyname accessed by __get($name)
 	 * @var string
@@ -63,13 +62,13 @@ class Data implements \IteratorAggregate
 	{
 		$this->properties[$name] = is_array($value) ? $this->create_complex_property($value) : $this->create_simple_property($value);
 	}
-
+	
 	/* Creates a new complex property. Complex properties are created from arrays and are represented by instances of MultiDimensionalObject */
 	private function create_complex_property($value = array())
 	{
 		return new Data($value);
 	}
-
+	
 	/* Creates a simple property. Simple properties are the ones that are not arrays: they can be strings, bools, objects, etc. */
 	private function create_simple_property($value)
 	{
@@ -91,7 +90,7 @@ class Data implements \IteratorAggregate
 	{
 		// Set current accessname
 		self::$cur = $name;
-
+		
 		$this->create_property_if_not_exists($name);
 		return $this->properties[$name];
 	}
@@ -104,7 +103,7 @@ class Data implements \IteratorAggregate
 	{
 		if (array_key_exists($name, $this->properties))
 			return;
-
+		
 		$this->create_property($name, array());
 	}
 

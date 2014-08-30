@@ -18,7 +18,7 @@ if (!defined('WEB'))
  */
 class Heading extends HtmlAbstract
 {
-
+	
 	/**
 	 * Size of heading.
 	 * Default: 1
@@ -28,7 +28,8 @@ class Heading extends HtmlAbstract
 
 	/**
 	 * Creates an ready to use object with the set size
-	 * @param size $number Size of heading. Default: 1
+	 * @param size $number
+	 * Size of heading. Default: 1
 	 * @return \Web\Framework\Html\Elements\Heading
 	 */
 	public static function factory($size = 1)
@@ -38,7 +39,7 @@ class Heading extends HtmlAbstract
 
 	/**
 	 * Constructor
-	 * @param unknown $size
+	 * @param unknown $size 
 	 */
 	public function __construct($size = 1)
 	{
@@ -49,17 +50,20 @@ class Heading extends HtmlAbstract
 	public function setSize($size)
 	{
 		$sizes = array(
-			1,
-			2,
-			3,
-			4,
-			5,
+			1, 
+			2, 
+			3, 
+			4, 
+			5, 
 			6
 		);
-
+		
 		if (!in_array((int) $size, $sizes))
-			Throw new Error('Wrong size set.', 1000, array($size, $sizes));
-
+			Throw new Error('Wrong size set.', 1000, array(
+				$size, 
+				$sizes
+			));
+		
 		$this->size = $size;
 	}
 }

@@ -21,25 +21,25 @@ final class Ajax
 	 * @var \stdClass
 	 */
 	private static $ajax = array();
-
+	
 	/**
 	 * Kind of command
 	 * @var string
 	 */
 	private $type = 'dom';
-
+	
 	/**
 	 * The documents DOM ID the ajax content should go in
 	 * @var string
 	 */
 	private $selector = '';
-
+	
 	/**
 	 * Parameters to pass into the controlleraction
 	 * @var array
 	 */
 	private $args = array();
-
+	
 	/**
 	 * The type of the current ajax.
 	 * @var string
@@ -55,11 +55,11 @@ final class Ajax
 		return new self();
 	}
 
-	public static function command($definition=array())
+	public static function command($definition = array())
 	{
 		if (!$definition)
 			Throw new Error('No defintion for ajax command found.', 1000);
-
+		
 		self::factory()->add($definition);
 	}
 
@@ -114,58 +114,62 @@ final class Ajax
 	/**
 	 * Builds ajax definition and adds it to the ajaxlist
 	 */
-	public function add($definition=array())
+	public function add($definition = array())
 	{
 		// Command vars counter
 		static $counter = 0;
-
+		
 		if ($definition)
 		{
-			foreach ($definition as $property => $value)
+			foreach ( $definition as $property => $value )
 				if (property_exists($this, $property))
 				{
 					if ($property == 'args' && !is_array($value))
-						$value = array($value);
-
+						$value = array(
+							$value
+						);
+					
 					$this->{$property} = $value;
 				}
 		}
-
+		
 		// Create alert on missing target when type is in need-target list
 		if ($this->type == 'dom' && !$this->selector)
 		{
 			self::console('Your DOM ajax response needs a selector but none is set. Aborting.');
 			return;
 		}
-
+		
 		// Create modal content on type of modal
 		if ($this->fn == 'modal')
 		{
 			$modal = ModalWindow::factory();
 			$modal->setContent($this->content);
-
+			
 			if (isset($this->cmd_vars['title']))
 				$modal->setTitle($this->cmd_vars['title']);
-
+			
 			$this->args = $modal->build();
 		}
-
+		
 		$cmd = new \stdClass();
-
+		
 		$cmd->f = $this->fn;
-		$cmd->a = is_array($this->args) ? $this->args : array($this->args);
-
+		$cmd->a = is_array($this->args) ? $this->args : array(
+			$this->args
+		);
+		
 		// Publish ajax definition to ajaxlist
 		if ($this->type == 'dom')
 		{
 			$cmd->s = $this->selector;
-
+			
 			self::$ajax['dom'][$this->selector][] = $cmd;
 		}
 		else
 			self::$ajax['act'][] = $cmd;
-
-		// Raise ajax counter
+			
+			// Raise ajax counter
 		$counter++;
 	}
 
@@ -176,18 +180,18 @@ final class Ajax
 	{
 		// Add messages
 		$messages = Message::getMessages();
-
+		
 		if ($messages)
 		{
 			foreach ( $messages as $message )
 				self::command(array(
-					'type' => 'dom',
-					'args' => $message->build(),
-					'selector' => '#web-message',
+					'type' => 'dom', 
+					'args' => $message->build(), 
+					'selector' => '#web-message', 
 					'fn' => 'append'
 				));
 		}
-
+		
 		// Output is json encoded
 		return json_encode(self::$ajax);
 	}
@@ -200,8 +204,9 @@ final class Ajax
 	{
 		return self::$ajax;
 	}
-
+	
 	// # PREDEFINED METHODS ##############################################################################################
+	
 
 	/**
 	 * Create an msgbox in browser
@@ -210,8 +215,8 @@ final class Ajax
 	public static function alert($msg)
 	{
 		self::command(array(
-			'type' => 'act',
-			'fn' => 'alert',
+			'type' => 'act', 
+			'fn' => 'alert', 
 			'args' => $msg
 		));
 	}
@@ -225,7 +230,7 @@ final class Ajax
 	public static function call($app_name, $controller, $action, $target = '', $param = array())
 	{
 		self::command(array(
-			'selector' => $target,
+			'selector' => $target, 
 			'args' => App::create($app_name)->getController($controller)->run($action, $param)
 		));
 	}
@@ -239,7 +244,7 @@ final class Ajax
 	public static function html($selector, $content)
 	{
 		self::command(array(
-			'selector' => $selector,
+			'selector' => $selector, 
 			'args' => $content
 		));
 	}
@@ -251,9 +256,9 @@ final class Ajax
 	public static function error($error)
 	{
 		self::command(array(
-			'selector' => '#web-message',
-			'fn' => 'append',
-			'args' => 'error',
+			'selector' => '#web-message', 
+			'fn' => 'append', 
+			'args' => 'error'
 		));
 	}
 
@@ -269,11 +274,11 @@ final class Ajax
 	public static function attrib($selector, $attribute, $value)
 	{
 		self::command(array(
-			'type' => 'dom',
-			'selector' => $selector,
-			'fn' => 'attr',
+			'type' => 'dom', 
+			'selector' => $selector, 
+			'fn' => 'attr', 
 			'args' => array(
-				$attribute,
+				$attribute, 
 				$value
 			)
 		));
@@ -288,11 +293,11 @@ final class Ajax
 	public static function css($selector, $property, $value)
 	{
 		self::command(array(
-			'type' => 'dom',
-			'selector' => $selector,
-			'fn' => 'css',
+			'type' => 'dom', 
+			'selector' => $selector, 
+			'fn' => 'css', 
 			'args' => array(
-				$property,
+				$property, 
 				$value
 			)
 		));
@@ -307,9 +312,9 @@ final class Ajax
 	public static function addClass($selector, $class)
 	{
 		self::command(array(
-			'type' => 'dom',
-			'selector' => $selector,
-			'fn' => 'addClass',
+			'type' => 'dom', 
+			'selector' => $selector, 
+			'fn' => 'addClass', 
 			'args' => $class
 		));
 	}
@@ -323,10 +328,10 @@ final class Ajax
 	{
 		if ($url instanceof Url)
 			$url = $url->getUrl();
-
+		
 		self::command(array(
-			'type' => 'act',
-			'fn' => 'refresh',
+			'type' => 'act', 
+			'fn' => 'refresh', 
 			'args' => $url
 		));
 	}
@@ -338,8 +343,8 @@ final class Ajax
 	public static function loadScript($file)
 	{
 		self::command(array(
-			'type' => 'act',
-			'fn' => 'load_script',
+			'type' => 'act', 
+			'fn' => 'load_script', 
 			'args' => $file
 		));
 	}
@@ -351,8 +356,8 @@ final class Ajax
 	public static function console($msg)
 	{
 		self::command(array(
-			'type' => 'act',
-			'fn' => 'console',
+			'type' => 'act', 
+			'fn' => 'console', 
 			'args' => $msg
 		));
 	}
@@ -364,8 +369,8 @@ final class Ajax
 	public static function dump($var)
 	{
 		self::command(array(
-			'type' => 'act',
-			'fn' => 'dump',
+			'type' => 'act', 
+			'fn' => 'dump', 
 			'args' => print_r($var, true)
 		));
 	}

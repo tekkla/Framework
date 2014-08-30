@@ -19,12 +19,12 @@ class ShortenURL
 	public function factory($content, $type = 'text')
 	{
 		$obj = new ShortenURL();
-
+		
 		switch ($type)
 		{
 			case 'text' :
 				return $obj->shortenUrls($content);
-
+			
 			case 'url' :
 				return $obj->getTinyUrl($content);
 		}
@@ -38,16 +38,16 @@ class ShortenURL
 	private function getTinyUrl($url)
 	{
 		$ch = curl_init();
-
+		
 		$timeout = 5;
-
+		
 		curl_setopt($ch, CURLOPT_URL, 'http://tinyurl.com/api-create.php?url=' . $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-
+		
 		$url = curl_exec($ch);
 		curl_close($ch);
-
+		
 		return $url;
 	}
 
@@ -61,41 +61,41 @@ class ShortenURL
 	private function shortenUrls($content)
 	{
 		$url_pattern = '#\bhttps?://[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/))#';
-
+		
 		preg_match_all($url_pattern, $content, $urls);
-
+		
 		if (Cfg::exists('web', 'url_shortener_exclude'))
 			$exclude_pattern = '#' . implode('|', Cfg::Get('web', 'url_shortener_exclude')) . '#';
-
+		
 		foreach ( $urls[0] as $url )
 		{
 			// modify not exluded urls
 			if (isset($exclude_pattern) && preg_match($exclude_pattern, $url))
 				continue;
-
+			
 			if (Cfg::Get('web', 'url_shortener_use') == 1)
 			{
 				// get pagetitle
 				$doc = new \DOMDocument();
 				@$doc->loadHTMLFile($url);
-
+				
 				$xpath = new \DOMXPath($doc);
 				$inner = $xpath->query('//title')->item(0)->nodeValue . "";
 			}
-
+			
 			if (!$inner)
 			{
 				$url_parts = parse_url($url);
 				$inner = $url_parts['host'];
 			}
-
+			
 			// shorten url
 			if (Cfg::Get('web', 'url_shortener_tiny') == 1)
 				$url = $this->getTinyUrl($url);
-
+			
 			$content = str_replace($url, '[url=' . $url . ']' . $inner . '[/url]', $content);
 		}
-
+		
 		return $content;
 	}
 }

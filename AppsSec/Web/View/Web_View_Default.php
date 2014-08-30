@@ -1,5 +1,4 @@
 <?php
-
 namespace Framework\AppsSec\Web\View;
 
 use Web\Framework\Lib\View;
@@ -12,6 +11,7 @@ use Web\Framework\Lib\View;
  */
 class Web_View_Default extends View
 {
+
 	public function Index()
 	{
 		return '
@@ -22,7 +22,6 @@ class Web_View_Default extends View
 			<div class="panel-body">You see this, beacuse there is no viev defined for the requested action.</div>
 		</div>';
 	}
-
 }
 
 ?>

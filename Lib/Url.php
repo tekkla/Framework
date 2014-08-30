@@ -17,77 +17,80 @@ if (!defined('WEB'))
  */
 final class Url extends ClassAbstract
 {
-
+	
 	// WebExt related
+	
 
 	/**
 	 * Name of route to compile
 	 * @var string
 	 */
 	private $named_route;
-
+	
 	/**
 	 * Params for route compiling
 	 * @var array
 	 */
 	private $param = array();
-
+	
 	/**
 	 * App name
 	 * @var string
 	 */
 	private $app;
-
+	
 	/**
 	 * Controller name
 	 * @var string
 	 */
 	private $ctrl;
-
+	
 	/**
 	 * Action to call
 	 * @var string
 	 */
 	private $func;
-
+	
 	/**
 	 * Ajax flag
 	 * @var int
 	 */
 	private $ajax = false;
-
+	
 	// ------------------------------------------
 	// SMF related
 	// ------------------------------------------
+	
 
 	/**
 	 * SMF action parameter
 	 * @var string
 	 */
 	private $action;
-
+	
 	/**
 	 * SMF topic parameter
 	 * @var int|string
 	 */
 	private $topic;
-
+	
 	/**
 	 * SMF board parameter
 	 * @var int
 	 */
 	private $board;
-
+	
 	// ------------------------------------------
 	// Global
 	// ------------------------------------------
+	
 
 	/**
 	 * Target parameter
 	 * @var string
 	 */
 	private $target;
-
+	
 	/**
 	 * Anchor parameter
 	 * @var string
@@ -100,18 +103,18 @@ final class Url extends ClassAbstract
 	 * @param array $param Optional parameters to use on route
 	 * @return Url
 	 */
-	public static function factory($named_route='', $param=array())
+	public static function factory($named_route = '', $param = array())
 	{
 		$url = new Url();
-
+		
 		if ($named_route)
 		{
 			$url->setNamedRoute($named_route);
-
+			
 			if ($param)
 				$url->setParameter($param);
 		}
-
+		
 		return $url;
 	}
 
@@ -121,7 +124,7 @@ final class Url extends ClassAbstract
 	 * @param array $param Optional parameters to use on route
 	 * @return string
 	 */
-	public static function getNamedRouteUrl($named_route, $param=array())
+	public static function getNamedRouteUrl($named_route, $param = array())
 	{
 		return self::factory($named_route, $param)->getUrl();
 	}
@@ -143,7 +146,7 @@ final class Url extends ClassAbstract
 	 * @param bootl $bool
 	 * @return \Web\Framework\Lib\Url
 	 */
-	public function setAjax($bool=true)
+	public function setAjax($bool = true)
 	{
 		$this->ajax = $bool;
 		$this->param['is_ajax'] = 1;
@@ -191,10 +194,10 @@ final class Url extends ClassAbstract
 	function setAction($action)
 	{
 		$this->action = $action;
-
+		
 		$this->unsetData('board');
 		$this->unsetData('topic');
-
+		
 		return $this;
 	}
 
@@ -210,20 +213,20 @@ final class Url extends ClassAbstract
 		// Extend topic by message id
 		if (isset($msg))
 			$topic .= '.msg' . $msg;
-
-		// Set anchor
+			
+			// Set anchor
 		if (isset($anchor))
 			$this->anchor = $anchor;
-
+		
 		$this->topic = $topic;
-
+		
 		// Because we generate a SMF url the controller has to point to SMF
 		$this->ctrl = 'smf';
-
+		
 		// A set topic requires unset action or board parameter
 		$this->unsetData('board');
 		$this->unsetData('action');
-
+		
 		return $this;
 	}
 
@@ -235,14 +238,14 @@ final class Url extends ClassAbstract
 	function setBoard($board)
 	{
 		$this->board = $board;
-
+		
 		// Because we generate a SMF url the controller has to point to SMF
 		$this->ctrl = 'smf';
-
+		
 		// A set board requires unset action or topic parameter
 		$this->unsetData('topic');
 		$this->unsetData('action');
-
+		
 		return $this;
 	}
 
@@ -289,20 +292,20 @@ final class Url extends ClassAbstract
 	 * @throws Error
 	 * @return \Web\Framework\Lib\Url
 	 */
-	function setParameter($arg1, $arg2=null, $reset=false)
+	function setParameter($arg1, $arg2 = null, $reset = false)
 	{
-		if ($reset===true)
+		if ($reset === true)
 			$this->param = array();
-
+		
 		if ($arg2 === null && is_array($arg1) && !empty($arg1))
 		{
 			foreach ( $arg1 as $key => $val )
 				$this->param[$key] = $val;
 		}
-
+		
 		if (isset($arg2))
 			$this->param[$arg1] = $arg2;
-
+		
 		return $this;
 	}
 
@@ -311,7 +314,7 @@ final class Url extends ClassAbstract
 	 * @see setParameter()
 	 * @return \Web\Framework\Lib\Url
 	 */
-	public function addParameter($arg1, $arg2=null)
+	public function addParameter($arg1, $arg2 = null)
 	{
 		$this->setParameter($arg1, $arg2, false);
 		return $this;
@@ -332,22 +335,22 @@ final class Url extends ClassAbstract
 	 * Processes all parameters and returns a fully compiled url as string.
 	 * @return string
 	 */
-	function getUrl($definition=array())
+	function getUrl($definition = array())
 	{
 		if ($definition)
 		{
-			foreach ($definition as $property => $value)
+			foreach ( $definition as $property => $value )
 				if (property_exists($this, $property))
 					$this->{$property} = $value;
 		}
-
+		
 		// if action isset, we have a smf url to build
 		if (isset($this->action) || isset($this->board) || isset($this->topic))
 			return $this->getSmfURL();
-
+		
 		if (isset($this->named_route))
 			return $this->request->getRouteUrl($this->named_route, $this->param);
-
+		
 		return false;
 	}
 
@@ -359,19 +362,19 @@ final class Url extends ClassAbstract
 	{
 		// build parameterlist
 		$param = array();
-
+		
 		foreach ( $this->param as $key => $val )
 		{
 			if ($key == 'area' || $key == 'sa')
 				continue;
-
+			
 			$param[] = empty($val) ? $key : $key . '=' . $val;
 		}
-
+		
 		$anchor = isset($this->anchor) ? '#' . $this->anchor : '';
-
+		
 		$param = count($param) > 0 ? '?' . implode(';', $param) : '';
-
+		
 		if (isset($this->topic))
 			$url_base = '/topic/' . $this->topic . '.html';
 		elseif (isset($this->board))
@@ -381,13 +384,13 @@ final class Url extends ClassAbstract
 			$url_parts = array(
 				$this->action
 			);
-
+			
 			if (isset($this->param['area']))
 				$url_parts[] = 'area_' . $this->param['area'];
-
+			
 			if (isset($this->param['sa']))
 				$url_parts[] = 'sa_' . $this->param['sa'];
-
+			
 			$url_base = '/' . implode('/', $url_parts) . '/';
 		}
 		return BOARDURL . $url_base . $param . $anchor;
@@ -414,20 +417,20 @@ final class Url extends ClassAbstract
 	{
 		// Parse the url
 		$parsed = parse_url($raw_url[0]);
-
+		
 		// Without any querystring we return the url
 		if (!isset($parsed['query']))
 			return $raw_url[0];
-
+			
 			// Split query string into part
 		$query_parts = explode(';', $parsed['query']);
-
+		
 		// On no parts the url is return untaimed
 		if (empty($query_parts))
 			return $raw_url[0];
-
+		
 		$parsed['params'] = array();
-
+		
 		// Prepare the query parts into a key/value par
 		foreach ( $query_parts as $pair )
 		{
@@ -435,27 +438,27 @@ final class Url extends ClassAbstract
 				list($key, $val) = explode('=', $pair);
 			else
 				$key = $val = $pair;
-
+			
 			$parsed['params'][$key] = $val;
 		}
-
+		
 		// Empty params or no 'action' set or not 'action' first query part? Return url unchanged
 		if (empty($parsed['params']) || !isset($parsed['params']['action']) || key($parsed['params']) != 'action')
 			return $raw_url[0];
-
-		// All checks done. Lets rewrite the url
+			
+			// All checks done. Lets rewrite the url
 		$url = self::factory();
-
+		
 		foreach ( $parsed['params'] as $key => $val )
 		{
 			$method = 'set' . String::camelize($key);
-
+			
 			if ($key != 'board' && $key != 'topic' && method_exists($url, $method))
 				$url->{$method}($val);
 			else
 				$url->setParameter($key, $val);
 		}
-
+		
 		// And finally return the rewritten url
 		return $url->getUrl();
 	}

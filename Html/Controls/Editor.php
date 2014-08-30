@@ -13,7 +13,6 @@ if (!defined('WEB'))
 
 /**
  * Creates a CKE inline control
- *
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @package WebExt
  * @subpackage Html\Controls
@@ -24,63 +23,54 @@ final class Editor extends FormElementAbstract
 {
 	/**
 	 * Height in px
-	 *
 	 * @var int
 	 */
 	private $height = 600;
-
+	
 	/**
 	 * Background color (hex)
-	 *
 	 * @var string
 	 */
 	private $color = '#666';
-
+	
 	/**
 	 * Use filebrowser flag
-	 *
 	 * @var bool
 	 */
 	private $filebrowser_use = true;
-
+	
 	/**
 	 * Filebrowser width
-	 *
 	 * @var int string
 	 */
 	private $filebrowser_width = 600;
-
+	
 	/**
 	 * Filebrowser height
-	 *
 	 * @var int string
 	 */
 	private $filebrowser_height = 300;
-
+	
 	/**
 	 * Filebrowser userrole
-	 *
 	 * @var string
 	 */
 	private $filebrowser_userrole = '';
-
+	
 	/**
 	 * Id of form the editor belongs to
-	 *
 	 * @var string
 	 */
 	private $form_id;
-
+	
 	/**
 	 * Hidden value form field
-	 *
 	 * @var Input
 	 */
 	private $content_element;
-
+	
 	/**
 	 * Visible editor area div
-	 *
 	 * @var Div
 	 */
 	private $edit_element;
@@ -94,12 +84,12 @@ final class Editor extends FormElementAbstract
 	{
 		// our editor will be uesd as inline editor
 		$this->edit_element = Div::factory()->addAttribute('contenteditable', 'true')->addData('url', Cfg::Get('Web', 'url_tools'));
-
+		
 		// we need an hidden form field for content to post
 		$this->content_element = Input::factory()->setType('hidden');
-
+		
 		$this->addData('web-control', 'editor');
-
+		
 		// Add needed CKE js library
 		Javascript::useFile(Cfg::Get('Web', 'url_tools') . '/ckeditor/ckeditor.js?' . time());
 	}
@@ -126,14 +116,14 @@ final class Editor extends FormElementAbstract
 	{
 		// the hidden field is the field with the form content
 		$this->content_element->setName($name);
-
+		
 		return $this;
 	}
 
 	public function setFormId($form_id)
 	{
 		echo __METHOD__;
-
+		
 		$this->form_id = $form_id;
 		return $this;
 	}
@@ -152,15 +142,14 @@ final class Editor extends FormElementAbstract
 
 	/**
 	 * Sets user role and grants access on filebrowser
-	 *
-	 * @param string $role
+	 * @param string $role 
 	 * @return \Web\Framework\Html\Controls\Editor
 	 */
 	public function setUserRole($role)
 	{
 		$_SESSION['web']['KCFinder_Role'] = $role;
 		$_SESSION['web']['KCFinder_Access'] = true;
-
+		
 		return $this;
 	}
 
@@ -211,12 +200,12 @@ final class Editor extends FormElementAbstract
 				e.preventDefault();
 			});
 		}";
-
+		
 		Javascript::useScript($script);
-
+		
 		$html = $this->content_element->build();
 		$html .= $this->edit_element->build();
-
+		
 		return $html;
 	}
 }

@@ -23,49 +23,49 @@ abstract class HtmlAbstract extends ClassAbstract
 	 * @var string
 	 */
 	protected $element;
-
+	
 	/**
 	 * Attribute: name
 	 * @var string
 	 */
 	protected $name;
-
+	
 	/**
 	 * Attribute: id
 	 * @var string
 	 */
 	protected $id;
-
+	
 	/**
 	 * Attribute: class
 	 * @var array
 	 */
 	protected $css = array();
-
+	
 	/**
 	 * Attribute: style
 	 * @var array
 	 */
 	protected $style = array();
-
+	
 	/**
 	 * Events
 	 * @var array
 	 */
 	protected $event = array();
-
+	
 	/**
 	 * Custom html attributes
 	 * @var array
 	 */
 	protected $attribute = array();
-
+	
 	/**
 	 * Data attributes
 	 * @var array
 	 */
 	protected $data = array();
-
+	
 	/**
 	 * Inner HTML of element
 	 * @var string
@@ -77,15 +77,15 @@ abstract class HtmlAbstract extends ClassAbstract
 	 * @param string $name Optional name for the element
 	 * @return HtmlAbstract
 	 */
-	public static function factory($name=null)
+	public static function factory($name = null)
 	{
 		$class = get_called_class();
-
+		
 		$obj = new $class();
-
+		
 		if (isset($name))
 			$obj->setName($name);
-
+		
 		return $obj;
 	}
 
@@ -217,15 +217,15 @@ abstract class HtmlAbstract extends ClassAbstract
 		{
 			// Clean css argument from unnecessary spaces
 			$css = preg_replace('/[ ]+/', ' ', $css);
-
+			
 			// Do not trust the programmer and convert a possible
 			// string of multiple css class notations to array
 			$css = explode(' ', $css);
 		}
-
+		
 		foreach ( $css as $class )
 			$this->css[$class] = $class;
-
+		
 		return $this;
 	}
 
@@ -245,8 +245,8 @@ abstract class HtmlAbstract extends ClassAbstract
 				$check = array(
 					$check
 				);
-
-			// Is css to check already in objects css array?
+				
+				// Is css to check already in objects css array?
 			return array_intersect($check, $this->css) ? true : false;
 		}
 		else
@@ -287,7 +287,7 @@ abstract class HtmlAbstract extends ClassAbstract
 	{
 		if (isset($this->style[$style]))
 			unset($this->style[$style]);
-
+		
 		return $this;
 	}
 
@@ -325,7 +325,7 @@ abstract class HtmlAbstract extends ClassAbstract
 	{
 		if (isset($this->attribute[$name]))
 			unset($this->attribute[$name]);
-
+		
 		return $this;
 	}
 
@@ -394,7 +394,7 @@ abstract class HtmlAbstract extends ClassAbstract
 	{
 		if (isset($this->data[$key]))
 			unset($this->data[$key]);
-
+		
 		return $this;
 	}
 
@@ -407,10 +407,10 @@ abstract class HtmlAbstract extends ClassAbstract
 	{
 		$dt = debug_backtrace();
 		$func = strtolower(str_replace('add', '', $dt[1]['function']));
-
-		if (!isset($this->{$func}) || (isset($this->{$func}) && !is_array($this->$func)))
+		
+		if (!isset($this->{$func}) || ( isset($this->{$func}) && !is_array($this->$func) ))
 			$this->{$func} = array();
-
+			
 			// Do we have one argument or two?
 		if (count($args) == 1)
 		{
@@ -450,79 +450,79 @@ abstract class HtmlAbstract extends ClassAbstract
 	public function build()
 	{
 		$html_attr = array();
-
+		
 		if (isset($this->id))
 			$html_attr['id'] = $this->id;
-
+		
 		if (isset($this->name))
 			$html_attr['name'] = $this->name;
-
+		
 		if ($this->css)
 		{
-			$this->css  = array_unique($this->css);
+			$this->css = array_unique($this->css);
 			$html_attr['class'] = implode(' ', $this->css);
 		}
-
+		
 		if ($this->style)
 		{
 			$styles = array();
-
+			
 			foreach ( $this->style as $name => $val )
 				$styles[] = $name . ': ' . $val;
-
+			
 			$html_attr['style'] = implode('; ', $styles);
 		}
-
+		
 		if ($this->event)
 		{
 			foreach ( $this->event as $event => $val )
 				$html_attr[$event] = $val;
 		}
-
+		
 		if ($this->data)
 		{
 			foreach ( $this->data as $attr => $val )
 				$html_attr['data-' . $attr] = $val;
 		}
-
+		
 		if ($this->attribute)
 		{
 			foreach ( $this->attribute as $attr => $val )
 				$html_attr[$attr] = $val;
 		}
-
+		
 		// we have all our attributes => build attribute string
 		$tmp_attr = array();
-
+		
 		foreach ( $html_attr as $name => $val )
-			$tmp_attr[] = $val === false ? $name : $name . (strpos($name, 'data') === false ? '="' . $val . '"' : '=\'' . $val . '\'');
-
+			$tmp_attr[] = $val === false ? $name : $name . ( strpos($name, 'data') === false ? '="' . $val . '"' : '=\'' . $val . '\'' );
+		
 		$html_attr = implode(' ', $tmp_attr);
-
+		
 		// html attribute string has been created, lets build the element
 		switch ($this->element)
 		{
 			case 'label' :
 				$html = '<label ' . $html_attr . '>' . $this->inner . '</label>';
 				break;
-
+			
 			case 'input' :
 				$html = '<input ' . $html_attr . '>';
 				break;
-
+			
 			case 'textarea' :
 				$html = '<textarea ' . $html_attr . '>' . $this->inner . '</textarea>';
 				break;
-
+			
 			case 'img' :
 				$html = '<img ' . $html_attr . '>';
 				break;
-
+			
 			default :
 				$html = '<' . $this->element . ' ' . $html_attr . '>' . $this->inner . '</' . $this->element . '>';
 				break;
 		}
-
+		
 		return $html;
 	}
 }

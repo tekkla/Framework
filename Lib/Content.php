@@ -1,5 +1,4 @@
 <?php
-
 namespace Web\Framework\Lib;
 
 // Check for direct file access
@@ -21,25 +20,25 @@ final class Content
 	 * @var string
 	 */
 	private static $above;
-
+	
 	/**
 	 * Storage for content
 	 * @var string
 	 */
 	private static $content;
-
+	
 	/**
 	 * Storage for below content
 	 * @var string
 	 */
 	private static $below;
-
+	
 	/**
 	 * Storage for javascript objects
 	 * @var array
 	 */
 	private static $javascript = array();
-
+	
 	/**
 	 * Storage for css obejcts
 	 * @var array
@@ -58,12 +57,12 @@ final class Content
 		{
 			// Get instance of content handler app
 			$App = App::getInstance(self::getContenHandler());
-
+			
 			// Init method to call exists?
 			if (method_exists($App, 'initContentHandler'))
 				$App->initContentHandler();
 		}
-
+		
 		// Add copyright infos
 		Context::addCopyright('WebExt Framework &copy; 2014');
 	}
@@ -84,15 +83,15 @@ final class Content
 			{
 				// We need the name of the ContentCover app
 				$app_name = self::getContenHandler();
-
+				
 				// Get instance of this app
 				$App = App::getInstance($app_name);
-
+				
 				// Check for existing ContenCover method
 				if (!method_exists($App, 'runContentHandler'))
 					Throw new Error('You set the app "' . $app_name . '" as content handler but it lacks of method "runContentHandler()". Correct either the config or add the needed method to this app.');
-
-				// Everything is all right. Run content handler by giving the current content to it.
+					
+					// Everything is all right. Run content handler by giving the current content to it.
 				self::$content = $App->runContentHandler(self::$content);
 			}
 		}
@@ -101,20 +100,21 @@ final class Content
 			// Add error message above content
 			self::$content = '<div class="alert alert-danger alert-dismissable">' . $e->getMessage() . '</div>' . self::$content;
 		}
-
+		
 		// Combine cached above and below with content
 		$content = self::$above . self::$content . self::$below;
-
+		
 		// Experimental SEO url converter...
 		if (Cfg::get('Web', 'url_seo'))
 		{
-			$match_it = function ($match) {
+			$match_it = function ($match)
+			{
 				return Url::convertSEF($match);
 			};
-
-			$content = preg_replace_callback('@(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))@', $match_it($match) , $content);
+			
+			$content = preg_replace_callback('@(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))@', $match_it($match), $content);
 		}
-
+		
 		// All is done... echo it to the world!
 		echo $content;
 	}
@@ -145,22 +145,22 @@ final class Content
 	public static function cacheAbove()
 	{
 		self::$above = ob_get_clean();
-
+		
 		// Create the
 		self::$above .= '
 		<div id="web-status">
 			<i class="fa fa-spinner fa-spin"></i>
 		</div>
 		<div id="web-message">';
-
+		
 		$messages = Message::getMessages();
-
+		
 		if ($messages)
 		{
 			foreach ( $messages as $msg )
 				self::$above .= PHP_EOL . $msg->build();
 		}
-
+		
 		self::$above .= '
 		</div>';
 	}
@@ -172,7 +172,7 @@ final class Content
 	public static function cacheContent()
 	{
 		self::$content = ob_get_clean();
-
+		
 		// These divs are used for info displays and page control
 		self::$content .= '
 		<div id="web-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>

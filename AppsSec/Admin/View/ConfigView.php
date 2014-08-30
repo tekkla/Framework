@@ -16,6 +16,7 @@ if (!defined('WEB'))
  */
 final class ConfigView extends View
 {
+
 	public function Config()
 	{
 		echo '<h2>' . $this->icon . '&nbsp;' . $this->app_name . '</h2>' . $this->form;

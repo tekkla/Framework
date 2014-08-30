@@ -11,6 +11,7 @@ namespace Web\Framework\Lib;
  */
 class Settings
 {
+
 	public static function get($key)
 	{
 		global $settings;

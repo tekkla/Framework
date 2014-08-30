@@ -19,18 +19,17 @@ if (!defined('WEB'))
 final class RequestError extends ErrorAbstract
 {
 	protected $codes = array(
-		6000 => 'General',
-		6001 => 'Missing',
-		6002 => 'AlreadyDeclared',
+		6000 => 'General', 
+		6001 => 'Missing', 
+		6002 => 'AlreadyDeclared'
 	);
-
 	protected $fatal = true;
 	protected $log = true;
 
 	protected function processMissing()
 	{
 		$this->admin_message .= '<pre>' . print_r($this->params, true) . '</pre>';
-		$this->user_message = '<h3 class="no-top-margin">'. Txt::get('error', 'Web') . ' 404</h3>' . Txt::get('error_404', 'Web');
+		$this->user_message = '<h3 class="no-top-margin">' . Txt::get('error', 'Web') . ' 404</h3>' . Txt::get('error_404', 'Web');
 	}
 
 	protected function processAlreadyDeclared()
@@ -40,11 +39,11 @@ final class RequestError extends ErrorAbstract
 		<h4>Description</h4>
 		<p>An already declared route causes a full stop. You must use unique route names. Please check the corresponding app mainfile for this route and rename it to a unique name.</p>
 		<h4>Parameter</h4>
-		<pre>' . print_r($this->params, true). '</pre>';
-
+		<pre>' . print_r($this->params, true) . '</pre>';
+		
 		// Flag not to be fatal, so this message runs through to die!
 		$this->fatal = false;
-
+		
 		// Flag to cover message in red error div
 		$this->box = true;
 	}

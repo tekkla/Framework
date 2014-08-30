@@ -20,7 +20,7 @@ final class Textarea extends FormElementAbstract
 {
 	protected $element = 'textarea';
 	protected $data = array(
-		'web-control' => 'textarea',
+		'web-control' => 'textarea'
 	);
 
 	public function setPlaceholder($placeholder)
@@ -31,18 +31,18 @@ final class Textarea extends FormElementAbstract
 
 	public function setCols($cols)
 	{
-		if(!is_int($cols))
+		if (!is_int($cols))
 			Throw new Error('Framework: Textarea cols need to be integer');
-
+		
 		$this->addAttribute('cols', $cols);
 		return $this;
 	}
 
 	public function setRows($rows)
 	{
-		if(!is_int($rows))
+		if (!is_int($rows))
 			Throw new Error('Framework: Textarea rows need to be integer');
-
+		
 		$this->addAttribute('rows', $rows);
 		return $this;
 	}
@@ -57,7 +57,7 @@ final class Textarea extends FormElementAbstract
 	{
 		if (!is_int($maxlength))
 			Throw new Error('Framework: Input maxlenght needs to be an integer.');
-
+		
 		$this->addAttribute('maxlength', $maxlength);
 		return $this;
 	}

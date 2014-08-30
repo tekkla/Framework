@@ -22,7 +22,7 @@ class Img extends HtmlAbstract
 
 	/**
 	 * Factory pattern
-	 * @param string|Url $src
+	 * @param string|Url $src 
 	 * @return \Web\Framework\Html\Elements\Img
 	 */
 	public static function factory($src)
@@ -34,21 +34,22 @@ class Img extends HtmlAbstract
 
 	/**
 	 * Set src attribute
-	 * @param string|Url $src Src value
+	 * @param string|Url $src
+	 * Src value
 	 * @return \Web\Framework\Html\Elements\Img
 	 */
 	public function setSrc($src)
 	{
 		if ($src instanceof Url)
 			$src = $src->getUrl();
-
+		
 		$this->attribute['src'] = $src;
 		return $this;
 	}
 
 	/**
 	 * Sets alt attribute
-	 * @param string $alt
+	 * @param string $alt 
 	 * @return \Web\Framework\Html\Elements\Img
 	 */
 	public function setAlt($alt)
@@ -59,7 +60,7 @@ class Img extends HtmlAbstract
 
 	/**
 	 * Sets title attribute
-	 * @param string $title
+	 * @param string $title 
 	 * @return \Web\Framework\Html\Elements\Img
 	 */
 	public function setTitle($title)
@@ -70,7 +71,7 @@ class Img extends HtmlAbstract
 
 	/**
 	 * Set width attribute
-	 * @param int $width
+	 * @param int $width 
 	 */
 	public function setWidth($width)
 	{
@@ -80,18 +81,18 @@ class Img extends HtmlAbstract
 
 	/**
 	 * Sets height attribute
-	 * @param int $height
+	 * @param int $height 
 	 * @return \Web\Framework\Html\Elements\Img
 	 */
 	public function setHeight($height)
 	{
-		$this->attribute['height'] =  (int) $height;
+		$this->attribute['height'] = (int) $height;
 		return $this;
 	}
 
 	/**
 	 * Sets ismap attribute.
-	 * @param string $flag
+	 * @param string $flag 
 	 * @return \Web\Framework\Html\Elements\Img
 	 */
 	public function setIsMap()
@@ -102,7 +103,7 @@ class Img extends HtmlAbstract
 
 	/**
 	 * Sets the name of map to use
-	 * @param string $name
+	 * @param string $name 
 	 * @return \Web\Framework\Html\Elements\Img
 	 */
 	public function useMap($name)

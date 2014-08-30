@@ -44,37 +44,37 @@ abstract class ClassAbstract
 				case 'request' :
 					$obj = Request::getInstance();
 					break;
-
+				
 				case 'ajax' :
 					$obj = Ajax::factory();
 					break;
-
+				
 				case 'session' :
 					$obj = Session::getInstance();
 					break;
-
+				
 				case 'message' :
 					$obj = new Message();
 					break;
-
+				
 				// Access FirePHP instance
 				case 'fire' :
-
-				// Load FirePHP classfile only when class not exists
-				if (!class_exists('FirePHP'))
-				   require_once (Cfg::get('Web', 'dir_tools') . '/FirePHPCore/FirePHP.class.php');
-
-				$obj = \FirePHP::getInstance(true);
-				break;
-
+					
+					// Load FirePHP classfile only when class not exists
+					if (!class_exists('FirePHP'))
+						require_once ( Cfg::get('Web', 'dir_tools') . '/FirePHPCore/FirePHP.class.php' );
+					
+					$obj = \FirePHP::getInstance(true);
+					break;
+				
 				default :
 					Throw new Error('Requested DI object does not exist.', 5006, $key);
 					break;
 			}
-
+			
 			$this->di[$key] = $obj;
 		}
-
+		
 		return $this->di[$key];
 	}
 
@@ -94,8 +94,8 @@ abstract class ClassAbstract
 	protected function debug($var, $target = 'console', $mode = 'plain')
 	{
 		return Debug::factory()->run(array(
-			'data' => $var,
-			'target' => $target,
+			'data' => $var, 
+			'target' => $target, 
 			'mode' => $mode
 		));
 	}
@@ -114,7 +114,7 @@ abstract class ClassAbstract
 	 * Returns an function/method trace
 	 * @return string
 	 */
-	protected function trace($ignore=3, $target = 'console')
+	protected function trace($ignore = 3, $target = 'console')
 	{
 		return Debug::traceCalls($ignore, $target);
 	}

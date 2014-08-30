@@ -20,13 +20,13 @@ final class Css
 	 * @var unknown
 	 */
 	private static $css = array();
-
+	
 	/**
 	 * Type of css object
 	 * @var string
 	 */
 	private $type;
-
+	
 	/**
 	 * Css object content
 	 * @var string
@@ -50,10 +50,10 @@ final class Css
 	public static function compile()
 	{
 		global $context;
-
+		
 		$files = array();
 		$inline = array();
-
+		
 		/* @var $css Css */
 		foreach ( self::$css as $css )
 		{
@@ -62,13 +62,13 @@ final class Css
 				case 'file' :
 					loadCSSFile($css->getCss());
 					break;
-
+				
 				case 'inline' :
 					$inline[] = $css->getCss();
 					break;
 			}
 		}
-
+		
 		// create script for minifier
 		if (Cfg::get('Web', 'css_minify'))
 		{
@@ -78,28 +78,28 @@ final class Css
 				{
 					$board_parts = parse_url(BOARDURL);
 					$url_parts = parse_url($file['filename']);
-
+					
 					// Do not try to minify ressorces from external host
 					if ($board_parts['host'] != $url_parts['host'])
 						continue;
-
-					// Store filename in minify list
+						
+						// Store filename in minify list
 					$files[] = '/' . $url_parts['path'];
-
+					
 					// Remove this file from $context
 					unset($context['css_files'][$name]);
 				}
 			}
-
+			
 			if ($files)
 			{
 				cache_put_data('web_min_css', $files);
-
+				
 				// cache_put_data('web_css', $files);
 				loadCSSFile(Cfg::get('Web', 'url_tools') . '/min/g=css', null, 'web-css-minified');
 			}
 		}
-
+		
 		// Are there inline css?
 		if ($inline)
 			$context['css_header'] .= implode(PHP_EOL, $inline);
@@ -124,13 +124,13 @@ final class Css
 	public function setType($type)
 	{
 		$types = array(
-			'file',
+			'file', 
 			'inline'
 		);
-
+		
 		if (!in_array($type, $types))
 			Throw new Error('Css type must be "inline" or "file".');
-
+		
 		$this->type = $type;
 		return $this;
 	}

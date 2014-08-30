@@ -19,39 +19,39 @@ final class Javascript
 	 * @var array
 	 */
 	private static $js = array();
-
+	
 	/**
 	 * Types can be "file", "script", "block", "ready" or "var".
 	 * @var string
 	 */
 	private $type;
-
+	
 	/**
 	 * Header (false) or scripts (true) below body? This is the target for.
 	 * @var bool
 	 */
 	private $defer = false;
-
+	
 	/**
 	 * The script to add.
 	 * This can be an url if its an file or a script block.
 	 * @var string
 	 */
 	private $script;
-
+	
 	/**
 	 * Flag for external files.
 	 * External files wont be minified.
 	 * @var bool
 	 */
 	private $is_external = false;
-
+	
 	/**
 	 * For double file use prevention
 	 * @var array
 	 */
 	private static $files_used = array();
-
+	
 	/**
 	 * Internal filecounter
 	 * @var int
@@ -67,7 +67,7 @@ final class Javascript
 	{
 		if (!$script instanceof Javascript)
 			return;
-
+		
 		self::$js[] = $script;
 	}
 
@@ -77,50 +77,50 @@ final class Javascript
 	public static function compile($defered)
 	{
 		global $context;
-
+		
 		// No need to run when nothing is to do
 		if (empty(self::$js))
 			return;
-
+		
 		$files = array();
 		$blocks = array();
 		$ready = array();
-
+		
 		// Include JSMin lib
 		if (Cfg::get('Web', 'js_minify'))
-			require_once (Cfg::get('Web', 'dir_tools') . '/min/lib/JSMin.php');
-
+			require_once ( Cfg::get('Web', 'dir_tools') . '/min/lib/JSMin.php' );
+			
 			/* @var $script Javascript */
 		foreach ( self::$js as $script )
 		{
 			if ($script->getDefer() != $defered)
 				continue;
-
+			
 			switch ($script->getType())
 			{
 				case 'file' :
 					loadJavascriptFile($script->getScript());
 					break;
-
+				
 				case 'script' :
 					addInlineJavascript(Cfg::get('Web', 'js_minify') ? \JSMin::minify($script->getScript()) : $script->getScript());
 					break;
-
+				
 				case 'block' :
 					$output = PHP_EOL . $script->getScript();
 					break;
-
+				
 				case 'var' :
 					$var = $script->getScript();
 					$context['javascript_vars'][$var[0]] = $var[1];
 					break;
-
+				
 				case 'ready' :
 					$ready[] = Cfg::get('Web', 'js_minify') ? \JSMin::minify($script->getScript()) : $script->getScript();
 					break;
 			}
 		}
-
+		
 		// Are there files to minify?
 		if (Cfg::get('Web', 'js_minify'))
 		{
@@ -128,44 +128,44 @@ final class Javascript
 			{
 				if ($name == 'web-js-minified-above' || $name == 'web-js-minified-below')
 					continue;
-
+				
 				if (strpos($file['filename'], BOARDURL) !== false)
 				{
 					$board_parts = parse_url(BOARDURL);
 					$url_parts = parse_url($file['filename']);
-
+					
 					if ($board_parts['host'] != $url_parts['host'])
 						continue;
-
+						
 						// Store filename in minify list
 					if (!in_array('/' . $url_parts['path'], $files))
 						$files[] = '/' . $url_parts['path'];
-
+					
 					unset($context['javascript_files'][$name]);
 				}
 			}
-
+			
 			// Are there files to combine?
 			if ($files)
 			{
 				// Insert filelink above or below?
 				$side = $defered == true ? 'below' : 'above';
-
+				
 				// Write files to session so min can use it
 				cache_put_data('web_min_js_' . $side, $files);
-
+				
 				// Add link to combined js file
 				loadJavascriptFile(Cfg::get('Web', 'url_tools') . '/min/g=js-' . $side, null, 'web-js-minified-' . $side);
 			}
 		}
-
+		
 		// Create $(document).ready()
 		if ($ready)
 		{
 			$script = '$(document).ready(function() {' . PHP_EOL;
 			$script .= implode(PHP_EOL, $ready) . PHP_EOL;
 			$script .= '});';
-
+			
 			addInlineJavascript(Cfg::get('Web', 'js_minify') ? \JSMin::minify($script) : $script);
 		}
 	}
@@ -189,16 +189,16 @@ final class Javascript
 	public function setType($type)
 	{
 		$types = array(
-			'file',
-			'script',
-			'ready',
-			'block',
+			'file', 
+			'script', 
+			'ready', 
+			'block', 
 			'var'
 		);
-
+		
 		if (!in_array($type, $types))
 			Throw new Error('Javascript targets have to be "file", "script", "block", "var" or "ready"');
-
+		
 		$this->type = $type;
 		return $this;
 	}
@@ -233,7 +233,7 @@ final class Javascript
 	{
 		return $this->type;
 	}
-
+	
 	/*
 	 * + Returns the objects external flag state.
 	 */
@@ -289,12 +289,12 @@ final class Javascript
 	{
 		if (Request::getInstance()->isAjax())
 			Ajax::command(array(
-				'type' => 'act',
-				'fn' => 'load_script',
+				'type' => 'act', 
+				'fn' => 'load_script', 
 				'args' => $url
 			));
 		else
-
+			
 			self::add(self::getFile($url, $defer, $is_external));
 	}
 
@@ -310,13 +310,13 @@ final class Javascript
 		// Do not add files already added
 		if (in_array($url, self::$files_used))
 			Throw new Error('Following url is already set as included js file.<br>' . $url . '<br>List of urls used:<pre>' . print_r(self::$files_used, true) . '</pre>');
-
+		
 		$dt = debug_backtrace();
-
+		
 		self::$files_used[self::$filecounter . '-' . $dt[1]['function']] = $url;
-
+		
 		self::$filecounter++;
-
+		
 		return self::factory()->setType('file')->setScript($url)->setIsExternal($is_external)->setDefer($defer);
 	}
 
@@ -381,9 +381,9 @@ final class Javascript
 	public static function getModernizr($path, $defer = false)
 	{
 		$url = $path . '/modernizr.min.js';
-
+		
 		FileIO::exists(str_replace(BOARDURL, BOARDDIR, $url), true);
-
+		
 		return self::factory()->setType('file')->setDefer($defer)->setScript($path . '/modernizr.min.js');
 	}
 
@@ -406,15 +406,15 @@ final class Javascript
 	public static function getSelectivizir($path, $path_fallback_css)
 	{
 		$url = $path . '/selectivizr.js';
-
+		
 		FileIO::exists(str_replace(BOARDURL, BOARDDIR, $url), true);
-
+		
 		$script = '
 		<!--[if (gte IE 6)&(lte IE 8)]>
 		<script type="text/javascript" src="' . $url . '"></script>
 		<noscript><link rel="stylesheet" href="' . $path_fallback_css . '" /></noscript>
 		<![endif]-->';
-
+		
 		return self::factory()->setType('block')->setDefer(true)->setScript($script);
 	}
 
@@ -472,9 +472,9 @@ final class Javascript
 	{
 		if ($is_string == true)
 			$value = '"' . $value . '"';
-
+		
 		return self::factory()->setType('var')->setScript(array(
-			$name,
+			$name, 
 			$value
 		));
 	}
@@ -499,9 +499,9 @@ final class Javascript
 	public static function getBootstrap($version, $defer = false)
 	{
 		$url = Cfg::get('Web', 'url_js') . '/bootstrap-' . $version . '.min.js';
-
+		
 		FileIO::exists(str_replace(BOARDURL, BOARDDIR, $url), true);
-
+		
 		return self::getFile($url);
 	}
 }

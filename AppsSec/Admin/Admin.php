@@ -23,50 +23,50 @@ class Admin extends App
 {
 	// With ohn languagefile
 	public $lang = true;
-
+	
 	// Is secured app
 	public $secure = true;
-
+	
 	// Empty config storage
 	public $config;
-
+	
 	// Used hooks
 	public $hooks = array(
-		'integrate_admin_areas' => 'Web::Class::Web\Framework\AppsSec\Admin\Admin::extendAdmincenter',
+		'integrate_admin_areas' => 'Web::Class::Web\Framework\AppsSec\Admin\Admin::extendAdmincenter', 
 		'integrate_menu_buttons' => 'Web::Class::Web\Framework\AppsSec\Admin\Admin::addAdminlink'
 	);
-
+	
 	// Used routes
 	public $routes = array(
 		array(
-			'name' => 'index',
-			'route' => '/',
-			'ctrl' => 'admin',
+			'name' => 'index', 
+			'route' => '/', 
+			'ctrl' => 'admin', 
 			'action' => 'index'
-		),
+		), 
 		array(
-			'name' => 'app_install',
-			'route' => '/[a:app_name]/install',
-			'ctrl' => 'config',
+			'name' => 'app_install', 
+			'route' => '/[a:app_name]/install', 
+			'ctrl' => 'config', 
 			'action' => 'install'
-		),
+		), 
 		array(
-			'name' => 'app_remove',
-			'route' => '/[a:app_name]/remove',
-			'ctrl' => 'config',
+			'name' => 'app_remove', 
+			'route' => '/[a:app_name]/remove', 
+			'ctrl' => 'config', 
 			'action' => 'remove'
-		),
+		), 
 		array(
-			'name' => 'app_config',
-			'method' => 'GET|POST',
-			'route' => '/[a:app_name]/config',
-			'ctrl' => 'config',
+			'name' => 'app_config', 
+			'method' => 'GET|POST', 
+			'route' => '/[a:app_name]/config', 
+			'ctrl' => 'config', 
 			'action' => 'config'
-		),
+		), 
 		array(
-			'name' => 'app_reconfig',
-			'route' => '/[a:app_name]/reconfig',
-			'ctrl' => 'config',
+			'name' => 'app_reconfig', 
+			'route' => '/[a:app_name]/reconfig', 
+			'ctrl' => 'config', 
 			'action' => 'reconfigure'
 		)
 	);
@@ -78,13 +78,13 @@ class Admin extends App
 	public static function extendAdmincenter(&$admin_areas)
 	{
 		$admin_areas['web'] = array(
-			'title' => 'Framework',
+			'title' => 'Framework', 
 			'permission' => array(
 				'admin_forum'
-			),
+			), 
 			'areas' => array(
 				'web_framwork_config' => array(
-					'label' => Txt::get('config', 'admin'),
+					'label' => Txt::get('config', 'admin'), 
 					'custom_url' => Url::factory('admin_index')->getUrl()
 				)
 			)
@@ -99,12 +99,12 @@ class Admin extends App
 	{
 		if (!isset($menu_buttons['admin']))
 			return;
-
+		
 		$menu_buttons['admin']['sub_buttons']['web_admin'] = array(
-			'title' => Txt::get('web_framework_config'),
-			'href' => Url::factory('admin_index')->getUrl(),
-			'show' => true,
-			'sub_buttons' => array(),
+			'title' => Txt::get('web_framework_config'), 
+			'href' => Url::factory('admin_index')->getUrl(), 
+			'show' => true, 
+			'sub_buttons' => array(), 
 			'is_last' => false
 		);
 	}

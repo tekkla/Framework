@@ -23,23 +23,23 @@ class A extends HtmlAbstract
 
 	/**
 	 * Factory method
-	 * @param string|Url $url
+	 * @param string|Url $url 
 	 * @return \Web\Framework\Html\Elements\Link
 	 */
 	public static function factory($url = null)
 	{
 		$obj = new Link();
-
+		
 		if (isset($url))
 			$obj->setHref($url);
-
+		
 		return $obj;
 	}
 
 	/**
 	 * Sets an alternate text for the link.
 	 * Required if the href attribute is present.
-	 * @param string $alt
+	 * @param string $alt 
 	 * @return \Web\Framework\Html\Elements\Link
 	 */
 	public function setAlt($alt)
@@ -50,20 +50,20 @@ class A extends HtmlAbstract
 
 	/**
 	 * Sets the href attribute.
-	 * @param string $href
+	 * @param string $href 
 	 */
 	public function setHref($url)
 	{
 		if ($url instanceof Url)
 			$url->getUrl();
-
+		
 		$this->attribute['href'] = $url;
 		return $this;
 	}
 
 	/**
 	 * Sets the language of the target URL
-	 * @param string $lang_code
+	 * @param string $lang_code 
 	 * @return \Web\Framework\Html\Elements\Link
 	 */
 	public function setHrefLang($lang_code)
@@ -74,7 +74,7 @@ class A extends HtmlAbstract
 
 	/**
 	 * Sets the target attribute
-	 * @param string $target
+	 * @param string $target 
 	 */
 	public function setTarget($target)
 	{
@@ -84,28 +84,31 @@ class A extends HtmlAbstract
 
 	/**
 	 * Sets he relationship between the current document and the target URL
-	 * @param string $rel
+	 * @param string $rel 
 	 */
 	public function setRel($rel)
 	{
 		$rels = array(
-			'alternate',
-			'author',
-			'bookmark',
-			'help',
-			'license',
-			'next',
-			'nofollow',
-			'noreferrer',
-			'prefetch',
-			'prev',
-			'search',
-			'tag',
+			'alternate', 
+			'author', 
+			'bookmark', 
+			'help', 
+			'license', 
+			'next', 
+			'nofollow', 
+			'noreferrer', 
+			'prefetch', 
+			'prev', 
+			'search', 
+			'tag'
 		);
-
+		
 		if (!in_array($rel, $rels))
-			throw new Error('Not valid rel attribute', 1000, array($rel, $rels));
-
+			throw new Error('Not valid rel attribute', 1000, array(
+				$rel, 
+				$rels
+			));
+		
 		$this->attribute['rel'] = $rel;
 		return $this;
 	}
@@ -122,7 +125,7 @@ class A extends HtmlAbstract
 
 	/**
 	 * Sets what media/device the target URL is optimized for
-	 * @param string $media
+	 * @param string $media 
 	 * @return \Web\Framework\Html\Elements\Link
 	 */
 	public function setMedia($media)
@@ -133,7 +136,7 @@ class A extends HtmlAbstract
 
 	/**
 	 * Sets the MIME type of the target URL
-	 * @param string $media
+	 * @param string $media 
 	 * @return \Web\Framework\Html\Elements\Link
 	 */
 	public function setType($type)
@@ -148,11 +151,10 @@ class A extends HtmlAbstract
 	 */
 	public function build()
 	{
-		if (isset($this->attribute['href']) && (!isset($this->attribute['alt'])))
+		if (isset($this->attribute['href']) && ( !isset($this->attribute['alt']) ))
 			$this->attribute['alt'] = '';
-
+		
 		return parent::build();
 	}
-
 }
 ?>

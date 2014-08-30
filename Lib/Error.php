@@ -18,16 +18,16 @@ final class Error extends \Exception
 {
 	private $redirectUrl = false;
 	private $codes = array(
-		0 => 'General',
-		1000 => 'ParameterValue',
-		2000 => 'File',
-		3000 => 'Db',
-		4000 => 'Config',
-		5000 => 'Object',
+		0 => 'General', 
+		1000 => 'ParameterValue', 
+		2000 => 'File', 
+		3000 => 'Db', 
+		4000 => 'Config', 
+		5000 => 'Object', 
 		6000 => 'Request'
 	);
 	private $params = array();
-
+	
 	/**
 	 * Error handler object
 	 * @var ErrorAbstract
@@ -45,18 +45,18 @@ final class Error extends \Exception
 	{
 		// Get error handler group code from sent $code parameter
 		$code = floor($code / 1000) * 1000;
-
+		
 		foreach ( $this->codes as $error_code => $handler_name )
 		{
 			if ($error_code >= $code)
 				break;
 		}
-
+		
 		$handler_class = 'Web\\Framework\\Lib\\Errors\\' . $handler_name . 'Error';
-
+		
 		$this->error_handler = new $handler_class($message, $code, $params);
 		$this->error_handler->process();
-
+		
 		parent::__construct($this->error_handler->getMessage(), $this->error_handler->getCode(), $previous);
 	}
 
@@ -76,9 +76,9 @@ final class Error extends \Exception
 	public function getComplete()
 	{
 		$message = '<h5>WebExt error code: ' . $this->getCode() . '</h5>';
-
+		
 		$message .= $this->getMessage();
-
+		
 		// Append more informations for admin users
 		if (User::isAdmin())
 		{
@@ -88,10 +88,10 @@ final class Error extends \Exception
 	   		<h4>Trace</h4>
   			<pre>' . $this->getTraceAsString() . '</pre>';
 		}
-
+		
 		if ($this->error_handler->inBox())
 			$message = '<div style="border: 2px solid darkred; background-color: #eee; padding: 5px; border-radius: 5px; margin: 10px; color: #222;">' . $message . '</div>';
-
+		
 		return $message;
 	}
 
@@ -150,25 +150,25 @@ final class Error extends \Exception
 		// Write error to log?
 		if ($this->logError())
 			log_error($this->getLogMessage(), 'WebExt', $this->getFile(), $this->getLine());
-
+			
 			// Ajax request errors will end with an alert(error_message)
 		if (Request::getInstance()->isAjax())
 		{
 			// Create error alert
 			$message = new Message();
 			$message->danger($this->getMessage());
-
+			
 			// Echo processed ajax
 			echo Ajax::process();
-
+			
 			// And finally stop execution
 			exit();
 		}
-
+		
 		// Is error set to be fatal?
 		if ($this->isFatal())
 			setup_fatal_error_context($this->getMessage());
-
+			
 			// If error has a redirection, the error message will be sent as
 			// a message before redirecting to the redirect url
 		if ($this->isRedirect())
@@ -177,11 +177,11 @@ final class Error extends \Exception
 			$message->danger($this);
 			redirectexit($this->getRedirect());
 		}
-
+		
 		// Falling through here means we have a really big error. Usually we will never come this far
 		// but reaching this point causes stopping all further actions.
 		send_http_status(500);
-
+		
 		$html = '
 		<html>
 
@@ -200,7 +200,7 @@ final class Error extends \Exception
 		<body>' . $this->getMessage() . '</body>
 
 		</html>';
-
+		
 		die($html);
 	}
 }

@@ -1,5 +1,4 @@
 <?php
-
 namespace Web\Framework\Lib;
 
 // Check for direct file access
@@ -16,6 +15,7 @@ if (!defined('WEB'))
  */
 final class FileIO
 {
+
 	/**
 	 * Creates a directory by given path.
 	 * If the directory exitsts the return
@@ -32,7 +32,7 @@ final class FileIO
 			// Not? create path
 		else
 			$result = mkdir($path);
-
+		
 		return $result;
 	}
 
@@ -45,11 +45,11 @@ final class FileIO
 	{
 		if (is_dir($dirname))
 			$dir_handle = opendir($dirname);
-
+		
 		if (!$dir_handle)
 			return false;
-
-		while ( ($file = readdir($dir_handle)) != false )
+		
+		while ( ( $file = readdir($dir_handle) ) != false )
 		{
 			if ($file != "." && $file != "..")
 			{
@@ -59,7 +59,7 @@ final class FileIO
 					self::deleteDir($dirname . '/' . $file);
 			}
 		}
-
+		
 		closedir($dir_handle);
 		rmdir($dirname);
 		return true;
@@ -78,7 +78,7 @@ final class FileIO
 	{
 		$source = BOARDDIR . $source;
 		$destination = BOARDDIR . $destination;
-
+		
 		if (copy($source, $destination))
 		{
 			unlink($source);
@@ -100,8 +100,10 @@ final class FileIO
 	public static function moveUploadedFile($source, $destination, $check_exists = true)
 	{
 		if ($check_exists == true && self::exists($destination))
-			Throw new Error('File already exits', 2001, array($destination));
-
+			Throw new Error('File already exits', 2001, array(
+				$destination
+			));
+		
 		return move_uploaded_file($source, $destination);
 	}
 
@@ -115,10 +117,12 @@ final class FileIO
 	public static function exists($path, $log_missing = false)
 	{
 		$exists = file_exists($path);
-
+		
 		if (!$exists && $log_missing == true)
-			Throw new Error('File not found.', 2000, array($path));
-
+			Throw new Error('File not found.', 2000, array(
+				$path
+			));
+		
 		return $exists;
 	}
 
@@ -130,23 +134,26 @@ final class FileIO
 	 */
 	public static function convFilesize($bytes)
 	{
-		if (!$bytes == '0'.$bytes)
-			Throw new Error('Wrong parameter type', array($bytes, 'int'));
-
+		if (!$bytes == '0' . $bytes)
+			Throw new Error('Wrong parameter type', array(
+				$bytes, 
+				'int'
+			));
+		
 		if ($bytes > 0)
 		{
 			$unit = intval(log($bytes, 1024));
 			$units = array(
-				'Bytes',
-				'KByte',
-				'MByte',
+				'Bytes', 
+				'KByte', 
+				'MByte', 
 				'GByte'
 			);
-
+			
 			if (array_key_exists($unit, $units) === true)
 				return sprintf('%d %s', $bytes / pow(1024, $unit), $units[$unit]);
 		}
-
+		
 		return $bytes;
 	}
 
@@ -161,14 +168,14 @@ final class FileIO
 		// The fileextension should not be normalized.
 		if (strrpos($name, '.') !== false)
 			list($name, $extension) = explode('.', $name);
-
+		
 		$name = String::normalizeString($name);
 		$name = preg_replace('/[^[:alnum:]\-]+/', $delimiter, $name);
 		$name = preg_replace('/' . $delimiter . '+/', $delimiter, $name);
 		$name = rtrim($name, $delimiter);
-
+		
 		$cleaned = isset($extension) ? $name . '.' . $extension : $name;
-
+		
 		return $cleaned;
 	}
 
@@ -183,32 +190,34 @@ final class FileIO
 		// Add trailing slash if missing
 		if (substr($path, -1) != '/')
 			$path .= '/';
-
+			
 			// Output array for filenames
 		$filenames = array();
-
+		
 		// Get dir handle
 		$handle = opendir($path);
-
+		
 		// No handle, error exception
 		if ($handle === false)
 		{
-			Throw new Error('File not found.', 2000, array($path));
+			Throw new Error('File not found.', 2000, array(
+				$path
+			));
 			return;
 		}
-
-		while ( ($file = readdir($handle)) !== false )
+		
+		while ( ( $file = readdir($handle) ) !== false )
 		{
 			// no '.' or '..' or dir
 			if ('.' == $file || '..' == $file || is_dir($path . $file))
 				continue;
-
+				
 				// store filename
 			$filenames[] = $file;
 		}
-
+		
 		closedir($handle);
-
+		
 		return $filenames;
 	}
 
@@ -230,7 +239,7 @@ final class FileIO
 	{
 		$suffix = substr($size, -1);
 		$value = substr($size, 0, -1);
-
+		
 		switch (strtoupper($suffix))
 		{
 			case 'P' :
@@ -245,7 +254,7 @@ final class FileIO
 				$value *= 1024;
 				break;
 		}
-
+		
 		return $value;
 	}
 

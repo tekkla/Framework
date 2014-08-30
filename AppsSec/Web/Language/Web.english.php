@@ -75,8 +75,8 @@ $txt['app_web_cfg_js_minify_desc'] = 'This option activates the automatic minify
 $txt['app_web_cfg_group_js'] = 'Javascript';
 $txt['app_web_cfg_js_html5shim'] = 'html5shim';
 $txt['app_web_cfg_js_html5shim_desc'] = 'This option activates use of html5shim. (siehe <a href="https://code.google.com/p/html5shim/">https://code.google.com/p/html5shim/</a>)';
-$txt['app_web_cfg_js_selectivizr']= 'Selectivizr';
-$txt['app_web_cfg_js_selectivizr_desc']= 'This option activates thue use of Selectivizr. (siehe <a href="http://selectivizr.com/">http://selectivizr.com/</a>)';
+$txt['app_web_cfg_js_selectivizr'] = 'Selectivizr';
+$txt['app_web_cfg_js_selectivizr_desc'] = 'This option activates thue use of Selectivizr. (siehe <a href="http://selectivizr.com/">http://selectivizr.com/</a>)';
 $txt['app_web_cfg_js_modernizr'] = 'Modernizer';
 $txt['app_web_cfg_js_modernizr_desc'] = 'This option activates the use of Modernizr. (siehe <a href="http://modernizr.com/">http://modernizr.com/</a>)';
 $txt['app_web_cfg_js_fadeout_time'] = 'Fadeouttime';

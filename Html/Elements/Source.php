@@ -22,7 +22,7 @@ class Source extends HtmlAbstract
 
 	/**
 	 * Sets the type of media resource
-	 * @param string $media
+	 * @param string $media 
 	 * @return \Web\Framework\Html\Elements\Source
 	 */
 	public function setMedia($media)
@@ -33,7 +33,7 @@ class Source extends HtmlAbstract
 
 	/**
 	 * Sets the URL of the media file
-	 * @param string $source
+	 * @param string $source 
 	 * @return \Web\Framework\Html\Elements\Source
 	 */
 	public function setSource($source)
@@ -44,7 +44,7 @@ class Source extends HtmlAbstract
 
 	/**
 	 * Sets the MIME type of the media resource
-	 * @param string $type
+	 * @param string $type 
 	 * @return \Web\Framework\Html\Elements\Source
 	 */
 	public function setType($type)
@@ -57,10 +57,10 @@ class Source extends HtmlAbstract
 	{
 		if (!isset($this->attribute['source']))
 			Throw new Error('No mediasource set.', 1000);
-
+		
 		if (!isset($this->attribute['type']))
 			Throw new Error('No media type set.', 1000);
-
+		
 		return parent::build();
 	}
 }

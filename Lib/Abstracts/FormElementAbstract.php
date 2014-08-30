@@ -9,56 +9,56 @@ use Web\Framework\Html\Form\Label;
 
 class FormElementAbstract extends HtmlAbstract
 {
-
+	
 	/**
 	 * Name of app the form is used in
 	 * @var unknown
 	 */
 	private $app;
-
+	
 	/**
 	 * Model name the element is bound to
 	 * @var string
 	 */
 	private $model;
-
+	
 	/**
 	 * Name of the field in model the element is related to
 	 * @var string
 	 */
 	private $field;
-
+	
 	/**
 	 * Description for the help block
 	 * @var string
 	 */
 	private $description;
-
+	
 	/**
 	 * Flag for binding element to a model field or not
 	 * @var bool
 	 */
 	private $bound = true;
-
+	
 	/**
 	 * Width for the element
 	 * @var string
 	 */
 	private $element_width;
-
+	
 	/**
 	 * Value for creation an hidden field for the original value
 	 * Good for comparing before and then values
 	 * @var bool
 	 */
 	private $compare_value;
-
+	
 	/**
 	 * Signals that we want a label or not
 	 * @var bool
 	 */
 	private $use_label = true;
-
+	
 	/**
 	 * Public html object of a form label
 	 * @var Label
@@ -124,7 +124,7 @@ class FormElementAbstract extends HtmlAbstract
 	{
 		if (!isset($this->app_name))
 			Throw new Error('App name was not set for this form and cannot be returned');
-
+		
 		return $this->app_name;
 	}
 
@@ -147,7 +147,7 @@ class FormElementAbstract extends HtmlAbstract
 	{
 		if (!isset($this->model_name))
 			Throw new Error('Model name was not set for element and cannot be returned');
-
+		
 		return $this->model_name;
 	}
 
@@ -171,7 +171,7 @@ class FormElementAbstract extends HtmlAbstract
 	{
 		if (!isset($this->field_name))
 			Throw new Error('There is no field name bount onto this element which can be returned.');
-
+		
 		return $this->field_name;
 	}
 
@@ -184,15 +184,15 @@ class FormElementAbstract extends HtmlAbstract
 	{
 		if (!isset($this->app_name))
 			throw new Error('No app name set for your form control.');
-
+		
 		if (!isset($this->model_name))
 			throw new Error('No model name set for your form control.');
-
+		
 		if (!isset($this->field_name))
 			throw new Error('No field name set for your form control.');
-
+		
 		$this->setName('web[' . $this->app_name . '][' . $this->model_name . '][' . $this->field_name . ']');
-
+		
 		return $this;
 	}
 
@@ -205,15 +205,15 @@ class FormElementAbstract extends HtmlAbstract
 	{
 		if (!isset($this->app_name))
 			throw new Error('No app name set for your form control.');
-
+		
 		if (!isset($this->model_name))
 			throw new Error('No model name set for your form control.');
-
+		
 		if (!isset($this->field_name))
 			throw new Error('No field name set for your form control.');
-
+		
 		$this->setId('web_appform_' . $this->app_name . '_' . $this->model_name . '_' . $this->field_name);
-
+		
 		return $this;
 	}
 
@@ -328,25 +328,25 @@ class FormElementAbstract extends HtmlAbstract
 	public function setElementWidth($element_width = 'sm-3')
 	{
 		$sizes = array(
-			'xs',
-			'sm',
-			'md',
+			'xs', 
+			'sm', 
+			'md', 
 			'lg'
 		);
 		$allowed_widths = array();
-
+		
 		foreach ( $sizes as $size )
 		{
 			for($i = 1; $i < 13; $i++)
 				$allowed_widths[] = $size . '-' . $i;
 		}
-
+		
 		if (!in_array($element_width, $allowed_widths))
 			throw new Error('Element with is no valid', 1000, array(
-				$element_width,
+				$element_width, 
 				$allowed_widths
 			));
-
+		
 		$this->element_width = 'col-' . $element_width;
 		return $this;
 	}
@@ -391,15 +391,15 @@ class FormElementAbstract extends HtmlAbstract
 	public function isDisabled($state = null)
 	{
 		$attrib = 'disabled';
-
+		
 		if (!isset($state))
 			return $this->checkAttribute($attrib);
-
+		
 		if ($state == 0)
 			$this->removeAttribute($attrib);
 		else
 			$this->addAttribute($attrib);
-
+		
 		return $this;
 	}
 }

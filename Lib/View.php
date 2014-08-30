@@ -31,13 +31,13 @@ class View extends MvcAbstract
 	 */
 	public static function factory(App $app, $view_name)
 	{
-		$class_name = ($app->isSecure() ? '\\Web\\Framework\\AppsSec' : '\\Web\Apps') . "\\" . $app->getName() . '\\View\\' . $view_name . 'View';
-
+		$class_name = ( $app->isSecure() ? '\\Web\\Framework\\AppsSec' : '\\Web\Apps' ) . "\\" . $app->getName() . '\\View\\' . $view_name . 'View';
+		
 		/* @var $View View */
 		$view = new $class_name($view_name);
-
+		
 		$view->injectApp($app);
-
+		
 		return $view;
 	}
 
@@ -55,11 +55,11 @@ class View extends MvcAbstract
 	 * @param string $func Name of render method
 	 * @param array $params Optional: Parameterlist to pass to render function
 	 */
-	public function render($action, $param=array())
+	public function render($action, $param = array())
 	{
 		if (!method_exists($this, $action))
 			return false;
-
+		
 		return Lib::invokeMethod($this, $action, $param);
 	}
 
@@ -77,12 +77,12 @@ class View extends MvcAbstract
 		// create method is called automatically
 		if (is_object($val) && method_exists($val, 'build'))
 			$val = $val->build();
-
-		// Pass a model object as view var and only the data will be used.
+			
+			// Pass a model object as view var and only the data will be used.
 		if (is_object($val) && $val instanceof Model)
 			$val = $val->data;
-
-		// Another lazy thing. It's for accessing vars in the view by $this->var_name
+			
+			// Another lazy thing. It's for accessing vars in the view by $this->var_name
 		$this->__magic_vars[$key] = $val;
 	}
 

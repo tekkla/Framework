@@ -20,91 +20,89 @@ final class Validator
 	 * @var mixed
 	 */
 	private $fld;
-
+	
 	/**
 	 * The value to check
 	 * @var mixed
 	 */
 	private $value;
-
+	
 	/**
 	 * The associated mdoel
 	 * @var Model
 	 */
 	private $model;
-
+	
 	/**
 	 * Simple name of validation function
 	 * @var unknown
 	 */
 	private $func;
-
+	
 	/**
 	 * Array of params to send to validation functions
 	 * @var unknown
 	 */
 	private $param = array();
-
+	
 	/**
 	 * Possible rule message
 	 * @var string
 	 */
 	private $msg;
-
+	
 	/**
 	 * The current validation error message
 	 * @var unknown
 	 */
 	private $error;
-
-
 	private $result;
-
+	
 	/**
 	 * Array of shorthand function names and the corresponding validator methods
 	 * @var array
 	 */
 	private $functions = array(
-
+		
 		// existance
-		'required' => '__Required',
-		'empty' => '__Empty',
-		'blank' => '__Blank',
-
+		'required' => '__Required', 
+		'empty' => '__Empty', 
+		'blank' => '__Blank', 
+		
 		// sizes
-		'min' => '__Min',
-		'max' => '__Max',
-		'range' => '__Range',
-
+		'min' => '__Min', 
+		'max' => '__Max', 
+		'range' => '__Range', 
+		
 		// date / time
-		'date' => '__Date',
-		'date-iso' => '__DateIso',
-		'datetime' => '__DateTime',
-
-		'time' => '__Time',
-		'time-24' => '__Time24',
-
+		'date' => '__Date', 
+		'date-iso' => '__DateIso', 
+		'datetime' => '__DateTime', 
+		
+		'time' => '__Time', 
+		'time-24' => '__Time24', 
+		
 		// contact
-		'phone' => '__Phone',
-
+		'phone' => '__Phone', 
+		
 		// strings
-		'alpha' => '__OnlyLetter',
-		'alnum' => '__OnlyLetterNumber',
-
+		'alpha' => '__OnlyLetter', 
+		'alnum' => '__OnlyLetterNumber', 
+		
 		// web
-		'mail' => '__Email',
-		'url' => '__Url',
-		'ip4' => '__IpV4',
-
+		'mail' => '__Email', 
+		'url' => '__Url', 
+		'ip4' => '__IpV4', 
+		
 		// regexp
-		'regex' => '__CustomRegExp',
-
+		'regex' => '__CustomRegExp', 
+		
 		// numbers
-		'num' => '__OnlyNumber',
-		'int' => '__Integer',
-
-		'float' => '__Float',
-
+		'num' => '__OnlyNumber', 
+		'int' => '__Integer', 
+		
+		'float' => '__Float', 
+		
 		'function' => '__CustomFunction'
 	);
 
@@ -125,43 +123,43 @@ final class Validator
 	{
 		// Get the validation stack from model
 		$validation_stack = $this->model->getValidationStack();
-
+		
 		// No validation rule, no work for us to do
 		if (!$validation_stack)
 			return;
-
-		// No model, no validation, but error :P
+			
+			// No model, no validation, but error :P
 		if (!isset($this->model))
 			Throw new Error('Model definition is missing');
-
-		// No data to validate? Throw error.
+			
+			// No data to validate? Throw error.
 		if (!$this->model->data)
 			Throw new Error('No data to validate found.');
-
-		// No column definition in model? Throw error.
+			
+			// No column definition in model? Throw error.
 		if (!isset($this->model->columns) && $this->model->getColumns() == false)
 			Throw new Error('No colums set to use for validation the data.');
-
-		// Validate each field set in the validation rule stack
+			
+			// Validate each field set in the validation rule stack
 		foreach ( $validation_stack as $fld => $rules )
 		{
 			// Rule for a non existent field means no work at all. Skip rule.
 			if (!isset($this->model->data->{$fld}))
 				continue;
-
-			// Our current fieldname
+				
+				// Our current fieldname
 			$this->field = $fld;
-
+			
 			// Our current value (trimmed)
 			$this->value = trim($this->model->data->{$fld});
-
+			
 			// Convert single string validation defs to array
 			if (!is_array($rules))
 				$rules = array(
 					$rules
 				);
-
-			// Walk through the rules set in models validate property
+				
+				// Walk through the rules set in models validate property
 			foreach ( $rules as $rule )
 			{
 				// Array type rules are for checks where the func needs one or more parameter
@@ -171,14 +169,16 @@ final class Validator
 				{
 					// Get the functionname
 					$this->func = $rule[0];
-
+					
 					// Parameters set?
 					if (isset($rule[1]))
-						$this->param = !is_array($rule[1]) ? array($rule[1]) : $rule[1];
+						$this->param = !is_array($rule[1]) ? array(
+							$rule[1]
+						) : $rule[1];
 					else
 						$this->param = array();
-
-					// Custom error message
+						
+						// Custom error message
 					if (isset($rule[2]))
 						$this->msg = $rule[2];
 				}
@@ -188,44 +188,48 @@ final class Validator
 					$this->param = array();
 					unset($this->msg);
 				}
-
+				
 				// Calling the validation function
-				call_user_func_array(array($this, $this->functions[$this->func]), $this->param);
-
+				call_user_func_array(array(
+					$this, 
+					$this->functions[$this->func]
+				), $this->param);
+				
 				// Current rules message overwrites maybe set error values
 				if (isset($this->msg))
 					$this->error = Txt::get($this->msg);
-
-				// If no error message is set, use the default validato error
+					
+					// If no error message is set, use the default validato error
 				if (!isset($this->error))
 					$this->error = Txt::get('web_validator_error');
-
-				// Is the validation result negative eg false?
+					
+					// Is the validation result negative eg false?
 				if ($this->result === false)
 				{
 					// Validation ends with an error
 					$this->model->addError($fld, $this->error);
-
+					
 					// Clear msg and error properties
 					unset($this->msg, $this->error);
-
+					
 					// Is the clear flag set in rule, the content of the field will be cleared
 					// This is useful for password fields or all other fields where you want
 					// to force the user to retype data.
 					if (isset($rule['clear']))
 						$this->model->data->{$fld} = null;
-
-					// Stop rest of validation if stop flag isset in rule
+						
+						// Stop rest of validation if stop flag isset in rule
 					if (isset($rule['stop']))
 						break;
 				}
 			}
 		}
 	}
-
+	
 	// -------------------------------------------------------------
 	// Validation methods
 	// -------------------------------------------------------------
+	
 
 	/**
 	 * Checks for a field to be set and empty.
@@ -250,7 +254,7 @@ final class Validator
 	 */
 	private function __Empty()
 	{
-		$this->result = isset($this->model->data->{$this->field}) && empty($this->value) ? ($this->value == '0' . $this->value ? true : false) : true;
+		$this->result = isset($this->model->data->{$this->field}) && empty($this->value) ? ( $this->value == '0' . $this->value ? true : false ) : true;
 		$this->error = Txt::get('web_validator_empty');
 	}
 
@@ -317,22 +321,23 @@ final class Validator
 		if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $this->value, $parts) == true)
 		{
 			$this->result = false;
-
+			
 			// Build time from parts
 			$time = mktime(0, 0, 0, $parts[2], $parts[3], $parts[1]);
-
+			
 			// Build time from value
 			$input_time = strtotime($this->value);
-
+			
 			// Compare both timestamps
 			if ($input_time == $time)
 				$this->result = true;
-		} else
+		}
+		else
 		{
 			// No matches found
 			$this->result = false;
 		}
-
+		
 		$this->error = Txt::get('web_validator_date_iso');
 	}
 
@@ -364,7 +369,7 @@ final class Validator
 	private function __TxtLengthBetween($min, $max)
 	{
 		$value = (string) $this->value;
-
+		
 		$this->result = strlen($value) >= $min && strlen($value) <= $max;
 		$this->error = sprintf(Txt::get('web_validator_textrange'), $min, $max, strlen($this->value));
 	}
@@ -556,42 +561,42 @@ final class Validator
 	private function __Compare($to_compare_with, $mode = '=')
 	{
 		$modes = array(
-			'=',
-			'>',
-			'<',
-			'>=',
+			'=', 
+			'>', 
+			'<', 
+			'>=', 
 			'<='
 		);
-
+		
 		if (!in_array($mode, $modes))
 			Throw new Error('Parameter not allowed', 1001, array(
-				$mode,
+				$mode, 
 				$modes
 			));
-
+		
 		switch ($mode)
 		{
 			case '=' :
 				$this->result = $this->value == $to_compare_with;
 				break;
-
+			
 			case '>' :
 				$this->result = $this->value > $to_compare_with;
 				break;
-
+			
 			case '<' :
 				$this->result = $this->value < $to_compare_with;
 				break;
-
+			
 			case '>=' :
 				$this->result = $this->value >= $to_compare_with;
 				break;
-
+			
 			case '<=' :
 				$this->result = $this->value <= $to_compare_with;
 				break;
 		}
-
+		
 		$this->error = sprintf(Txt::get('web_validator_compare'), $this->value, $to_compare_with, $mode);
 	}
 
@@ -603,15 +608,15 @@ final class Validator
 	private function __Equals($to_compare)
 	{
 		$value = $this->value;
-
+		
 		if (is_string($value) && is_string($to_compare))
 			$this->result = $value == $to_compare ? true : false;
-
-		elseif ((is_int($value) && is_int($to_compare)) || (is_float($value) && is_float($to_compare)))
+		
+		elseif (( is_int($value) && is_int($to_compare) ) || ( is_float($value) && is_float($to_compare) ))
 			$this->result = $value == $to_compare ? true : false;
 		else
 			$this->result = false;
-
+		
 		$this->error = Txt::get('web_validator_equals');
 	}
 
@@ -623,14 +628,14 @@ final class Validator
 	private function __Bigger($to_compare)
 	{
 		$value = $this->value;
-
+		
 		if (is_string($value) && is_string($to_compare))
 			$this->result = strlen($value) > strlen($to_compare) ? true : false;
-		elseif ((is_int($value) && is_int($to_compare)) || (is_float($value) && is_float($to_compare)))
+		elseif (( is_int($value) && is_int($to_compare) ) || ( is_float($value) && is_float($to_compare) ))
 			$this->result = $value > $to_compare ? true : false;
 		else
 			$this->result = false;
-
+		
 		$this->error = Txt::get('web_validator_bigger');
 	}
 
@@ -642,14 +647,14 @@ final class Validator
 	private function __Smaller($to_compare)
 	{
 		$value = $this->value;
-
+		
 		if (is_string($value) && is_string($to_compare))
 			$this->result = strlen($value) < strlen($to_compare) ? true : false;
-		elseif ((is_int($value) && is_int($to_compare) || is_float($value) && is_float($to_compare)))
+		elseif (( is_int($value) && is_int($to_compare) || is_float($value) && is_float($to_compare) ))
 			$this->result = $value > $to_compare ? true : false;
 		else
 			$this->result = false;
-
+		
 		$this->error = Txt::get('web_validator_smaller');
 	}
 
@@ -661,15 +666,15 @@ final class Validator
 	private function __BiggerOrEqual($to_compare)
 	{
 		$value = $this->value;
-
+		
 		if (is_string($value) && is_string($to_compare))
 			$this->result = strlen($value) >= strlen($to_compare) ? true : false;
-
-		elseif ((is_int($value) && is_int($to_compare)) || (is_float($this->value) && is_float($to_compare)))
+		
+		elseif (( is_int($value) && is_int($to_compare) ) || ( is_float($this->value) && is_float($to_compare) ))
 			$this->result = $this->value >= $to_compare ? true : false;
 		else
 			$this->result = false;
-
+		
 		$this->error = Txt::get('web_validator_bigger_or_equal');
 	}
 
@@ -681,7 +686,7 @@ final class Validator
 	private function __CustomFunction($model_function, $message)
 	{
 		$result = $this->model->{$model_function}($this->value);
-
+		
 		$this->result = is_bool($result) ? $result : false;
 		$this->error = $this->model->txt($message);
 	}

@@ -13,30 +13,30 @@ use Web\Framework\Lib\Abstracts\SingletonAbstract;
  */
 class Database extends SingletonAbstract
 {
-
+	
 	/**
 	 * Conversionlist from db fieldtype to smf fieldtypes
 	 * @var array
 	 */
 	private $conversionlist = array(
-		'text' => 'string',
-		'char' => 'string',
-		'int' => 'int',
-		'decimal' => 'float',
-		'double' => 'float',
-		'float' => 'float',
-		'numeric' => 'float',
-		'date' => 'string',
-		'time' => 'string',
+		'text' => 'string', 
+		'char' => 'string', 
+		'int' => 'int', 
+		'decimal' => 'float', 
+		'double' => 'float', 
+		'float' => 'float', 
+		'numeric' => 'float', 
+		'date' => 'string', 
+		'time' => 'string', 
 		'string' => 'string'
 	);
-
+	
 	/**
 	 * Sql string
 	 * @var string
 	 */
 	private $sql;
-
+	
 	/**
 	 * Query params
 	 * @var array
@@ -55,7 +55,7 @@ class Database extends SingletonAbstract
 			if (preg_match('/' . $to_search . '/', $type))
 				return $new_type;
 		}
-
+		
 		return false;
 	}
 
@@ -74,7 +74,7 @@ class Database extends SingletonAbstract
 					$fieldlist->{$field} = $new_type;
 			}
 		}
-
+		
 		return $fieldlist;
 	}
 
@@ -100,15 +100,15 @@ class Database extends SingletonAbstract
 	public function query($sql, $params = array(), $log_query = true)
 	{
 		global $smcFunc;
-
+		
 		// Convert data params to array
 		if (isset($params) && $params instanceof Data)
 			$params = (array) $params;
-
+			
 			// Log this query when log and db log are enabled.
 		if ($log_query && Cfg::get('Web', 'log'))
 			Log::add($this->quote($sql, $params), null, null, 'log_db');
-
+			
 			// Run query
 		return $smcFunc['db_query']('', $sql, $params);
 	}
@@ -138,9 +138,9 @@ class Database extends SingletonAbstract
 	public function insert($method, $tbl, $fields, $values, $keys)
 	{
 		global $smcFunc;
-
+		
 		$smcFunc['db_insert']($method, $tbl, $fields, $values, $keys);
-
+		
 		return $this->insertID($tbl, $keys[0]);
 	}
 
@@ -211,14 +211,14 @@ class Database extends SingletonAbstract
 	public function getKeys($sql, $params = array())
 	{
 		$res = $this->query($sql, $params);
-
+		
 		$data = array();
-
+		
 		while ( $row = $this->fetchRow($res) )
 			$data[] = $row[0];
-
+		
 		$this->freeResult($res);
-
+		
 		return $data;
 	}
 
@@ -271,22 +271,22 @@ class Database extends SingletonAbstract
 	public function getAll($sql, $params = array(), $serialized = array())
 	{
 		$res = $this->query($sql, $params);
-
+		
 		while ( $row = $this->fetchAssoc($res) )
 		{
 			$record = (object) $row;
-
+			
 			foreach ( $serialized as $col_to_unserialize )
 				$record->{$col_to_unserialize} = $this->checkSerialized($record->{$col_to_unserialize});
-
+				
 				// Get the index
 			$cols = array_keys($row);
-
+			
 			$this->{$row[$cols[0]]} = $record;
 		}
-
+		
 		$this->freeResult($res);
-
+		
 		return $this->getData();
 	}
 
@@ -320,24 +320,24 @@ class Database extends SingletonAbstract
 	public function getRow($sql, $params = array(), $serialized = array())
 	{
 		$res = $this->query($sql, $params);
-
+		
 		$counter = 0;
-
+		
 		while ( $row = $this->fetchAssoc($res) )
 		{
 			$counter++;
-
+			
 			$row = (object) $row;
-
+			
 			foreach ( $serialized as $col_to_unserialize )
 				$row->{$col_to_unserialize} = $this->checkSerialized($row->{$col_to_unserialize});
-
+			
 			if ($counter == 1)
 				break;
 		}
-
+		
 		$this->freeResult($res);
-
+		
 		return $row;
 	}
 
@@ -366,15 +366,15 @@ class Database extends SingletonAbstract
 	public function getConfig($sql, $params = array(), $serialized = array())
 	{
 		$res = $this->query($sql, $params);
-
+		
 		if ($this->numRows($res) > 0)
 			$this->data = new \stdClass();
-
+		
 		while ( $row = $this->fetchRow($res) )
 			$this->data->{$row[0]}->{$row[1]} = in_array($row[1], $serialized) ? $this->checkSerialized($row[2]) : $row[2];
-
+		
 		$this->freeResult($res);
-
+		
 		return $this->data;
 	}
 
@@ -389,16 +389,16 @@ class Database extends SingletonAbstract
 	public function getTwoCols($sql, $params = array(), $serialized = array())
 	{
 		$res = $this->query($sql, $params);
-
+		
 		$data = array();
-
+		
 		while ( $row = $this->fetchRow($res) )
 		{
 			$data[$row[0]] = $row[1];
 		}
-
+		
 		$this->freeResult($res);
-
+		
 		return $data;
 	}
 
@@ -413,12 +413,12 @@ class Database extends SingletonAbstract
 	{
 		$res = $this->query($sql, $params);
 		$row = $this->fetchRow($res);
-
+		
 		if ($this->numRows($res) != 0 || !empty($row[0]))
 			$value = $this->checkSerialized($row[0]);
-
+		
 		$this->freeResult($res);
-
+		
 		return $value;
 	}
 
@@ -454,7 +454,7 @@ class Database extends SingletonAbstract
 	{
 		if ($val === null)
 			return $val;
-
+		
 		return Lib::isSerialized($val) ? unserialize($val) : $val;
 	}
 }

@@ -15,6 +15,7 @@ if (!defined('WEB'))
  */
 class Arrays
 {
+
 	/**
 	 * Inserts an array ($insert) at ($position) after the key ($search) in an array ($array) and returns a combined array
 	 * @param array $array Array to insert the array
@@ -26,22 +27,25 @@ class Arrays
 	public static function addBySearchedKey(&$array, $search, $insert, $position = 0)
 	{
 		if (!is_array($array))
-			throw new Error('Wrong parameter type.', 1000, array($array, 'array'));
-
+			throw new Error('Wrong parameter type.', 1000, array(
+				$array, 
+				'array'
+			));
+		
 		$counter = 0;
 		$keylist = array_keys($array);
-
+		
 		foreach ( $keylist as $key )
 		{
 			if ($key == $search)
 				break;
 			$counter++;
 		}
-
+		
 		$counter += $position;
-
+		
 		$array = array_slice($array, 0, $counter, true) + $insert + array_slice($array, $counter, null, true);
-
+		
 		return $array;
 	}
 
@@ -55,22 +59,25 @@ class Arrays
 	public static function getSlicesBySearchedKey($array, $search, $position = 0)
 	{
 		if (!is_array($array))
-			throw new Error('Wrong parameter type.', 1000, array($array, 'array'));
-
+			throw new Error('Wrong parameter type.', 1000, array(
+				$array, 
+				'array'
+			));
+		
 		$counter = 0;
 		$keylist = array_keys($array);
-
+		
 		foreach ( $keylist as $key )
 		{
 			if ($key == $search)
 				break;
 			$counter++;
 		}
-
+		
 		$counter += $position;
-
+		
 		return array(
-			array_slice($array, 0, $counter, true),
+			array_slice($array, 0, $counter, true), 
 			array_slice($array, $counter, null, true)
 		);
 	}
@@ -85,7 +92,7 @@ class Arrays
 	{
 		if (!is_array($array))
 			return false;
-
+		
 		return (bool) count(array_filter(array_keys($array), 'is_string'));
 	}
 }

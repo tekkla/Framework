@@ -26,7 +26,7 @@ abstract class MvcAbstract extends ClassAbstract
 	 * @var string
 	 */
 	protected $name;
-
+	
 	/**
 	 * Hold injected App object this MVC object is used for
 	 * @var App
@@ -65,7 +65,7 @@ abstract class MvcAbstract extends ClassAbstract
 	{
 		if (isset($this->name))
 			return $this->name;
-
+		
 		Throw new Error('Name from MVC component is not set.');
 	}
 
@@ -80,7 +80,7 @@ abstract class MvcAbstract extends ClassAbstract
 	{
 		if (isset($this->app))
 			return $this->app->getName();
-
+		
 		Throw new Error('MVC component has no set app name.');
 	}
 

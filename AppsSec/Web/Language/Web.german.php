@@ -1,7 +1,6 @@
 <?php
 global $forum_copyright;
 
-
 // Version: 2.0; Web
 $txt['app_web_name'] = 'WebExt Framework';
 
@@ -73,8 +72,8 @@ $txt['app_web_cfg_js_minify_desc'] = 'Diese Option aktiviert die automatische Mi
 $txt['app_web_cfg_group_js'] = 'Javascript';
 $txt['app_web_cfg_js_html5shim'] = 'html5shim';
 $txt['app_web_cfg_js_html5shim_desc'] = 'Option um html5shim auf der Seite einzusetzen. (siehe <a href="https://code.google.com/p/html5shim/">https://code.google.com/p/html5shim/</a>)';
-$txt['app_web_cfg_js_selectivizr']= 'Selectivizr';
-$txt['app_web_cfg_js_selectivizr_desc']= 'Option um Selectivizr auf der Seite zu nutzen. (siehe <a href="http://selectivizr.com/">http://selectivizr.com/</a>)';
+$txt['app_web_cfg_js_selectivizr'] = 'Selectivizr';
+$txt['app_web_cfg_js_selectivizr_desc'] = 'Option um Selectivizr auf der Seite zu nutzen. (siehe <a href="http://selectivizr.com/">http://selectivizr.com/</a>)';
 $txt['app_web_cfg_js_modernizr'] = 'Modernizer Support';
 $txt['app_web_cfg_js_modernizr_desc'] = 'Option um den Modernizer auf der Seite zu verwenden. (siehe <a href="http://modernizr.com/">http://modernizr.com/</a>)';
 $txt['app_web_cfg_js_fadeout_time'] = 'Fadeoutzeit';

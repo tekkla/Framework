@@ -1,5 +1,4 @@
 <?php
-
 namespace Web\Framework\Lib;
 
 // Check for direct file access
@@ -43,22 +42,22 @@ class Lib
 		// Return $data when it is already an object
 		if (is_object($data))
 			return $data;
-
+		
 		$data = new Data($data);
-
+		
 		foreach ( $data as $key => $val )
 		{
 			if (self::isSerialized($val))
 				$val = unserialize($val);
-
+			
 			if (is_array($val))
 				$val = self::toObject($val);
-
+			
 			$val = empty($val) && strlen($val) == 0 ? '' : $val;
-
+			
 			$data->{$key} = $val;
 		}
-
+		
 		return $data;
 	}
 
@@ -72,9 +71,9 @@ class Lib
 	{
 		if (!is_object($obj))
 			return $obj;
-
+		
 		$out = array();
-
+		
 		foreach ( $obj as $key => $val )
 		{
 			if (is_object($val))
@@ -82,7 +81,7 @@ class Lib
 			else
 				$out[$key] = $val;
 		}
-
+		
 		return $out;
 	}
 
@@ -112,23 +111,23 @@ class Lib
 		// Bit of a give away this one
 		if (!is_string($value))
 			return false;
-
-		// Empty strings cannot get unserialized
+			
+			// Empty strings cannot get unserialized
 		if (strlen($value) === 0)
 			return false;
-
-		// Serialized false, return true. unserialize() returns false on an
-		// invalid string or it could return false if the string is serialized
-		// false, eliminate that possibility.
+			
+			// Serialized false, return true. unserialize() returns false on an
+			// invalid string or it could return false if the string is serialized
+			// false, eliminate that possibility.
 		if ($value === 'b:0;')
 		{
 			$result = false;
 			return true;
 		}
-
+		
 		$length = strlen($value);
 		$end = '';
-
+		
 		switch ($value[0])
 		{
 			case 's' :
@@ -144,12 +143,12 @@ class Lib
 			case 'a' :
 			case 'O' :
 				$end .= '}';
-
+				
 				if ($value[1] !== ':')
 				{
 					return false;
 				}
-
+				
 				switch ($value[2])
 				{
 					case 0 :
@@ -163,29 +162,29 @@ class Lib
 					case 8 :
 					case 9 :
 						break;
-
+					
 					default :
 						return false;
 				}
 			case 'N' :
 				$end .= ';';
-
+				
 				if ($value[$length - 1] !== $end[0])
 				{
 					return false;
 				}
 				break;
-
+			
 			default :
 				return false;
 		}
-
-		if (($result = @unserialize($value)) === false)
+		
+		if (( $result = @unserialize($value) ) === false)
 		{
 			$result = null;
 			return false;
 		}
-
+		
 		return true;
 	}
 
@@ -200,38 +199,38 @@ class Lib
 		// Look for the method in object. Throw error when missing.
 		if (!method_exists($obj, $method))
 			Throw new Error('Method not found.', 5000, array(
-				$method,
+				$method, 
 				$obj
 			));
-
+			
 			// Convert possible parameter object to array
 		$param = self::fromObjectToArray($param);
-
+		
 		// Get reflection method
 		$method = new \ReflectionMethod($obj, $method);
-
+		
 		// Init empty arguments array
 		$args = array();
-
+		
 		// Get list of parameters from reflection method object
 		$method_parameter = $method->getParameters();
-
+		
 		// Let's see what arguments are needed and which are optional
 		foreach ( $method_parameter as $parameter )
 		{
 			// Get current paramobject name
 			$param_name = $parameter->getName();
-
+			
 			// Parameter is not optional and not set => throw error
 			if (!$parameter->isOptional() && !isset($param[$param_name]))
 				Throw new Error('Missing parameter', 2001, array(
 					$param_name
 				));
-
+				
 				// If parameter is optional and not set, set argument to null
 			$args[] = $parameter->isOptional() && !isset($param[$param_name]) ? null : $param[$param_name];
 		}
-
+		
 		// Return result executed method
 		return $method->invokeArgs($obj, $args);
 	}

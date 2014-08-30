@@ -1,12 +1,11 @@
 <?php
-
 namespace Web\Framework\Lib;
 
 // Check for direct file access
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
-
-// Used classes
+	
+	// Used classes
 use Web\Framework\Lib\Abstracts\SingletonAbstract;
 
 /**
@@ -79,16 +78,16 @@ class Context extends SingletonAbstract
 	public static function getByKey()
 	{
 		global $context;
-
+		
 		$num_args = func_num_args();
 		$args = func_get_args();
-
+		
 		if ($num_args == 1 && array_key_exists($args[0], $context))
 			return $context[$args[0]];
-
+		
 		if ($num_args == 2 && array_key_exists($args[0], $context) && array_key_exists($args[1], $context[$args[0]]))
 			return $context[$args[0]][$args[1]];
-
+		
 		Throw new Error('Requested $context key does not exist.');
 	}
 
@@ -100,21 +99,21 @@ class Context extends SingletonAbstract
 	public static function setTo()
 	{
 		global $context;
-
+		
 		$num_args = func_num_args();
 		$args = func_get_args();
-
+		
 		if ($num_args < 2)
 			Throw new Error('Setting a $context[] value needs at least 2 parameters.');
-
+		
 		if ($num_args == 2)
 			$context[$args[0]] = $args[1];
-
+		
 		if ($num_args == 3)
 		{
 			if (!isset($context[$args[0]]))
 				$context[$args[0]] = array();
-
+			
 			$context[$args[0]][$args[1]] = $args[2];
 		}
 	}
@@ -126,13 +125,13 @@ class Context extends SingletonAbstract
 	public static function addHtmlHeader($val)
 	{
 		global $context;
-
+		
 		if (is_array($val))
 			$val = trim(implode(PHP_EOL, $val));
-
+		
 		if (!isset($context['html_headers']))
 			$context['html_headers'] = '';
-
+		
 		$context['html_headers'] .= $val;
 	}
 
@@ -155,7 +154,7 @@ class Context extends SingletonAbstract
 	{
 		if (is_array($keywords))
 			$keywords = implode(', ', $keywords);
-
+		
 		self::setTo('page_keywords', $keywords);
 	}
 
@@ -197,9 +196,9 @@ class Context extends SingletonAbstract
 	public static function addLinktree($name, $url = null)
 	{
 		global $context;
-
+		
 		$context['linktree'][] = array(
-			'url' => $url,
+			'url' => $url, 
 			'name' => $name
 		);
 	}

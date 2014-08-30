@@ -14,22 +14,22 @@
  */
 
 // Check for direct file access
-if (!defined('SMF'))
-	die('No direct access...');
+if (!defined( 'SMF' ))
+	die( 'No direct access...' );
 
 // Define that the WebExt has been loaded
-if (!defined('WEB'))
-	define('WEB', 1);
+if (!defined( 'WEB' ))
+	define( 'WEB', 1 );
 
-	// Define some constants for better code handling without globals
-define('SOURCEDIR', $sourcedir);
-define('BOARDDIR', $boarddir);
-define('BOARDURL', $boardurl);
-define('CACHEDIR', $cachedir);
-define('WEBDIR', $boarddir . '/Web');
+// Define some constants for better code handling without globals
+define( 'SOURCEDIR', $sourcedir );
+define( 'BOARDDIR', $boarddir );
+define( 'BOARDURL', $boardurl );
+define( 'CACHEDIR', $cachedir );
+define( 'WEBDIR', $boarddir . '/Web' );
 
 // Register classloader
-require_once (WEBDIR . '/Framework/Tools/autoload/SplClassLoader.php');
-$loader = new SplClassLoader('Web', BOARDDIR);
+require_once ( WEBDIR . '/Framework/Tools/autoload/SplClassLoader.php' );
+$loader = new SplClassLoader( 'Web', BOARDDIR );
 $loader->register();
 ?>

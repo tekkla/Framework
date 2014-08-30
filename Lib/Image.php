@@ -1,12 +1,11 @@
 <?php
-
 namespace Web\Framework\Lib;
 
 // Check for direct file access
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
-
-// Used classes
+	
+	// Used classes
 use Web\Framework\Lib\Abstracts\ClassAbstract;
 
 /**
@@ -27,14 +26,14 @@ class Image extends ClassAbstract
 	public static function resize($img, $new_filename, $new_width, $new_height = null, $jpeg_qualitiy = 100)
 	{
 		$max_width = $new_width;
-
+		
 		// Check if GD extension is loaded
 		if (!extension_loaded('gd') && !extension_loaded('gd2'))
 			Throw new Error("GD is not loaded");
-
+			
 			// Get Image size info
 		list($width_orig, $height_orig, $image_type) = getimagesize($img);
-
+		
 		switch ($image_type)
 		{
 			case 1 :
@@ -50,26 +49,26 @@ class Image extends ClassAbstract
 				return false;
 				break;
 		}
-
+		
 		// calculate the aspect ratio
 		$aspect_ratio = (float) $height_orig / $width_orig;
-
+		
 		// calulate the thumbnail width based on the height
 		if (!isset($new_height))
 		{
 			$new_height = round($new_width * $aspect_ratio);
-
+			
 			while ( $new_height > $max_width )
 			{
 				$new_width -= 10;
 				$new_height = round($new_width * $aspect_ratio);
 			}
 		}
-
+		
 		$new_img = imagecreatetruecolor($new_width, $new_height);
-
+		
 		// Check if this image is PNG or GIF, then set if Transparent
-		if (($image_type == 1) || ($image_type == 3))
+		if (( $image_type == 1 ) || ( $image_type == 3 ))
 		{
 			imagealphablending($new_img, false);
 			imagesavealpha($new_img, true);
@@ -77,7 +76,7 @@ class Image extends ClassAbstract
 			imagefilledrectangle($new_img, 0, 0, $new_width, $new_height, $transparent);
 		}
 		imagecopyresampled($new_img, $im, 0, 0, 0, 0, $new_width, $new_height, $width_orig, $height_orig);
-
+		
 		// Generate the file, and rename it to $new_filename
 		switch ($image_type)
 		{
@@ -94,7 +93,7 @@ class Image extends ClassAbstract
 				return false;
 				break;
 		}
-
+		
 		return $new_filename;
 	}
 }

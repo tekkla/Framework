@@ -22,27 +22,27 @@ class Message extends ClassAbstract
 	 * @var array
 	 */
 	private static $types = array(
-		'primary',
-		'success',
-		'info',
-		'warning',
-		'danger',
+		'primary', 
+		'success', 
+		'info', 
+		'warning', 
+		'danger', 
 		'default'
 	);
-
+	
 	/**
 	 * Message disply type
 	 * @see self::$types
 	 * @var string
 	 */
 	private $type;
-
+	
 	/**
 	 * Message cpntent
 	 * @var string
 	 */
 	private $message;
-
+	
 	/**
 	 * Autmatic fadeout flag
 	 * @var bool
@@ -59,8 +59,11 @@ class Message extends ClassAbstract
 	public static function factory($message, $type = 'info', $fadeout = true)
 	{
 		if (!in_array($type, self::$types))
-			Throw new Error('Wrong message type.', 1000, array($type, self::$types));
-
+			Throw new Error('Wrong message type.', 1000, array(
+				$type, 
+				self::$types
+			));
+		
 		$obj = new Message();
 		$obj->setMessage($message);
 		$obj->setType($type);
@@ -78,18 +81,18 @@ class Message extends ClassAbstract
 		// Errorhandling on no set message text
 		if (!isset($this->message) || empty($this->message))
 			Throw new Error('No message set', 5002);
-
+			
 			// Get current message counter
 		$current_counter = $_SESSION['web']['message_counter'];
-
+		
 		// Assign this message to message session
 		if (!isset($_SESSION['web']['messages']))
 			$_SESSION['web']['messages'] = array();
-
+		
 		$_SESSION['web']['messages'][$current_counter] = $this;
-
+		
 		$_SESSION['web']['message_counter']++;
-
+		
 		// Return reference to the message
 		return $_SESSION['web']['messages'][$current_counter];
 	}
@@ -194,8 +197,11 @@ class Message extends ClassAbstract
 	public function setType($type)
 	{
 		if (!in_array($type, self::$types))
-			Throw new Error('Wron type set.', 1000, array($type, self::$types));
-
+			Throw new Error('Wron type set.', 1000, array(
+				$type, 
+				self::$types
+			));
+		
 		$this->type = $type;
 		return $this;
 	}
@@ -214,7 +220,7 @@ class Message extends ClassAbstract
 	public function build()
 	{
 		return '
-		<div class="alert alert-' . $this->type . ' alert-dismissable' . ($this->fadeout ? ' web-fadeout' : '') . '">
+		<div class="alert alert-' . $this->type . ' alert-dismissable' . ( $this->fadeout ? ' web-fadeout' : '' ) . '">
 			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
 			' . $this->message . '
 		</div>';
@@ -235,10 +241,10 @@ class Message extends ClassAbstract
 	public static function getMessages()
 	{
 		$return = isset($_SESSION['web']['messages']) ? $_SESSION['web']['messages'] : false;
-
+		
 		if ($return)
 			self::resetMessages();
-
+		
 		return $return;
 	}
 

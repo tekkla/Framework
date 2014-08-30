@@ -34,9 +34,9 @@ final class OptionGroup extends FormElementAbstract
 	public function &createOption()
 	{
 		$unique_id = uniqid('option_');
-
+		
 		$this->options[$unique_id] = Option::factory();
-
+		
 		return $this->options[$unique_id];
 	}
 
@@ -49,30 +49,30 @@ final class OptionGroup extends FormElementAbstract
 	{
 		if (empty($this->options))
 			Throw new Error('OptionGroup Control: No Options set.');
-
+		
 		$html = '';
-
+		
 		foreach ( $this->options as $option )
 		{
 			$html .= '<div class="checkbox">';
-
+			
 			// Create name of optionelement
 			$option_name = $this->getName() . '[' . $option->getValue() . ']';
 			$option_id = $this->getId() . '_' . $option->getValue();
-
+			
 			// Create checkox
 			$control = Checkbox::factory($option_name)->setId($option_id)->setValue($option->getValue())->addAttribute('title', $option->getInner());
-
+			
 			// If value is greater 0 this checkbox is selected
 			if ($option->isSelected())
 				$control->isChecked(1);
-
-			// Build control
-			$html .=  '<label>' . $control->build() . $option->getInner() . '</label>';
-
+				
+				// Build control
+			$html .= '<label>' . $control->build() . $option->getInner() . '</label>';
+			
 			$html .= '</div>';
 		}
-
+		
 		return $html;
 	}
 }
