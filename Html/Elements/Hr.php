@@ -5,7 +5,7 @@ use Web\Framework\Lib\Abstracts\HtmlAbstract;
 
 // Check for direct file access
 if (!defined('WEB'))
-    die('Cannot run without WebExt framework...');
+	die('Cannot run without WebExt framework...');
 
 /**
  * Creates a horizontal ruler (<hr>) html object
@@ -17,6 +17,6 @@ if (!defined('WEB'))
  */
 class Hr extends HtmlAbstract
 {
-    protected $element = 'hr';
+	protected $element = 'hr';
 }
 ?>

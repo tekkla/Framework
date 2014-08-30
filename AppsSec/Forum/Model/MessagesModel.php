@@ -4,7 +4,7 @@ namespace Web\Framework\AppsSec\Forum\Model;
 use Web\Framework\Lib\Model;
 
 if (!defined('WEB'))
-    die('Cannot run without WebExt framework...');
+	die('Cannot run without WebExt framework...');
 
 /**
  * Message model
@@ -16,8 +16,8 @@ if (!defined('WEB'))
 */
 final class MessagesModel extends Model
 {
-    protected $tbl = 'messages';
-    protected $alias = 'msg';
-    protected $pk = 'id_msg';
+	protected $tbl = 'messages';
+	protected $alias = 'msg';
+	protected $pk = 'id_msg';
 }
 ?>

@@ -18,15 +18,15 @@ if (!defined('WEB'))
  */
 class Session extends SingletonAbstract
 {
-    protected function __construct()
-    {
-        $this->init();
-    }
+	protected function __construct()
+	{
+		$this->init();
+	}
 
-    public function init()
-    {
-        if (!isset($_SESSION['web']))
-            $_SESSION['web'] = array();
-    }
+	public function init()
+	{
+		if (!isset($_SESSION['web']))
+			$_SESSION['web'] = array();
+	}
 }
 ?>

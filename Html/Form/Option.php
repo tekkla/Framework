@@ -18,10 +18,10 @@ if (!defined('WEB'))
  */
 class Option extends FormElementAbstract
 {
-    protected $element = 'option';
-    protected $data = array(
-        'web-control' => 'option'
-    );
+	protected $element = 'option';
+	protected $data = array(
+		'web-control' => 'option'
+	);
 
 	/**
 	 * Selected attribute setter and checker. Accepts parameter "null", "0" and "1".

@@ -5,7 +5,7 @@ use Web\Framework\Lib\Abstracts\ErrorAbstract;
 
 // Check for direct file access
 if (!defined('WEB'))
-    die('Cannot run without WebExt framework...');
+	die('Cannot run without WebExt framework...');
 
 /**
  * General error handling object
@@ -17,7 +17,7 @@ if (!defined('WEB'))
  */
 final class GeneralError extends ErrorAbstract
 {
-    protected $fatal = true;
+	protected $fatal = true;
 }
 ?>
 

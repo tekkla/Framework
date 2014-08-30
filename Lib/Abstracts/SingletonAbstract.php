@@ -5,7 +5,7 @@ use Web\Framework\Lib\Abstracts\ClassAbstract;
 
 // Check for direct file access
 if (!defined('WEB'))
-    die('Cannot run without WebExt framework...');
+	die('Cannot run without WebExt framework...');
 
 /**
  * Abstract class for singleton patterns
@@ -18,34 +18,34 @@ if (!defined('WEB'))
  */
 abstract class SingletonAbstract extends ClassAbstract
 {
-    /**
-     * Instance storage
-     * @var array
-     */
-    private static $instances = array();
+	/**
+	 * Instance storage
+	 * @var array
+	 */
+	private static $instances = array();
 
-    /**
-     * Creates the singleton instance of the class
-     */
-    final public static function getInstance()
-    {
-        // Get the name of the child class
-        $class = get_called_class();
+	/**
+	 * Creates the singleton instance of the class
+	 */
+	final public static function getInstance()
+	{
+		// Get the name of the child class
+		$class = get_called_class();
 
-        // Create class object it does not exist and add it to instance storage
-        if (!isset(self::$instances[$class]))
-            self::$instances[$class] = new $class();
+		// Create class object it does not exist and add it to instance storage
+		if (!isset(self::$instances[$class]))
+			self::$instances[$class] = new $class();
 
-        // Return class object from instance storage
-        return self::$instances[$class];
-    }
+		// Return class object from instance storage
+		return self::$instances[$class];
+	}
 
-    protected function __construct()
-    {
-    }
+	protected function __construct()
+	{
+	}
 
-    private function __clone()
-    {
-    }
+	private function __clone()
+	{
+	}
 }
 ?>

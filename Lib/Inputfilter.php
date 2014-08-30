@@ -21,7 +21,7 @@ final class Inputfilter
 	protected $tagsMethod;	// default = 0
 	protected $attrMethod;	// default = 0
 
-	protected $xssAuto;     // default = 1
+	protected $xssAuto;	 // default = 1
 	protected $tagBlacklist = array('applet', 'body', 'bgsound', 'base', 'basefont', 'embed', 'frame', 'frameset', 'head', 'html', 'id', 'iframe', 'ilayer', 'layer', 'link', 'meta', 'name', 'object', 'script', 'style', 'title', 'xml');
 	protected $attrBlacklist = array('action', 'background', 'codebase', 'dynsrc', 'lowsrc');  // also will strip ALL event handlers
 
@@ -229,10 +229,10 @@ final class Inputfilter
 
 					// reformat single tags to XHTML
 					$preTag .= strpos($fromTagOpen, "</" . $tagName) ? '>' : ' />';
-			    }
-			    // just the tagname
-			    else
-			    	$preTag .= '</' . $tagName . '>';
+				}
+				// just the tagname
+				else
+					$preTag .= '</' . $tagName . '>';
 			}
 
 			// find next tag's start

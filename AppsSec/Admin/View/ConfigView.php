@@ -4,7 +4,7 @@ namespace Web\Framework\AppsSec\Admin\View;
 use Web\Framework\Lib\View;
 
 if (!defined('WEB'))
-    die('Cannot run without WebExt framework...');
+	die('Cannot run without WebExt framework...');
 
 /**
  * Admin Config view
@@ -16,9 +16,9 @@ if (!defined('WEB'))
  */
 final class ConfigView extends View
 {
-    public function Config()
-    {
-        echo '<h2>' . $this->icon . '&nbsp;' . $this->app_name . '</h2>' . $this->form;
-    }
+	public function Config()
+	{
+		echo '<h2>' . $this->icon . '&nbsp;' . $this->app_name . '</h2>' . $this->form;
+	}
 }
 ?>

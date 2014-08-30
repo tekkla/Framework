@@ -16,45 +16,45 @@ if (!defined('WEB'))
 final class Timer
 {
 
-    private $start;
+	private $start;
 
-    private $end;
+	private $end;
 
-    public function start()
-    {
-        $this->start = microtime(true);
-    }
+	public function start()
+	{
+		$this->start = microtime(true);
+	}
 
-    public function stop()
-    {
-        $this->end = microtime(true);
-        return $this->GetDiff();
-    }
+	public function stop()
+	{
+		$this->end = microtime(true);
+		return $this->GetDiff();
+	}
 
-    private function getStart()
-    {
-        if (isset($this->start))
-            return $this->start;
-        else
-            return false;
-    }
+	private function getStart()
+	{
+		if (isset($this->start))
+			return $this->start;
+		else
+			return false;
+	}
 
-    private function getEnd()
-    {
-        if (isset($this->end))
-            return $this->end;
-        else
-            return false;
-    }
+	private function getEnd()
+	{
+		if (isset($this->end))
+			return $this->end;
+		else
+			return false;
+	}
 
-    public function getDiff()
-    {
-        return $this->GetEnd() - $this->GetStart();
-    }
+	public function getDiff()
+	{
+		return $this->GetEnd() - $this->GetStart();
+	}
 
-    public function reset()
-    {
-        $this->start = microtime(true);
-    }
+	public function reset()
+	{
+		$this->start = microtime(true);
+	}
 }
 ?>

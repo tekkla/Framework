@@ -8,7 +8,7 @@ use Web\Framework\Lib\Error;
 
 // Check for direct file access
 if (!defined('WEB'))
-    die('Cannot run without WebExt framework...');
+	die('Cannot run without WebExt framework...');
 
 /**
  * Creates a optiongroup control
@@ -21,59 +21,59 @@ if (!defined('WEB'))
  */
 final class OptionGroup extends FormElementAbstract
 {
-    /**
-     * Options storage
-     * @var array
-     */
-    private $options = array();
+	/**
+	 * Options storage
+	 * @var array
+	 */
+	private $options = array();
 
-    /**
-     * Add an option to the optionslist and returns a reference to it.
-     * @return Option
-     */
-    public function &createOption()
-    {
-        $unique_id = uniqid('option_');
+	/**
+	 * Add an option to the optionslist and returns a reference to it.
+	 * @return Option
+	 */
+	public function &createOption()
+	{
+		$unique_id = uniqid('option_');
 
-        $this->options[$unique_id] = Option::factory();
+		$this->options[$unique_id] = Option::factory();
 
-        return $this->options[$unique_id];
-    }
+		return $this->options[$unique_id];
+	}
 
-    /**
-     * Builds the optiongroup control and returns the html code
-     * @see \Web\Framework\Lib\Html::build()
-     * @return string
-     */
-    public function build()
-    {
-        if (empty($this->options))
-            Throw new Error('OptionGroup Control: No Options set.');
+	/**
+	 * Builds the optiongroup control and returns the html code
+	 * @see \Web\Framework\Lib\Html::build()
+	 * @return string
+	 */
+	public function build()
+	{
+		if (empty($this->options))
+			Throw new Error('OptionGroup Control: No Options set.');
 
-        $html = '';
+		$html = '';
 
-        foreach ( $this->options as $option )
-        {
-            $html .= '<div class="checkbox">';
+		foreach ( $this->options as $option )
+		{
+			$html .= '<div class="checkbox">';
 
-            // Create name of optionelement
-            $option_name = $this->getName() . '[' . $option->getValue() . ']';
-            $option_id = $this->getId() . '_' . $option->getValue();
+			// Create name of optionelement
+			$option_name = $this->getName() . '[' . $option->getValue() . ']';
+			$option_id = $this->getId() . '_' . $option->getValue();
 
-            // Create checkox
-            $control = Checkbox::factory($option_name)->setId($option_id)->setValue($option->getValue())->addAttribute('title', $option->getInner());
+			// Create checkox
+			$control = Checkbox::factory($option_name)->setId($option_id)->setValue($option->getValue())->addAttribute('title', $option->getInner());
 
-            // If value is greater 0 this checkbox is selected
-            if ($option->isSelected())
-                $control->isChecked(1);
+			// If value is greater 0 this checkbox is selected
+			if ($option->isSelected())
+				$control->isChecked(1);
 
-            // Build control
-            $html .=  '<label>' . $control->build() . $option->getInner() . '</label>';
+			// Build control
+			$html .=  '<label>' . $control->build() . $option->getInner() . '</label>';
 
-            $html .= '</div>';
-        }
+			$html .= '</div>';
+		}
 
-        return $html;
-    }
+		return $html;
+	}
 }
 ?>

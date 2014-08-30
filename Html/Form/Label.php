@@ -17,7 +17,7 @@ if (!defined('WEB'))
  */
 class Label extends FormElementAbstract
 {
-    protected $element = 'label';
+	protected $element = 'label';
 
 	public static function factory($for, $inner=null)
 	{
@@ -34,7 +34,7 @@ class Label extends FormElementAbstract
 
 	public function setFor($for)
 	{
-	    $this->removeAttribute('for');
+		$this->removeAttribute('for');
 		$this->addAttribute('for', $for);
 		return $this;
 	}

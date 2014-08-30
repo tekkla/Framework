@@ -11,11 +11,11 @@ namespace Web\Framework\Lib;
  */
 class Settings
 {
-    public static function get($key)
-    {
-        global $settings;
-        if (isset($settings[$key]))
-            return $settings[$key];
-    }
+	public static function get($key)
+	{
+		global $settings;
+		if (isset($settings[$key]))
+			return $settings[$key];
+	}
 }
 ?>

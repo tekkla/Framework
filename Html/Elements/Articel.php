@@ -5,7 +5,7 @@ use Web\Framework\Lib\Abstracts\HtmlAbstract;
 
 // Check for direct file access
 if (!defined('WEB'))
-    die('Cannot run without WebExt framework...');
+	die('Cannot run without WebExt framework...');
 
 /**
  * Articel html Element
@@ -17,6 +17,6 @@ if (!defined('WEB'))
  */
 class Articel extends HtmlAbstract
 {
-    protected $element = 'articel';
+	protected $element = 'articel';
 }
 ?>

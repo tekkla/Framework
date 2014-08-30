@@ -5,7 +5,7 @@ use Web\Framework\Lib\Error;
 
 // Check for direct file access
 if (!defined('WEB'))
-    die('Cannot run without WebExt framework...');
+	die('Cannot run without WebExt framework...');
 
 /**
  * Abbr Html Object
@@ -17,39 +17,39 @@ if (!defined('WEB'))
  */
 class Abbr extends Link
 {
-    protected $element = 'area';
+	protected $element = 'area';
 
-    /**
-     * Sets the coordinates of the area
-     * @param string $cords
-     * @return \Web\Framework\Html\Elements\Abbr
-     */
-    public function setCoords($cords)
-    {
-        $this->attribute['coords'] = $cords;
-        return $this;
-    }
+	/**
+	 * Sets the coordinates of the area
+	 * @param string $cords
+	 * @return \Web\Framework\Html\Elements\Abbr
+	 */
+	public function setCoords($cords)
+	{
+		$this->attribute['coords'] = $cords;
+		return $this;
+	}
 
-    /**
-     * Sets the shape of the area
-     * @param string $shape
-     * @throws Error
-     * @return \Web\Framework\Html\Elements\Abbr
-     */
-    public function setShape($shape)
-    {
-        $shapes = array(
-            'default',
-            'rect',
-            'circle',
-            'poly',
-        );
+	/**
+	 * Sets the shape of the area
+	 * @param string $shape
+	 * @throws Error
+	 * @return \Web\Framework\Html\Elements\Abbr
+	 */
+	public function setShape($shape)
+	{
+		$shapes = array(
+			'default',
+			'rect',
+			'circle',
+			'poly',
+		);
 
-        if (!in_array($shape, $shapes))
-            Throw new Error('Set shape is not valid.', 1000, array($shape, $shapes));
+		if (!in_array($shape, $shapes))
+			Throw new Error('Set shape is not valid.', 1000, array($shape, $shapes));
 
-        $this->attribute['shape'] = $shape;
-        return $this;
-    }
+		$this->attribute['shape'] = $shape;
+		return $this;
+	}
 }
 ?>

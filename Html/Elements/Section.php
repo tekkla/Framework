@@ -5,7 +5,7 @@ use Web\Framework\Lib\Abstracts\HtmlAbstract;
 
 // Check for direct file access
 if (!defined('WEB'))
-    die('Cannot run without WebExt framework...');
+	die('Cannot run without WebExt framework...');
 
 /**
  * Creates a section html object
@@ -17,6 +17,6 @@ if (!defined('WEB'))
  */
 class Section extends HtmlAbstract
 {
-    protected $element = 'section';
+	protected $element = 'section';
 }
 ?>

@@ -5,7 +5,7 @@ use Web\Framework\Lib\Abstracts\HtmlAbstract;
 
 // Check for direct file access
 if (!defined('WEB'))
-    die('Cannot run without WebExt framework...');
+	die('Cannot run without WebExt framework...');
 
 /**
  * Adress Html Object
@@ -17,6 +17,6 @@ if (!defined('WEB'))
  */
 class Abbr extends HtmlAbstract
 {
-    protected $element = 'adress';
+	protected $element = 'adress';
 }
 ?>

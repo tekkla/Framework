@@ -5,7 +5,7 @@ use Web\Framework\Lib\Abstracts\HtmlAbstract;
 
 // Check for direct file access
 if (!defined('WEB'))
-    die('Cannot run without WebExt framework...');
+	die('Cannot run without WebExt framework...');
 
 /**
  * Aside Html Element
@@ -17,6 +17,6 @@ if (!defined('WEB'))
  */
 class Aside extends HtmlAbstract
 {
-    protected $element = 'aside';
+	protected $element = 'aside';
 }
 ?>

@@ -3,7 +3,7 @@ namespace Web\Framework\Html\Controls;
 
 // Check for direct file access
 if (!defined('WEB'))
-    die('Cannot run without WebExt framework...');
+	die('Cannot run without WebExt framework...');
 
 /**
  * Creates a Bootstrap modal window control
@@ -15,56 +15,56 @@ if (!defined('WEB'))
  */
 final class ModalWindow
 {
-    /**
-     * Windowtitle
-     * @var string
-     */
-    private $title = 'ModalWindow';
+	/**
+	 * Windowtitle
+	 * @var string
+	 */
+	private $title = 'ModalWindow';
 
-    /**
-     * Content
-     * @var string
-     */
-    private $content = 'No content set';
+	/**
+	 * Content
+	 * @var string
+	 */
+	private $content = 'No content set';
 
-    /**
-     * Factory method
-     * @return \Web\Framework\Html\Controls\ModalWindow
-     */
-    public function factory()
-    {
-        return new ModalWindow();
-    }
+	/**
+	 * Factory method
+	 * @return \Web\Framework\Html\Controls\ModalWindow
+	 */
+	public function factory()
+	{
+		return new ModalWindow();
+	}
 
-    /**
-     * Set title of window
-     * @param string $title
-     * @return \Web\Framework\Html\Controls\ModalWindow
-     */
-    public function setTitle($title)
-    {
-        $this->title = (string) $title;
-        return $this;
-    }
+	/**
+	 * Set title of window
+	 * @param string $title
+	 * @return \Web\Framework\Html\Controls\ModalWindow
+	 */
+	public function setTitle($title)
+	{
+		$this->title = (string) $title;
+		return $this;
+	}
 
-    /**
-     * Sets content of window
-     * @param string $content
-     * @return \Web\Framework\Html\Controls\ModalWindow
-     */
-    public function setContent($content)
-    {
-        $this->content = $content;
-        return $this;
-    }
+	/**
+	 * Sets content of window
+	 * @param string $content
+	 * @return \Web\Framework\Html\Controls\ModalWindow
+	 */
+	public function setContent($content)
+	{
+		$this->content = $content;
+		return $this;
+	}
 
-    /**
-     * Builds and returns modal window html
-     * @return string
-     */
-    public function build()
-    {
-        $html = '
+	/**
+	 * Builds and returns modal window html
+	 * @return string
+	 */
+	public function build()
+	{
+		$html = '
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -79,7 +79,7 @@ final class ModalWindow
 			</div>
 		</div>';
 
-        return $html;
-    }
+		return $html;
+	}
 }
 ?>

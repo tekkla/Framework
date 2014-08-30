@@ -7,7 +7,7 @@ use Web\Framework\Lib\View;
 /**
  *
  * @author
- *         Michael
+ *		 Michael
  *
  */
 class Web_View_Default extends View

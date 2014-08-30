@@ -18,10 +18,10 @@ if (!defined('WEB'))
  */
 final class Textarea extends FormElementAbstract
 {
-    protected $element = 'textarea';
-    protected $data = array(
-    	'web-control' => 'textarea',
-    );
+	protected $element = 'textarea';
+	protected $data = array(
+		'web-control' => 'textarea',
+	);
 
 	public function setPlaceholder($placeholder)
 	{

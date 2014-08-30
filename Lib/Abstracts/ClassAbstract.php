@@ -13,12 +13,11 @@ use Web\Framework\AppsSec\Web\Web;
 use Web\Framework\Lib\Cfg;
 
 if (!defined('WEB'))
-    die('Cannot run without WebExt framework...');
+	die('Cannot run without WebExt framework...');
 
 /**
  * Abstract class for all kind of classes.
- * This class provides some kind of simple DI interface and
- * global methods for access checks, debug and logging.
+ * This class provides some kind of simple DI interface and global methods for access checks, debug and logging.
  * @author Michael "Tekkla" Zorn <tekkla@tekkla.de>
  * @copyright 2014
  * @license BSD
@@ -28,106 +27,106 @@ if (!defined('WEB'))
  */
 abstract class ClassAbstract
 {
-    private $di = array();
+	private $di = array();
 
-    /**
-     * Small solution to provide some DI for the framework classes which extends this class
-     * @param string $key Dependency to request
-     * @throws Error
-     * @return multitype:
-     */
-    public function __get($key)
-    {
-        if (!isset($this->di[$key]))
-        {
-            switch ($key)
-            {
-                case 'request' :
-                    $obj = Request::getInstance();
-                    break;
+	/**
+	 * Small solution to provide some DI for the framework classes which extends this class
+	 * @param string $key Dependency to request
+	 * @throws Error
+	 * @return multitype:
+	 */
+	public function __get($key)
+	{
+		if (!isset($this->di[$key]))
+		{
+			switch ($key)
+			{
+				case 'request' :
+					$obj = Request::getInstance();
+					break;
 
-                case 'ajax' :
-                    $obj = Ajax::factory();
-                    break;
+				case 'ajax' :
+					$obj = Ajax::factory();
+					break;
 
-                case 'session' :
-                    $obj = Session::getInstance();
-                    break;
+				case 'session' :
+					$obj = Session::getInstance();
+					break;
 
-                case 'message' :
-                    $obj = new Message();
-                    break;
+				case 'message' :
+					$obj = new Message();
+					break;
 
-                // Access FirePHP instance
-                case 'fire' :
+				// Access FirePHP instance
+				case 'fire' :
 
-                // Load FirePHP classfile only when class not exists
-                if (!class_exists('FirePHP'))
-                   require_once (Cfg::get('Web', 'dir_tools') . '/FirePHPCore/FirePHP.class.php');
+				// Load FirePHP classfile only when class not exists
+				if (!class_exists('FirePHP'))
+				   require_once (Cfg::get('Web', 'dir_tools') . '/FirePHPCore/FirePHP.class.php');
 
-                $obj = \FirePHP::getInstance(true);
-                break;
+				$obj = \FirePHP::getInstance(true);
+				break;
 
-                default :
-                    Throw new Error('Requested DI object does not exist.', 5006, $key);
-                    break;
-            }
+				default :
+					Throw new Error('Requested DI object does not exist.', 5006, $key);
+					break;
+			}
 
-            $this->di[$key] = $obj;
-        }
+			$this->di[$key] = $obj;
+		}
 
-        return $this->di[$key];
-    }
+		return $this->di[$key];
+	}
 
-    /**
-     * Wrapper method for Security::checkAccess()
-     * @see Web\Framework\Lib\Security::checkAccess()
-     */
-    protected function checkAccess($perms, $mode = 'smf', $force = false)
-    {
-        return Security::checkAccess($perms, $mode, $force);
-    }
+	/**
+	 * Wrapper method for Security::checkAccess()
+	 * @see Web\Framework\Lib\Security::checkAccess()
+	 */
+	protected function checkAccess($perms, $mode = 'smf', $force = false)
+	{
+		return Security::checkAccess($perms, $mode, $force);
+	}
 
-    /**
-     * Wrapper method fo Debug::run()
-     * @see Web\Framework\Lib\Debug::run()
-     */
-    protected function debug($var, $target = 'console', $mode = 'plain')
-    {
-        return Debug::factory()->run(array(
-            'data' => $var,
-            'target' => $target,
-            'mode' => $mode
-        ));
-    }
+	/**
+	 * Wrapper method fo Debug::run()
+	 * @see Web\Framework\Lib\Debug::run()
+	 */
+	protected function debug($var, $target = 'console', $mode = 'plain')
+	{
+		return Debug::factory()->run(array(
+			'data' => $var,
+			'target' => $target,
+			'mode' => $mode
+		));
+	}
 
-    /**
-     * Wrapper method for Log::add()
-     * @see Web\Framework\Lib\Log::add()
-     */
-    protected function log($msg, $app = 'Global', $function = 'Info', $check_setting = '', $trace = false)
-    {
-        Log::add($msg, $app, $function, $check_setting, $trace);
-        return $this;
-    }
+	/**
+	 * Wrapper method for Log::add()
+	 * @see Web\Framework\Lib\Log::add()
+	 */
+	protected function log($msg, $app = 'Global', $function = 'Info', $check_setting = '', $trace = false)
+	{
+		Log::add($msg, $app, $function, $check_setting, $trace);
+		return $this;
+	}
 
-    /**
-     * Returns an function/method trace
-     * @return string
-     */
-    protected function trace($ignore=3, $target = 'console')
-    {
-        return Debug::traceCalls($ignore, $target);
-    }
+	/**
+	 * Returns an function/method trace
+	 * @return string
+	 */
+	protected function trace($ignore=3, $target = 'console')
+	{
+		return Debug::traceCalls($ignore, $target);
+	}
 
-    /**
-     * Sends data to firephp console
-     * @param mixed $value
-     */
-    protected function firephp($value)
-    {
-    	$this->fire->log($value);
-    	return $this;
-    }
+	/**
+	 * Sends data to firephp console
+	 * @param mixed $value
+	 */
+	protected function firePhp($value)
+	{
+		$this->fire->log($value);
+		return $this;
+	}
 }
 ?>

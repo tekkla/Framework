@@ -15,13 +15,13 @@
 
 // Check for direct file access
 if (!defined('SMF'))
-    die('No direct access...');
+	die('No direct access...');
 
 // Define that the WebExt has been loaded
 if (!defined('WEB'))
-    define('WEB', 1);
+	define('WEB', 1);
 
-    // Define some constants for better code handling without globals
+	// Define some constants for better code handling without globals
 define('SOURCEDIR', $sourcedir);
 define('BOARDDIR', $boarddir);
 define('BOARDURL', $boardurl);

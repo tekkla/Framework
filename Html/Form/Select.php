@@ -19,7 +19,7 @@ class Select extends FormElementAbstract
 
 	protected $element = 'select';
 	protected $data = array(
-	    'web-control' => 'select'
+		'web-control' => 'select'
 	);
 
 	/**

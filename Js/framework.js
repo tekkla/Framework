@@ -155,9 +155,6 @@ $(document).on('click', '*[data-web-ajax]', function(event) {
         // WebExt links will be handled by GET
         ajaxOptions.type = 'GET';
 
-        // Get id of the clicked link
-        var id = this.id;
-
         // Try to get url either from links href attribute or
         if ($(this).attr('href') !== undefined) {
             var url = $(this).attr('href');
@@ -167,7 +164,8 @@ $(document).on('click', '*[data-web-ajax]', function(event) {
             alert('WebExt Ajax: No URI to query found. Neither as "href" nor as "data-href". Aborting request.');
             return false;
         }
-    } else {
+    } 
+    else {
 
         // WebExt forms will be handled py POST
         ajaxOptions.type = 'POST';
@@ -213,23 +211,19 @@ $(document).on('click', '*[data-web-ajax]', function(event) {
 // ----------------------------------------------------------------------------
 function parseWebJson(json) {
 
-    console.debug(json);
+    //console.debug(json);
     
     $.each(json, function(type, stack) {
         
         // DOM manipulations
         if (type=='dom')
         {
-            console.log('DOM manipulation');
-            
             $.each(stack, function(id, cmd) {
                 
                 var selector = $(id);
                 
                 $.each(cmd, function(i, x) {
                     selector = selector[x.f](x.a);
-                    
-                    webReadyAndAjax();
                 });
             });
         }
@@ -237,8 +231,6 @@ function parseWebJson(json) {
         // Specific actions
         if (type=='act')
         {
-            console.log('Specific action');
-            
             $.each(stack, function(i, cmd) {
               
                 switch (cmd.f) {
@@ -271,7 +263,6 @@ function parseWebJson(json) {
                         window.location.href = cmd.a[0];
                         return;
                 }
-                
             });
         }
     });

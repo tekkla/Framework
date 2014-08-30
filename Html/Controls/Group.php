@@ -5,7 +5,7 @@ use Web\Framework\Html\Elements\Div;
 
 // Check for direct file access
 if (!defined('WEB'))
-    die('Cannot run without WebExt framework...');
+	die('Cannot run without WebExt framework...');
 
 /**
  * Creates a group control with heading and leading text.

@@ -6,7 +6,7 @@ use Web\Framework\Lib\Error;
 
 // Check for direct file access
 if (!defined('WEB'))
-    die('Cannot run without WebExt framework...');
+	die('Cannot run without WebExt framework...');
 
 /**
  * Creates a heading html object
@@ -19,48 +19,48 @@ if (!defined('WEB'))
 class Heading extends HtmlAbstract
 {
 
-    /**
-     * Size of heading.
-     * Default: 1
-     * @var int
-     */
-    private $size = 1;
+	/**
+	 * Size of heading.
+	 * Default: 1
+	 * @var int
+	 */
+	private $size = 1;
 
-    /**
-     * Creates an ready to use object with the set size
-     * @param size $number Size of heading. Default: 1
-     * @return \Web\Framework\Html\Elements\Heading
-     */
-    public static function factory($size = 1)
-    {
-        return new Heading($size);
-    }
+	/**
+	 * Creates an ready to use object with the set size
+	 * @param size $number Size of heading. Default: 1
+	 * @return \Web\Framework\Html\Elements\Heading
+	 */
+	public static function factory($size = 1)
+	{
+		return new Heading($size);
+	}
 
-    /**
-     * Constructor
-     * @param unknown $size
-     */
-    public function __construct($size = 1)
-    {
-        $this->setSize($size);
-        $this->setElement('h' . $this->size);
-    }
+	/**
+	 * Constructor
+	 * @param unknown $size
+	 */
+	public function __construct($size = 1)
+	{
+		$this->setSize($size);
+		$this->setElement('h' . $this->size);
+	}
 
-    public function setSize($size)
-    {
-        $sizes = array(
-            1,
-            2,
-            3,
-            4,
-            5,
-            6
-        );
+	public function setSize($size)
+	{
+		$sizes = array(
+			1,
+			2,
+			3,
+			4,
+			5,
+			6
+		);
 
-        if (!in_array((int) $size, $sizes))
-        	Throw new Error('Wrong size set.', 1000, array($size, $sizes));
+		if (!in_array((int) $size, $sizes))
+			Throw new Error('Wrong size set.', 1000, array($size, $sizes));
 
-        $this->size = $size;
-    }
+		$this->size = $size;
+	}
 }
 ?>

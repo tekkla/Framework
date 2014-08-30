@@ -17,10 +17,10 @@ if (!defined('WEB'))
  */
 final class FileError extends ErrorAbstract
 {
-    protected $codes = array(
-        2000 => 'General',
-        2001 => 'FileNotFound',
-        2002 => 'FileAlreadyExists',
-    );
+	protected $codes = array(
+		2000 => 'General',
+		2001 => 'FileNotFound',
+		2002 => 'FileAlreadyExists',
+	);
 }
 ?>

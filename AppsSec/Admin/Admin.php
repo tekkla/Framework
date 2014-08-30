@@ -8,7 +8,7 @@ use Web\Framework\Lib\Txt;
 
 // Check for direct file access
 if (!defined('WEB'))
-    die('Cannot run without WebExt framework...');
+	die('Cannot run without WebExt framework...');
 
 /**
  * Mainclass for secured Admin app
@@ -21,92 +21,92 @@ if (!defined('WEB'))
  */
 class Admin extends App
 {
-    // With ohn languagefile
-    public $lang = true;
+	// With ohn languagefile
+	public $lang = true;
 
-    // Is secured app
-    public $secure = true;
+	// Is secured app
+	public $secure = true;
 
-    // Empty config storage
-    public $config;
+	// Empty config storage
+	public $config;
 
-    // Used hooks
-    public $hooks = array(
-        'integrate_admin_areas' => 'Web::Class::Web\Framework\AppsSec\Admin\Admin::extendAdmincenter',
-        'integrate_menu_buttons' => 'Web::Class::Web\Framework\AppsSec\Admin\Admin::addAdminlink'
-    );
+	// Used hooks
+	public $hooks = array(
+		'integrate_admin_areas' => 'Web::Class::Web\Framework\AppsSec\Admin\Admin::extendAdmincenter',
+		'integrate_menu_buttons' => 'Web::Class::Web\Framework\AppsSec\Admin\Admin::addAdminlink'
+	);
 
-    // Used routes
-    public $routes = array(
-        array(
-            'name' => 'index',
-            'route' => '/',
-            'ctrl' => 'admin',
-            'action' => 'index'
-        ),
-        array(
-            'name' => 'app_install',
-            'route' => '/[a:app_name]/install',
-            'ctrl' => 'config',
-            'action' => 'install'
-        ),
-        array(
-            'name' => 'app_remove',
-            'route' => '/[a:app_name]/remove',
-            'ctrl' => 'config',
-            'action' => 'remove'
-        ),
-        array(
-            'name' => 'app_config',
-            'method' => 'GET|POST',
-            'route' => '/[a:app_name]/config',
-            'ctrl' => 'config',
-            'action' => 'config'
-        ),
-        array(
-            'name' => 'app_reconfig',
-            'route' => '/[a:app_name]/reconfig',
-            'ctrl' => 'config',
-            'action' => 'reconfigure'
-        )
-    );
+	// Used routes
+	public $routes = array(
+		array(
+			'name' => 'index',
+			'route' => '/',
+			'ctrl' => 'admin',
+			'action' => 'index'
+		),
+		array(
+			'name' => 'app_install',
+			'route' => '/[a:app_name]/install',
+			'ctrl' => 'config',
+			'action' => 'install'
+		),
+		array(
+			'name' => 'app_remove',
+			'route' => '/[a:app_name]/remove',
+			'ctrl' => 'config',
+			'action' => 'remove'
+		),
+		array(
+			'name' => 'app_config',
+			'method' => 'GET|POST',
+			'route' => '/[a:app_name]/config',
+			'ctrl' => 'config',
+			'action' => 'config'
+		),
+		array(
+			'name' => 'app_reconfig',
+			'route' => '/[a:app_name]/reconfig',
+			'ctrl' => 'config',
+			'action' => 'reconfigure'
+		)
+	);
 
-    /**
-     * Inserts the basic framework menu item into the SMF admin menu
-     * @param array $admin_areas
-     */
-    public static function extendAdmincenter(&$admin_areas)
-    {
-        $admin_areas['web'] = array(
-            'title' => 'Framework',
-            'permission' => array(
-                'admin_forum'
-            ),
-            'areas' => array(
-                'web_framwork_config' => array(
-                    'label' => Txt::get('config', 'admin'),
-                    'custom_url' => Url::factory('admin_index')->getUrl()
-                )
-            )
-        );
-    }
+	/**
+	 * Inserts the basic framework menu item into the SMF admin menu
+	 * @param array $admin_areas
+	 */
+	public static function extendAdmincenter(&$admin_areas)
+	{
+		$admin_areas['web'] = array(
+			'title' => 'Framework',
+			'permission' => array(
+				'admin_forum'
+			),
+			'areas' => array(
+				'web_framwork_config' => array(
+					'label' => Txt::get('config', 'admin'),
+					'custom_url' => Url::factory('admin_index')->getUrl()
+				)
+			)
+		);
+	}
 
-    /**
-     * Inserts admin link into admin menu in menu buttons.
-     * @param array $menu_buttons
-     */
-    public static function addAdminlink(&$menu_buttons)
-    {
-        if (!isset($menu_buttons['admin']))
-            return;
+	/**
+	 * Inserts admin link into admin menu in menu buttons.
+	 * @param array $menu_buttons
+	 */
+	public static function addAdminlink(&$menu_buttons)
+	{
+		if (!isset($menu_buttons['admin']))
+			return;
 
-        $menu_buttons['admin']['sub_buttons']['web_admin'] = array(
-            'title' => Txt::get('web_framework_config'),
-            'href' => Url::factory('admin_index')->getUrl(),
-            'show' => true,
-            'sub_buttons' => array(),
-            'is_last' => false
-        );
-    }
+		$menu_buttons['admin']['sub_buttons']['web_admin'] = array(
+			'title' => Txt::get('web_framework_config'),
+			'href' => Url::factory('admin_index')->getUrl(),
+			'show' => true,
+			'sub_buttons' => array(),
+			'is_last' => false
+		);
+	}
 }
 ?>
