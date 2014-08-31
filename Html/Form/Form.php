@@ -21,9 +21,9 @@ class Form extends HtmlAbstract
 {
 	protected $element = 'form';
 	protected $attribute = array(
-		'role' => 'form', 
-		'method' => 'post', 
-		'entype' => 'multipart/form-data'
+		'role' => 'form',
+		'method' => 'POOST',
+		'enctype' => 'multipart/form-data'
 	);
 
 	/**
@@ -38,10 +38,10 @@ class Form extends HtmlAbstract
 	{
 		// Store routename for later use
 		$this->route = $route;
-		
+
 		// Compile route and set url as action url
 		$this->attribute['action'] = Url::factory($route, $params)->getUrl();
-		
+
 		return $this;
 	}
 
@@ -57,17 +57,17 @@ class Form extends HtmlAbstract
 	public function setMethod($method)
 	{
 		$methods = array(
-			'post', 
+			'post',
 			'get'
 		);
-		
+
 		// Safety first. Only allow 'post' or 'get' here.
 		if (!in_array($method, $methods))
 			Throw new Error('Wrong method set.', 1000, array(
-				$method, 
+				$method,
 				$methods
 			));
-		
+
 		$this->attribute['method'] = $method;
 		return $this;
 	}
@@ -84,25 +84,25 @@ class Form extends HtmlAbstract
 	public function setEnctype($enctype)
 	{
 		$enctypes = array(
-			'application/x-www-form-urlencoded', 
-			'multipart/form-data', 
+			'application/x-www-form-urlencoded',
+			'multipart/form-data',
 			'text/plain'
 		);
-		
+
 		// Safety first. Only allow 'post' or 'get' here.
 		if (!in_array($enctype, $enctypes))
 			Throw new Error('Wrong method set.', 1000, array(
-				$enctype, 
+				$enctype,
 				$enctypes
 			));
-		
+
 		$this->attribute['enctype'] = $enctype;
 		return $this;
 	}
 
 	/**
 	 * Set form accept charset attribute
-	 * @param string $accept_charset 
+	 * @param string $accept_charset
 	 * @return \Web\Framework\Html\Elements\Form
 	 */
 	public function setAcceptCharset($accept_charset)
@@ -113,7 +113,7 @@ class Form extends HtmlAbstract
 
 	/**
 	 * Set form target attribute
-	 * @param string $target 
+	 * @param string $target
 	 * @return \Web\Framework\Html\Elements\Form
 	 */
 	public function setTarget($target)
@@ -124,23 +124,23 @@ class Form extends HtmlAbstract
 
 	/**
 	 * Set autoomplete attribute with state 'on' or 'off'
-	 * @param string $state 
+	 * @param string $state
 	 * @throws NoValidParameterError
 	 * @return \Web\Framework\Html\Elements\Form
 	 */
 	public function setAutocomplete($state = 'on')
 	{
 		$states = array(
-			'on', 
+			'on',
 			'off'
 		);
-		
+
 		if (!in_array($state, $states))
 			Throw new Error('Wrong autocomplete state.', 1000, array(
-				$state, 
+				$state,
 				$states
 			));
-		
+
 		$this->attribute['autocomplete'] = $state;
 		return $this;
 	}
