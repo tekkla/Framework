@@ -22,7 +22,7 @@ class Form extends HtmlAbstract
 	protected $element = 'form';
 	protected $attribute = array(
 		'role' => 'form',
-		'method' => 'POOST',
+		'method' => 'post',
 		'enctype' => 'multipart/form-data'
 	);
 
@@ -62,7 +62,7 @@ class Form extends HtmlAbstract
 		);
 
 		// Safety first. Only allow 'post' or 'get' here.
-		if (!in_array($method, $methods))
+		if (!in_array(strtolower($method), $methods))
 			Throw new Error('Wrong method set.', 1000, array(
 				$method,
 				$methods
@@ -90,7 +90,7 @@ class Form extends HtmlAbstract
 		);
 
 		// Safety first. Only allow 'post' or 'get' here.
-		if (!in_array($enctype, $enctypes))
+		if (!in_array(strtolower($enctype), $enctypes))
 			Throw new Error('Wrong method set.', 1000, array(
 				$enctype,
 				$enctypes
@@ -135,7 +135,7 @@ class Form extends HtmlAbstract
 			'off'
 		);
 
-		if (!in_array($state, $states))
+		if (!in_array(strtolower($state), $states))
 			Throw new Error('Wrong autocomplete state.', 1000, array(
 				$state,
 				$states
