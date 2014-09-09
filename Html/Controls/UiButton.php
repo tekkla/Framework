@@ -6,7 +6,6 @@ use Web\Framework\Lib\Url;
 use Web\Framework\Html\Elements\Icon;
 use Web\Framework\Html\Elements\Link;
 
-// Check for direct file access
 if (!defined('WEB'))
 	die('Cannot run without WebExt framework...');
 
@@ -17,6 +16,7 @@ if (!defined('WEB'))
  * @subpackage Helper
  * @license BSD
  * @copyright 2014 by author
+ * @final
  */
 final class UiButton extends Link
 {
@@ -25,49 +25,49 @@ final class UiButton extends Link
 	 * @var int
 	 */
 	private static $instance_count = 0;
-	
+
 	/**
 	 * Buttontype
 	 * @var string
 	 */
 	private $type = 'text';
-	
+
 	/**
 	 *
 	 * @var bool
 	 */
 	private $modal = false;
-	
+
 	/**
 	 * Accessmode
 	 * @var string
 	 */
 	private $mode = 'full';
-	
+
 	/**
 	 * Link title
 	 * @var string
 	 */
 	private $title = '';
-	
+
 	/**
 	 * img object
 	 * @var Icon
 	 */
 	public $icon = false;
-	
+
 	/**
 	 * button text
 	 * @var string
 	 */
 	private $text = '';
-	
+
 	/**
 	 * link object
 	 * @var Link
 	 */
 	public $link = false;
-	
+
 	/**
 	 * Url object library
 	 * @var Url
@@ -81,25 +81,25 @@ final class UiButton extends Link
 	public static function factory($mode = null, $type = null, $app = null, $ctrl = null, $func = null, $params = null)
 	{
 		$obj = new UiButton();
-		
+
 		if (isset($mode))
 			$obj->setMode($mode);
-		
+
 		if (isset($type))
 			$obj->setType($type);
-		
+
 		if (isset($app))
 			$obj->url->setApp($app);
-		
+
 		if (isset($ctrl))
 			$obj->url->setCtrl($ctrl);
-		
+
 		if (isset($func))
 			$obj->url->setFunc($func);
-		
+
 		if (isset($params))
 			$obj->url->setParameter($params);
-		
+
 		return $obj;
 	}
 
@@ -109,7 +109,7 @@ final class UiButton extends Link
 	 * Route to compile
 	 * @param array $params
 	 * Parameter for route compiling
-	 * @param string $mode 
+	 * @param string $mode
 	 * @return \Web\Framework\Html\Controls\UiButton
 	 */
 	public static function routeButton($route, $params = array(), $mode = 'full')
@@ -118,7 +118,7 @@ final class UiButton extends Link
 		$obj->setMode($mode);
 		$obj->setType('button');
 		$obj->setRoute($route, $params);
-		
+
 		return $obj;
 	}
 
@@ -128,7 +128,7 @@ final class UiButton extends Link
 	 * Route to compile
 	 * @param array $params
 	 * Parameter for route compiling
-	 * @param string $mode 
+	 * @param string $mode
 	 * @return \Web\Framework\Html\Controls\UiButton
 	 */
 	public static function routeLink($route, $params = array(), $mode = 'full')
@@ -137,7 +137,7 @@ final class UiButton extends Link
 		$obj->setMode($mode);
 		$obj->setType('link');
 		$obj->setRoute($route, $params);
-		
+
 		return $obj;
 	}
 
@@ -148,10 +148,10 @@ final class UiButton extends Link
 	{
 		// Update instance counter for uniqe auto ids
 		self::$instance_count++;
-		
+
 		// Give button an unique id
 		$this->setId('web_uibutton_' . uniqid());
-		
+
 		// Injet url object
 		$this->url = Url::factory();
 	}
@@ -176,21 +176,21 @@ final class UiButton extends Link
 
 	/**
 	 * Sets the buttonmode
-	 * @param string $mode 
+	 * @param string $mode
 	 */
 	public function setMode($mode)
 	{
 		$modelist = array(
-			'ajax', 
+			'ajax',
 			'full'
 		);
-		
+
 		if (!in_array($mode, $modelist))
 			Throw new Error('Wrong mode for UiButton.', 1000, array(
-				$mode, 
+				$mode,
 				$modelist
 			));
-		
+
 		$this->mode = $mode;
 		return $this;
 	}
@@ -211,18 +211,18 @@ final class UiButton extends Link
 	public function setType($type)
 	{
 		$typelist = array(
-			'link', 
-			'icon', 
-			'button', 
+			'link',
+			'icon',
+			'button',
 			'imgbutton'
 		);
-		
+
 		if (!in_array($type, $typelist))
 			Throw new Error('Wrong type for UiButton.', 1000, array(
-				$type, 
+				$type,
 				$typelist
 			));
-		
+
 		$this->type = $type;
 		return $this;
 	}
@@ -230,8 +230,8 @@ final class UiButton extends Link
 	/**
 	 * Set an icon from fontawesome icon.
 	 * Use only the name without the leading "fa-"
-	 * @param string $icon 
-	 * @param string $inner 
+	 * @param string $icon
+	 * @param string $inner
 	 * @return \web\framework\Html\controls\UiButton
 	 */
 	public function setIcon($icon, $inner = null)
@@ -259,7 +259,7 @@ final class UiButton extends Link
 	 * Set the links as post.
 	 * You need to set the formname paramtere, so the ajax script can fetch the
 	 * data of the form.
-	 * @param $formname string 
+	 * @param $formname string
 	 */
 	public function setForm($form_name)
 	{
@@ -270,7 +270,7 @@ final class UiButton extends Link
 	/**
 	 * Add a confirmevent to the link.
 	 * IF confirm returns false, the link won't be executed
-	 * @param string $msg 
+	 * @param string $msg
 	 */
 	public function setConfirm($msg)
 	{
@@ -294,16 +294,16 @@ final class UiButton extends Link
 	 * Sets named route and optionale params to the url object of button
 	 * @param string $route
 	 * Name of registered route
-	 * @param string $params 
+	 * @param string $params
 	 * @return \Web\Framework\Html\Controls\UiButton
 	 */
 	public function setRoute($route, $params = array())
 	{
 		$this->url->setNamedRoute($route);
-		
+
 		if ($params)
 			$this->url->setParameter($params, null, true);
-		
+
 		return $this;
 	}
 
@@ -333,7 +333,7 @@ final class UiButton extends Link
 
 	/**
 	 * Builds and returns button html code
-	 * @param string $wrapper 
+	 * @param string $wrapper
 	 * @throws Error
 	 * @return string
 	 */
@@ -341,19 +341,19 @@ final class UiButton extends Link
 	{
 		if ($this->mode == 'ajax')
 			$this->addData('web-ajax', 'link');
-			
+
 			// -----------------------------------------
 			// build link attributes
 			// -----------------------------------------
-			
+
 
 		// href url
 		$this->setHref($this->url->getUrl());
-		
+
 		// Set text and set icon means we have a button of type imagebutton
 		if ($this->text && $this->icon)
 			$this->type = 'imgbutton';
-			
+
 			// icon/image
 		if ($this->type == 'icon')
 		{
@@ -361,42 +361,42 @@ final class UiButton extends Link
 			$this->icon->noStack();
 			$this->setInner($this->icon->build());
 		}
-		
+
 		// textbutton
 		if ($this->type == 'button')
 			$this->setInner('<span class="web-button-text">' . $this->text . '</span>');
-			
+
 			// simple link
 		if ($this->type == 'link')
 		{
 			$this->addCss('web-link');
 			$this->setInner('<span class="web-link-text">' . $this->text . '</span>');
 		}
-		
+
 		// imgbutton
 		if ($this->type == 'imgbutton')
 		{
 			$this->icon->noStack();
 			$this->setInner($this->icon->build() . ' ' . $this->text);
 		}
-		
+
 		// Do we need to set the default button css code for a non link?
 		if ($this->type != 'link')
 		{
 			$this->addCss('btn');
-			
+
 			$check = array(
-				'btn-primary', 
-				'btn-success', 
-				'btn-warning', 
-				'btn-info', 
+				'btn-primary',
+				'btn-success',
+				'btn-warning',
+				'btn-info',
 				'btn-default'
 			);
-			
+
 			if ($this->checkCss($check) == false)
 				$this->addCss('btn-default');
 		}
-		
+
 		return parent::build(null);
 	}
 }

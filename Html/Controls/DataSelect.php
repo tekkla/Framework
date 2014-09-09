@@ -15,6 +15,7 @@ if (!defined('WEB'))
  * @subpackage Html\Controls
  * @license BSD
  * @copyright 2014 by author
+ * @final
  */
 final class DataSelect extends Select
 {
@@ -23,13 +24,13 @@ final class DataSelect extends Select
 	 * @var array
 	 */
 	private $datasource;
-	
+
 	/**
 	 * How to use the data in the selects option
 	 * @var string
 	 */
 	private $datatype;
-	
+
 	/**
 	 * The value which should causes an option to be selected.
 	 * Can be a value or an array of values
@@ -55,13 +56,13 @@ final class DataSelect extends Select
 	{
 		// Create model object
 		$model = App::create($app_name)->getModel($model);
-		
+
 		// Get data from model and use is as datasource
 		$this->datasource = Lib::invokeMethod($model, $func, $param);
-		
+
 		// Set the dataype
 		$this->datatype = $datatype;
-		
+
 		return $this;
 	}
 
@@ -86,14 +87,14 @@ final class DataSelect extends Select
 		foreach ( $this->datasource as $val => $inner )
 		{
 			$option = $this->createOption();
-			
+
 			// inner will always be used
 			$option->setInner($inner);
-			
+
 			// if we have an assoc datasource we use the value attribute
 			if ($this->datatype == 'assoc')
 				$option->setValue($val);
-				
+
 				// in dependence of the data type is value to be selected $val or $inner
 			if (isset($this->selected))
 			{
@@ -111,7 +112,7 @@ final class DataSelect extends Select
 				}
 			}
 		}
-		
+
 		return parent::build();
 	}
 }
